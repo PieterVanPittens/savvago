@@ -59,6 +59,7 @@ return [
   		// caching
    		'cache' => [
    				'service' => __DIR__ . '/../cache/service/'
+				
    		],
 		
         // Monolog settings
