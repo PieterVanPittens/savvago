@@ -1,0 +1,8 @@
+<h1>My Courses</h1>
+
+<?php
+require __DIR__ . '/partial_course-tile.phtml';
+foreach($courses as $course) { 
+renderCourseTile($course);
+}
+?>

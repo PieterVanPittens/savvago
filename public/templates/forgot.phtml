@@ -1,0 +1,42 @@
+<div class="dialog">
+<h1>Forgot Password</h1>
+
+<form id="signupForm">
+<p>You need a new password? We will send you a recovery link to your email address.</p>
+
+  <div class="form-group">
+	<input type="email" class="form-control" id="email" placeholder="Email">
+  </div>
+  <button id="forgot" type="button" class="btn btn-default">I need a new Password</button><br/>
+</form>
+
+</div>
+<script>
+$(function() {
+	$('#email').focus()
+    $('#forgot').click(function() {
+
+    	var user = JSON.stringify({ 
+			email: $("#email").val()
+			 });
+
+			$.post( "<?= $settings['api']; ?>forgot",
+			user,
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+		}).fail(function(result) {
+			toastAjaxResult(result);
+		});
+	});
+	document.getElementById('email').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#signup').click();
+		}
+	}, false);
+
+});
+</script>

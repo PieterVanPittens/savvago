@@ -1,0 +1,45 @@
+<h1>I am authoring all these courses...</h1>
+
+<form>
+<input type="text" name="title" id="title"><button type="button" id="create">Create new Course</button>
+</form>
+
+
+<script>
+$(function() {
+    $('#courses').DataTable();
+    $('#create').click(function() {
+
+		$.post( "<?= $settings['api']; ?>courses",
+			JSON.stringify({ title: $("#title").val() }),
+			function( resultJson ) {
+				var result = JSON.parse(resultJson);
+				var course = result.object;
+				toastApiResult(result)
+				window.location='<?= $settings['base']; ?>teach/' + course.courseId;
+			}).fail(function(resultJson) {
+				var result = JSON.parse(resultJson)
+				toastApiResult(result)
+			});
+	});
+});
+</script>
+
+<table id="courses" class="table table-bordered" cellspacing="0" width="100%">
+<thead>
+	<tr><th>courses</th></tr>
+</thead>
+<tbody>
+<?php foreach($courses as $course) {?>
+<tr>
+	<td>
+		<div style="float: left"><img src="<?= $course->urls['images']['list']; ?>" width="125" height="70" alt="<?= $course->title; ?>"/></div>
+		<div>
+			<p><a href="<?= $course->urls['teach'] ?>"><?= $course->title; ?></a></p>
+		</div>
+		
+	</td>
+</tr>
+<?php } ?>
+</tbody>
+</table>

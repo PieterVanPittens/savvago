@@ -1,0 +1,62 @@
+<div class="dialog">
+<h1>Sign Up</h1>
+
+<form id="signupForm">
+  <div class="form-group">
+	<input type="text" class="form-control" id="displayName" placeholder="Display Name">
+  </div>
+  <div class="form-group">
+	<input type="email" class="form-control" id="email" placeholder="Email">
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control" id="password" placeholder="Password">
+  </div>
+  <button id="signup" type="button" class="btn btn-default">Sign Up</button><br/>
+</form>
+Already have an account? <a href="login">Login</a>
+</div>
+<script>
+$(function() {
+	$('#displayName').focus()
+    $('#signup').click(function() {
+
+    	var user = JSON.stringify({ 
+			email: $("#email").val()
+			, password: $("#password").val()
+			, displayName: $("#displayName").val()
+			 });
+
+		$.post( "<?= $settings['api']; ?>users",
+			user,
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+
+				var type = apiResult.message.type;
+				if (type == 1) {
+					// success, redirect to verification page
+					window.location.href = '<?= $settings['base']; ?>verify';
+				}
+		}).fail(function(result) {
+			toastAjaxResult(result);
+		});
+	});
+	document.getElementById('email').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#signup').click();
+		}
+	}, false);
+	document.getElementById('password').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#signup').click();
+		}
+	}, false);
+
+});
+</script>

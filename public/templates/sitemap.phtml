@@ -1,0 +1,26 @@
+<?php
+
+$timezoneOffset = '+00:00';
+$W3C_datetime = 'Y-m-d\Th:i:s'; // See http://www.w3.org/TR/NOTE-datetime
+
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+
+?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+<url>
+  <loc><?= htmlspecialchars($settings['base']); ?></loc>
+  <lastmod><?=date($W3C_datetime) . $timezoneOffset; ?></lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<?php foreach($courses as $course) { ?>
+<url>
+  <loc><?= htmlspecialchars($course->urls['view']); ?></loc>
+  <lastmod><?=date($W3C_datetime) . $timezoneOffset; ?></lastmod>
+  <changefreq>weekly</changefreq>
+</url>
+<?php } ?>
+</urlset>

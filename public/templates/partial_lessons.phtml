@@ -1,0 +1,17 @@
+<section class="regular slider">
+<?php $i = 0; foreach($lessons as $lesson) { $i++; ?>
+<div class="lessontile">
+
+	<div class="lessontile-img">
+	<img src="<?= $lesson->urls['images']['tile']; ?>" alt="<?= $lesson->title; ?>"/>
+	</div>
+	
+	<div class="lessontile-content">
+	<h2>Lesson <?= $i; ?></h2>
+	<h1><?= $lesson->title; ?></h1>
+	<a href="<?= $lesson->urls['view']; ?>" class="btn btn-default">View Lesson</a>
+	</div>
+</div>
+
+<?php } ?>
+</section>

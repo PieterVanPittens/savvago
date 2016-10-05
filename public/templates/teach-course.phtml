@@ -1,0 +1,268 @@
+<h1><?= $course->title; ?></h1>
+
+
+<div class="row">
+<div class="col-md-2">
+
+	<div class="btn-group-vertical" role="group">
+	<?php if ($menu == 'image') { ?>
+	<button class="btn btn-default active">Image</button>
+	<?php } else { ?>
+	<a href="teach/<?= $course->courseId; ?>/image" class="btn btn-default">Image</a>
+	<?php } ?>
+	<?php if ($menu == 'video') { ?>
+	<button class="btn btn-default active">Video</button>
+	<?php } else { ?>
+	<a href="teach/<?= $course->courseId; ?>/video" class="btn btn-default">Video</a>
+	<?php } ?>
+	<?php if ($menu == 'info') { ?>
+	<button class="btn btn-default active">Info</button>
+	<?php } else { ?>
+	<a href="teach/<?= $course->courseId; ?>/info"  class="btn btn-default">Info</a>
+	<?php } ?>
+	<?php if ($menu == 'curriculum') { ?>
+	<button class="btn btn-default active">Curriculum</button>
+	<?php } else { ?>
+	<a href="teach/<?= $course->courseId; ?>/curriculum"  class="btn btn-default">Curriculum</a>
+	<?php } ?>
+
+	</div>
+</div>
+
+<div class="col-md-10">
+<?php if ($menu == 'image') { ?>
+<h2>Image</h2>
+<link rel="stylesheet" href="/lms/templates/cropper-2.3.1/dist/cropper.min.css">
+<script src="/lms/templates/cropper-2.3.1/dist/cropper.min.js"></script>
+<style>
+img {
+  max-width: 100%; /* This rule is very important, please do not ignore this! */
+}
+</style>
+<script>
+$(function(e){ 
+
+	$("#upload").change(function () {
+		if (this.files && this.files[0]) {
+			var reader = new FileReader();
+			reader.onload = imageIsLoaded;
+			reader.readAsDataURL(this.files[0]);
+		}
+	});
+
+
+});
+
+function imageIsLoaded(e) {
+	$('#image').attr('src', e.target.result);
+	$('#image').cropper({
+	aspectRatio: 16 / 9,
+	crop: function(e) {
+	$('#cropdata').val(JSON.stringify($('#image').cropper("getData")));
+	console.log(JSON.stringify($('#image').cropper("getData")));
+	// Output the result data for cropping image.
+	/*
+	console.log(e.x);
+	console.log(e.y);
+	console.log(e.width);
+	console.log(e.height);
+	console.log(e.rotate);
+	console.log(e.scaleX);
+	console.log(e.scaleY);
+	*/
+	}
+	});
+};
+
+</script>
+
+<form method="POST" enctype="multipart/form-data" id="imageUploadForm">
+	<div>
+	<input name="upload" id="upload" type='file' />
+	<input name="cropdata" id="cropdata" type='hidden' />
+	<img id="image" src="<?= $course->urls['images']['promo']; ?>">
+	</div>
+
+  <button type="submit" id="save" class="btn btn-default">Save</button>
+</form>
+<?php } ?>
+
+<?php if ($menu == 'curriculum') { ?>
+<h2>Curriculum</h2>
+<form>
+<textarea name="quickedit" id="quickedit"><?= $quickEdit; ?></textarea>
+<button type="button" name="create" id="create" class="btn">Create Curriculum</button>
+</form>
+<script>
+$(function() {
+	$("#alert").hide();
+    $('#create').click(function() {
+
+		$.post( "/lms/Api/courses/<?= $course->courseId; ?>/curriculum",
+			JSON.stringify({ quickEdit: $("#quickedit").val() }),
+			function( resultJson ) {
+				var result = JSON.parse(resultJson)
+				toastApiResult(result);
+				location.reload();			
+		}).fail(function() {
+			$("#alert").show();
+		});
+	});
+
+
+		// based on http://stackoverflow.com/questions/22558323/sortable-items-and-subitems-in-list-on-jquery-ui-sortable
+		// http://jsfiddle.net/3kdSZ/8/
+	 
+		var sourceSectionId;
+		var sourceItemId;
+		var targetSectionId;
+		var targetItemId;
+		var items = new Array()
+		
+		$(".group-item").each(function( index ) {
+			items.push({ itemId: this.id, itemRank: $(this).data("rank")})
+		});
+		
+		
+		
+	    // Sort the parents
+	    $(".sortable").sortable({
+
+	        handle: ".move",
+	        tolerance: "pointer",
+	        cursor: "move",
+	        opacity: 0.7,
+	        revert: 300,
+	        delay: 150,
+	        placeholder: "movable-placeholder",
+	        start: function(e, ui) {
+	            ui.placeholder.height(ui.helper.outerHeight());
+	        }
+	    });
+	    
+	    // Sort the children
+	    $(".group-items").sortable({
+	        items: "> div",
+	        tolerance: "pointer",
+	        connectWith: '.group-items',
+			start: function(event, ui) {
+				sourceSectionId = $(ui.item[0]).parent().attr('id');
+				ui.item.startPos = ui.item.index()
+				},
+			stop: function(event, ui) {
+				/*
+				//var sourceId = ui.draggable[0].id
+				var index = ui.item.index() //event.target.id
+				sourceItemId = $(ui.item.parent().children()[index]).attr("id")
+				targetSectionId = $(ui.item[0]).parent().attr('id');
+				console.log('stop sortable: from ' + sourceSectionId + '-' + sourceItemId + ' to ' + targetSectionId + '-' + targetItemId)
+				
+				var numChildren = ui.item.parent().children().length
+				var newPosition = ui.item.index()
+				if (newPosition == 0) { // first
+				} else if (newPosition == numChildren-1) { // last
+				} else { // in between
+				}
+				
+				
+				console.log("Start position: " + ui.item.startPos)
+				console.log("New position: " + ui.item.index())
+				*/
+				var rankCounter = 0
+				var changedItems = new Array()
+				$(".group-item").each(function( index ) {
+					rankCounter++
+					var curItem = { itemId: this.id, itemRank: $(this).data("rank")}
+					var formerItem = items[index]
+					if (curItem.itemId != formerItem.itemId) {
+						//curItem.itemRank = rankCounter
+						items[index] = curItem
+						changedItems.push(curItem)
+						//console.log('change ab hier: ' + curItem.itemId + ', ' + curItem.itemRank)
+					}
+				})
+				if (changedItems.length > 0) {
+					// determine direction of movement
+					var direction = 0
+					if (changedItems[0].itemRank>changedItems[1].itemRank) {
+						// item moved from bottom to top
+						direction = -1
+					} else {
+						// item moved from top to bottom
+						direction = 1
+					}
+					if (direction == 1) {
+						var itemStart = changedItems[changedItems.length-1]
+						var itemStop = changedItems[changedItems.length-2]
+					} else {
+						var itemStart = changedItems[0]
+						var itemStop = changedItems[1]
+					}
+					console.log('change from ' + itemStart.itemId + ' to ' + itemStop.itemId)
+					
+					var sourceId = itemStart.itemId.substring(1)
+					var targetId = itemStop.itemId.substring(1)
+			$.post( "/lms/Api/courses/<?= $course->courseId; ?>/reorderlesson",
+				JSON.stringify({ sourceId: sourceId, targetId: targetId }),
+				function( resultJson ) {
+					var result = JSON.parse(resultJson)
+					toastApiResult(result);
+					location.reload();			
+			}).fail(function(result) {
+				toastError(result)
+			});
+					
+					
+					
+					var rankCounter = 1
+					for (var i = 0; i < items.length; i++) {
+						items[i].itemRank = rankCounter
+						rankCounter++
+					}
+				}
+			}
+	    });
+
+	    $( ".url" ).change(function() {
+		    var url = $(this).val()
+		    var lessonId = $(this).data("id")
+			$.post( "/lms/Api/lessons/" + lessonId + "/content",
+					JSON.stringify({ url: url }),
+					function( resultJson ) {
+						var result = JSON.parse(resultJson)
+						toastApiResult(result);
+						location.reload();			
+				}).fail(function(result) {
+					toastError(result)
+				});
+
+		    
+	    });
+		
+});
+</script>	
+
+
+
+<div id="curriculum" class="sortable" style="float:left;width:700px;border:1px solid black;">    
+<?php foreach($course->sections as $section) { ?>
+    <div class="group-caption" id="s<?= $section->sectionId; ?>" data-type="section">
+        <h4><?= $section->title; ?></h4>
+        <div class="move">+</div>
+        <div class="group-items" id="g<?= $section->sectionId; ?>">
+			<?php foreach($section->lessons as $lesson) { ?>
+            	<div class="group-item" id="c<?= $lesson->lessonId; ?>" data-type="lesson" data-rank="<?= $lesson->rank; ?>">
+            	Url: <input type="text" class="url" data-id="<?= $lesson->lessonId; ?>"> Title: <input type="text" value="<?= $lesson->title; ?>"/> <div class="move">+</div>
+            	</div>
+			<?php } ?>
+        </div>
+    </div>
+<?php } ?>
+</div>
+
+<?php } // if menu == curriculum ?>
+
+
+</div>
+
+</div>

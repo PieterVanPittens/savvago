@@ -1,0 +1,26 @@
+<script>
+$(document).ready(function() {
+    $('#courses').DataTable();
+} );
+</script>
+
+
+<table id="courses" class="table table-bordered" cellspacing="0" width="100%">
+<thead>
+	<tr><th>courses</th></tr>
+</thead>
+<tbody>
+<?php foreach($courses as $course) {?>
+<tr>
+	<td>
+		<div style="float: left"><img src="<?= $course->urls['images']['list']; ?>" width="125" height="70" alt="<?= $course->title; ?>"/></div>
+		<div>
+			<p><a href="<?= $course->urls['view'] ?>"><?= $course->title; ?></a></p>
+			<p><a href="<?= $course->urls['view'] ?>"><?= $course->user->displayName; ?></a>, <?= $course->user->title; ?>, <a href="<?= $course->university->urls['view'] ?>"><?= $course->university->title; ?></a></p>
+		</div>
+		
+	</td>
+</tr>
+<?php } ?>
+</tbody>
+</table>

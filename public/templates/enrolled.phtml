@@ -1,0 +1,9 @@
+<?php if (isset($message)) { ?>
+<div class="alert alert-danger" role="alert">
+<?= $message; ?>
+</div>
+<?php } else { ?>
+<h2>Congratulations!</h2>
+<p>You have enrolled to course <?= $course->title; ?></p>
+<?php } ?>
+<p><a class="btn btn-default" href="<?= $course->urls['learn']; ?>">Start learning now</a></p>

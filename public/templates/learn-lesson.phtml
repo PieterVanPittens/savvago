@@ -1,0 +1,233 @@
+<section class="hero">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+<h1>Lesson <?= $lesson->sectionRank; ?> of <?= $lesson->section->numLessons; ?>: <?= htmlspecialchars($lesson->title); ?></h1>
+</div>
+</div>
+</section>
+
+<section class="white">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+
+	<div class="row">
+	<div class="col-md-10">
+	<?php if (!is_null($lesson->content)) { 
+		switch($lesson->content->typeId) {
+			case 2: // pdf?>
+			<div class="embed-responsive embed-responsive-16by9">
+			  <iframe class="embed-responsive-item" src="templates/pdf.js/web/viewer.html?file=<?=json_decode($lesson->content->content)->url; ?>"></iframe>
+			</div>
+			<?php
+			break;
+			case 1: // youtube ?>
+			<div class="embed-responsive embed-responsive-16by9">
+			  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/<?= json_decode($lesson->content->content)->videoId; ?>"></iframe>
+			</div> 
+			<?php 
+			break;
+			default:
+			echo "content type not supported";			
+			break;
+		}
+		
+		?>
+	<?php } else { ?>
+	no content...
+	<?php } ?>
+	</div> <!-- col -->
+	<div class="col-md-2">
+	
+	<?php if (is_null($progress)) { ?>
+	<button class="btn btn-default" id="finish">Finish Lesson</button>
+	<?php } else {?>
+	<p>You have already finished this lesson.</p>
+	<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default" >Start Next Lesson</a>
+	<?php } ?>
+	
+	<div>
+	<?= $lesson->description; ?>
+	</div>
+
+	<?php if (count($attachments) > 0) { ?>
+	<div>
+	<h3>Additional files</h3>
+		<ul>
+		<?php foreach($attachments as $attachment) { ?>
+			<li><?= $attachment->description; ?>: <a href="<?= $attachment->content->url; ?>" target="_new"><?= $attachment->title; ?></a></li>
+		<?php } ?>
+		</ul>
+	</div>
+	<?php } ?>
+
+	</div>
+	</div>
+	</div>
+
+</div> <!-- row -->
+</section>
+
+
+<section class="gray">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+
+<a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> ycxcxyc</a>
+<a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>adasdasd </a>
+</div>
+</div>
+</section>
+
+
+
+<section class="white">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+	
+
+<h2><?= $lesson->section->numLessons; ?> Lessons in: <?= $lesson->section->title; ?></h2>
+
+<link rel="stylesheet" type="text/css" href="templates/jquery.slick/1.6.0/slick.css"/>
+<link rel="stylesheet" type="text/css" href="templates/jquery.slick/1.6.0/slick-theme.css"/>
+
+<script type="text/javascript" src="templates/jquery.slick/1.6.0/slick.min.js"></script>
+
+<style>
+body {
+	background-color: #ffffff; 
+}
+.sectiontile {
+	border: 1px solid black;
+	padding-left: 5px;
+	padding-right: 5px;
+	margin-bottom: 10px;
+}
+.sectiontile h1 {
+	color: #CECECE;
+	font-size: 18px;
+	font-weight: 600;
+}
+.sectiontile p {
+	color: #E0E0E0;
+}
+
+.lessontiles {
+	margin-top: 45px;
+}
+.lessontile {
+	height: 350px;
+	width: 218px;
+	border: 1px solid #c0c0c0;
+}
+.lessontile-content {
+	padding: 5px;
+}
+.lessontile img {
+	with: 216px;
+	height: 121.5px;
+}
+.lessontile h2 {
+	color: #ccccc;
+	font-size: 14px;
+}
+
+.lessontile.active {
+	border-bottom: 3px solid black;
+}
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .slider {
+        width: 80%;
+		height: 380px;
+        margin: 20px auto;
+    }
+
+    .slick-slide {
+      margin: 0px 20px;
+    }
+
+    .slick-slide img {
+      width: 100%;
+    }
+
+    .slick-prev:before,
+    .slick-next:before {
+        color: black;
+    }
+	
+	
+</style>
+
+<script>
+$(document).ready(function(){
+
+	$.get( "<?= $settings['base']; ?>/sections/<?= $lesson->sectionId; ?>/lessons", function( data ) {
+		  $( "#lessons" ).html( data );
+
+		  $(".regular").slick({
+		        dots: true,
+		        infinite: true,
+		        slidesToShow: 4,
+		        slidesToScroll: 4,
+		        responsive: [
+		                     {
+		                       breakpoint: 1024,
+		                       settings: {
+		                         slidesToShow: 3,
+		                         slidesToScroll: 3,
+		                         infinite: true,
+		                         dots: true
+		                       }
+		                     },
+		                     {
+		                       breakpoint: 600,
+		                       settings: {
+		                         slidesToShow: 2,
+		                         slidesToScroll: 2
+		                       }
+		                     },
+		                     {
+		                       breakpoint: 480,
+		                       settings: {
+		                         slidesToShow: 1,
+		                         slidesToScroll: 1
+		                       }
+		                     }
+		                     // You can unslick at a given breakpoint now by adding:
+		                     // settings: "unslick"
+		                     // instead of a settings object
+		                   ]
+		      });
+
+			});
+});
+</script>
+
+<div class="lessontiles" id="lessons"></div>
+
+</div>
+</div>
+</section>
+
+
+
+
+    <footer class="fooooter">
+      <div class="container">
+      <div class="row btn-bottom-bar">
+       <div class="col-xs-4">
+		<a href="#" role="button" class="btn btn-bottom-bar btn-primary"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
+       </div>
+       <div class="col-xs-4">
+		<a href="#" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></a>       
+       </div>
+       <div class="col-xs-4">
+		<a href="<?= $lesson->urls['toc']; ?>" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-road" aria-hidden="true"></span></a>
+       </div>
+      
+      </div>
+      </div>
+    </footer>

@@ -1,0 +1,68 @@
+<div class="dialog">
+<h1>Login to your <?= $settings['name']; ?> account</h1>
+
+<form id="loginForm">
+  <div class="form-group">
+	<input type="text" class="form-control" id="email" placeholder="Email">
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control" id="password" placeholder="Password">
+  </div>
+  <button id="login" type="button" class="btn btn-default">Login</button><br/>
+  or <a href="forgot">Forgot Password</a>
+</form>
+Don't have an account yet? <a href="sign-up">Sign up</a>
+</div>
+<script>
+$(function() {
+	$('#email').focus()
+    $('#login').click(function() {
+		$.post( "<?= $settings['api']; ?>login",
+			JSON.stringify({ email: $("#email").val(), password: $("#password").val() }),
+			function(result) {
+				var apiResult = JSON.parse(result);
+				var token = apiResult.object;
+				console.log(token);
+				
+				if (token == ''|| token == null) {
+					toastApiResult(apiResult);
+				} else {
+					// cookie setzen und weiterleiten
+					var expires = new Date();
+					expires.setTime(expires.getTime() + (1 * 24 * 60 * 60 * 1000));
+					var key = 'savvago_token';
+					document.cookie = key + '=' + token + '; path=/';
+									
+					toastApiResult(apiResult);
+					var lastPath = $.cookie("savvago_lastpath");
+					if (lastPath == '' || lastPath == null) {
+						location.reload();
+					} else {
+						window.location.href = lastPath;
+					}
+					
+				}
+		}).fail(function(result) {
+			var apiResult = JSON.parse(result);
+			toastApiResult(apiResult);
+		});
+	});
+	document.getElementById('email').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#login').click();
+		}
+	}, false);
+	document.getElementById('password').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#login').click();
+		}
+	}, false);
+
+});
+</script>

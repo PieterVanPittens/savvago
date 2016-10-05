@@ -1,0 +1,9 @@
+<h1>University <?= htmlspecialchars($university->title); ?></h1>
+
+<h2>Courses</h2>
+<?php
+require __DIR__ . '/partial_course-tile.phtml';
+foreach($courses as $course) { 
+renderCourseTile($course);
+}
+?>

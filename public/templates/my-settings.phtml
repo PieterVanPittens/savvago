@@ -1,0 +1,111 @@
+﻿<div class="row">
+<div class="col-md-2">
+
+	<div class="btn-group-vertical" role="group">
+	<?php if ($menu == 'profile') { ?>
+	<button class="btn btn-default active">Profile</button>
+	<?php } else { ?>
+	<a href="my-profile" class="btn btn-default">Profile</a>
+	<?php } ?>
+	<?php if ($menu == 'picture') { ?>
+	<button class="btn btn-default active">Picture</button>
+	<?php } else { ?>
+	<a href="my-picture" class="btn btn-default">Picture</a>
+	<?php } ?>
+	<?php if ($menu == 'account') { ?>
+	<button class="btn btn-default active">Account Settings</button>
+	<?php } else { ?>
+	<a href="my-account"  class="btn btn-default">Account Settings</a>
+	<?php } ?>
+
+	</div>
+</div>
+
+<div class="col-md-10">
+<?php if ($menu == 'profile') { ?>
+<h1>Profile</h1>
+<form>
+  <div class="form-group">
+    <input type="text" class="form-control" id="displayName" placeholder="Your full Name">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="title" placeholder="Your title">
+  </div>
+  <button type="button" class="btn btn-default">Save</button>
+</form>
+<?php } ?>
+
+<?php if ($menu == 'picture') { ?>
+<link rel="stylesheet" href="/lms/templates/cropper-2.3.1/dist/cropper.min.css">
+<script src="/lms/templates/cropper-2.3.1/dist/cropper.min.js"></script>
+<style>
+img {
+  max-width: 100%; /* This rule is very important, please do not ignore this! */
+}
+</style>
+<script>
+$(function(e){ 
+
+	$("#upload").change(function () {
+		if (this.files && this.files[0]) {
+			var reader = new FileReader();
+			reader.onload = imageIsLoaded;
+			reader.readAsDataURL(this.files[0]);
+		}
+	});
+
+
+});
+
+function imageIsLoaded(e) {
+	$('#image').attr('src', e.target.result);
+	$('#image').cropper({
+	aspectRatio: 16 / 9,
+	crop: function(e) {
+	$('#cropdata').val(JSON.stringify($('#image').cropper("getData")));
+	console.log(JSON.stringify($('#image').cropper("getData")));
+	// Output the result data for cropping image.
+	/*
+	console.log(e.x);
+	console.log(e.y);
+	console.log(e.width);
+	console.log(e.height);
+	console.log(e.rotate);
+	console.log(e.scaleX);
+	console.log(e.scaleY);
+	*/
+	}
+	});
+};
+
+</script>
+
+<h1>Picture</h1>
+<form method="POST" enctype="multipart/form-data" id="imageUploadForm">
+	<div>
+	<input name="upload" id="upload" type='file' />
+	<input name="cropdata" id="cropdata" type='hidden' />
+	<img id="image">
+	</div>
+
+  <button type="submit" id="save" class="btn btn-default">Save</button>
+</form>
+<?php } ?>
+
+<?php if ($menu == 'account') { ?>
+<h1>Account Settings</h1>
+<form>
+  <div class="form-group">
+    <input type="text" class="form-control" id="username" placeholder="Your username">
+  </div>
+  <div class="form-group">
+    <input type="email" class="form-control" id="email" placeholder="Your email">
+  </div>
+  <button type="button" class="btn btn-default">Save</button>
+</form>
+<?php } ?>
+
+
+</div>
+
+</div>

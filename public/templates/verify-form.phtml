@@ -1,0 +1,57 @@
+<div class="dialog">
+<h1>Verify Email</h1>
+
+<form id="emailForm">
+  <div class="form-group">
+	<input type="email" class="form-control" id="email" placeholder="Email">
+  </div>
+  <div class="form-group">
+	<input type="text" class="form-control" id="key" placeholder="Verification Key">
+  </div>
+  <button id="verify" type="button" class="btn btn-default">Verify</button><br/>
+</form>
+</div>
+<script>
+$(function() {
+	$('#email').focus()
+    $('#verify').click(function() {
+
+    	var user = JSON.stringify({ 
+			email: $("#email").val()
+			, key: $("#key").val()
+			 });
+
+		$.post( "<?= $settings['api']; ?>verify",
+			user,
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+
+				var type = apiResult.message.type;
+				if (type == 1) {
+					// success, redirect to verification page
+					window.location.href = '<?= $settings['base']; ?>';
+				}
+		}).fail(function(result) {
+			toastAjaxResult(result);
+		});
+	});
+	document.getElementById('email').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#verify').click();
+		}
+	}, false);
+	document.getElementById('key').addEventListener("keydown", function(e) {
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.keyCode == 13) {
+			$('#verify').click();
+		}
+	}, false);
+
+});
+</script>

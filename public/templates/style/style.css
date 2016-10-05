@@ -1,0 +1,146 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('OpenSans-Regular.ttf') format('truetype');
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url('Lato-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Lato Bold';
+  src: url('Lato-Bold.ttf') format('truetype');
+}
+@font-face {
+font-family: 'Bebas Neue';
+src: url('BebasNeue.otf') format('opentype');
+}
+
+body {
+    background-color: #FFFFFF;
+    display: block;
+    box-sizing: border-box;
+    position: static;
+    margin: 0;
+}
+/* sticky footer */
+html {
+  position: relative;
+  min-height: 100%;
+}
+#main {
+    padding-bottom: 60px;
+}
+
+
+div.coursetile {
+	height: 250px;
+	width: 222px;
+	border: solid #121212 1px;
+	float: left;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+div.tilecontent {
+	background:#ffffff;
+	opacity:0.7;
+	top: 120px;
+	height: 128px;
+	padding: 2px;
+}
+div.tilecontent h1 {
+	font-size: 16px;
+	font-weight: 600;
+}
+div.coursetile .overlay {
+	height: 250px;
+	width: 220px;
+}
+div.coursetile:hover {
+	background:#ffffff;
+	opacity:0.7;
+}
+img.coursetile {
+	height: 120px;
+	width: 220px;
+}
+body {
+	font-family: 'Open Sans';
+	color: rgb(64, 64, 64);
+	font-size: 14px;
+
+}
+h1 {
+	font-family: 'Bebas Neue';
+	margin-top: 20px;
+	margin-bottom: 20px;
+	font-size: 30px;
+}
+h2 {
+	font-family: 'Lato Bold';
+	margin-top: 20px;
+	margin-bottom: 20px;
+	font-size: 20px;
+}
+h3 {
+	font-family: 'Open Sans';
+	margin-top: 20px;
+	margin-bottom: 20px;
+	font-size: 18px;
+}
+/* open dropdown with hover instead of click */
+ul.nav li.dropdown:hover ul.dropdown-menu{
+	display: block;
+	margin-top:0px
+}
+
+
+.sectiontile {
+	border: 1px solid #130f30;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 10px;
+	padding-bottom: 20px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+.sectiontile p {
+	color: #E0E0E0;
+}
+.dialog {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 30%;
+	min-width: 200px;
+    border: 1px solid rgb(64, 64, 64);
+    padding: 10px;
+	background-color: #ffffff;
+}
+
+.popover{
+    max-width: 100%; /* Max Width of the popover (depending on the container!) */
+}
+.navbar {
+	margin-bottom: 5px;
+}
+.navbar-brand {
+	font-family: 'Bebas Neue';
+	font-size: 24px;
+}
+.breadcrumb {
+	margin-bottom: 5px;
+}
+.navbar-inverse {
+	background-color: #130f30;
+	color: #ffffff;
+}
+.embed-responsive {
+	border: 1px solid #130f30;
+}
