@@ -8,9 +8,9 @@ return [
    		'application' => [
 			'name' => 'savvago',
    			'claim' => 'you savvy?',
-			'base' => 'http://localhost:8080/lms/public/',
+			'base' => 'http://localhost:8080/savvago/public/',
 			'template' => 'templates/default/',
-   			'api' => 'http://localhost:8080/lms/public/api/'
+   			'api' => 'http://localhost:8080/savvago/public/api/'
    		],
     		
     		
@@ -52,7 +52,7 @@ return [
 		// data base
 		'db' => [
 			'host' => 'localhost',
-			'dbname' => 'lms',
+			'dbname' => 'savvago',
 			'user' => 'root',
 			'pass' => ''
 		],
