@@ -75,7 +75,7 @@ foreach($dirs as $dir) {
 	}
 }
 
-$protocol->addSuccess("Created Dirs and access todo");
+$protocol->addSuccess("Created Dirs");
 
 // step 3: update config file
 $protocol->addSuccess("Config updated todo");
