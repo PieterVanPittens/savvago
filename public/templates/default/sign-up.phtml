@@ -34,9 +34,17 @@ $(function() {
 
 				var type = apiResult.message.type;
 				if (type == 1) {
+
+					var token = apiResult.object;
+					var expires = new Date();
+					expires.setTime(expires.getTime() + (1 * 24 * 60 * 60 * 1000));
+					var key = 'savvago_token';
+					document.cookie = key + '=' + token + '; path=/';
+
 					// success, redirect to verification page
-					window.location.href = '<?= $settings['base']; ?>verify';
+					window.location.href = '<?= $settings['base']; ?>';
 				}
+
 		}).fail(function(result) {
 			toastAjaxResult(result);
 		});

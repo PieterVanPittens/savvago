@@ -1,5 +1,19 @@
 <?php
 
+/*
+ * strips first line from text
+ */
+function stripFirstLine($text)
+{
+	return substr( $text, strpos($text, "\n")+1 );
+}
+
+/*
+ * gets first line of text
+ */
+function getFirstLine($text) {
+	return strtok($text, "\n"); // subject = first line of email template
+}
 
 
 function getGUID(){
@@ -66,7 +80,7 @@ class User extends BaseModel implements iModel{
 	public $isActive = false;
 	
 	public $passwordRecoveryKey;
-	public $passwordRecoveryKeyDeadline;
+	public $passwordRecoveryDeadline;
 	
 	/**
 	 * User Type
@@ -236,6 +250,43 @@ class UserManager extends BaseManager {
 		return $result;
 	}
 	
+	/**
+	 * sets new password
+	 * @param string $passwordRecoveryKey
+	 * @param unknown $password
+	 * @return ApiResult
+	 */
+	public function setNewPassword($passwordRecoveryKey, $password) {
+		$user = $this->repository->getUserByPasswordRecoveryKey($passwordRecoveryKey);
+		if (is_null($user)) {
+			throw new NotFoundException("You should request a new password recovery key");
+		}
+		if ($password == "") {
+			throw new ValidationException("Please provide a new password");			
+		}
+		if ($user->passwordRecoveryDeadline < time()) {
+			throw new ValidationException("You should request a new password recovery key because it has expired.");
+		}
+		$user->passwordRecoveryKey = null;
+		$user->passwordRecoveryDeadline = null;
+		$user->password = $password; // Todo encode
+		$this->repository->setNewPassword($user);
+		
+		
+		
+		$result = new ApiResult();
+		$result->setSuccess("Your new password is saved");
+		return $result;
+	}
+	
+	/**
+	 * gets User by password recovery key
+	 * @param string $key
+	 * @return User
+	 */
+	public function getUserByPasswordRecoveryKey($key) {
+		return $this->repository->getUserByPasswordRecoveryKey($key);
+	}
 	
 	/**
 	 * send password recovery mail
@@ -260,7 +311,7 @@ class UserManager extends BaseManager {
 		// create token
 		$user->passwordRecoveryKey = str_replace('-', '', trim(getGUID(), '{}'));
 		// save token in db (valid for 24 hours)
-		$user->passwordRecoveryKeyDeadline = time() + (24*3600);
+		$user->passwordRecoveryDeadline = time() + (24*3600);
 		$this->repository->updatePasswordRecovery($user);
 		
 		// generate link
@@ -270,14 +321,17 @@ class UserManager extends BaseManager {
 		$renderer = new Slim\Views\PhpRenderer(__DIR__ . '/../public/templates/email/');
 		$response = new Slim\Http\Response();
 		$data['recoveryLink'] = $recoveryLink;
-		$response = $renderer->render($response, 'forgot.php', $data);
+		$data['user'] = $user;
+		$response = $renderer->render($response, 'forgot.phtml', $data);
 		$message = $response->getBody();
 
-		$subject = "savvago - New Password requested";
+		
+		$subject = getFirstLine($message);
+		$message = stripFirstLine($message);
+		
 		$isSent = $this->mail($user, $subject, $message);
 		
-		
-		
+
 		// send mail
 		
 		return $result;
@@ -351,14 +405,19 @@ class UserManager extends BaseManager {
 		$queueItem->toEmail = $user->email;
 		$queueItem->subject = "Verify Email"; // todo
 		*/
+
+		$verificationLink = $verificationKey;
 		
 		$renderer = new Slim\Views\PhpRenderer(__DIR__ . '/../public/templates/email/');
 		$response = new Slim\Http\Response();
-		$data['verificationKey'] = $verificationKey;
-		$response = $renderer->render($response, 'verify_email.php', $data);		
+		$data['verificationLink'] = $verificationLink;
+		$data['user'] = $user;
+		$response = $renderer->render($response, 'verify_email.phtml', $data);
 		$message = $response->getBody();
-						
-		$subject = 'Welcome to savvago';
+		
+		$subject = getFirstLine($message);
+		$message = stripFirstLine($message);
+		
 		$isSent = $this->mail($user, $subject, $message);
 
 		/*	
@@ -388,8 +447,9 @@ class UserManager extends BaseManager {
 		$header = 'From: ' . $to . '\r\n' .
 				'Reply-To: ' . $to . '\r\n' .
 				'X-Mailer: PHP/' . phpversion();
-		$isSent = @mail($to, $subject, $message, $header);		
-
+		//$isSent = @mail($to, $subject, $message, $header);		
+		$isSent = true;
+		
 		return $isSent;
 	}
 	
@@ -455,7 +515,7 @@ class UserManager extends BaseManager {
  */
 class UserRepository extends BasePdoRepository {	
 	
-	private $fieldNames = 'name, title, display_name, email, password, info, is_verified, verification_key, type, is_active';
+	private $fieldNames = 'name, title, display_name, email, password, info, is_verified, verification_key, type, is_active, password_recovery_key, password_recovery_deadline';
 
 	
 	/**
@@ -494,7 +554,7 @@ class UserRepository extends BasePdoRepository {
 	 * @return User 
 	 */	
 	public function createUser($model) {
-		$query = "INSERT INTO users (".$this->fieldNames . ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		$query = "INSERT INTO users (".$this->fieldNames . ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$stmt = $this->prepare($query);
 		$parameters = array($model->name
 			, $model->title
@@ -506,6 +566,8 @@ class UserRepository extends BasePdoRepository {
 			, $model->verificationKey
 			, $model->type
 			, $model->isActive
+			, null
+			, null
 		);
 		$stmt = $this->execute($stmt, $parameters);
 		$model->userId = $this->pdo->lastInsertId();
@@ -555,6 +617,23 @@ class UserRepository extends BasePdoRepository {
 	}
 
 	/**
+	 * gets User by password recovery key
+	 * @param string $key
+	 * @return User
+	 */
+	public function getUserByPasswordRecoveryKey($key) {
+		$query = "SELECT user_id, ".$this->fieldNames." FROM users where password_recovery_key = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($key));
+		if ($a = $stmt->fetch()) {
+			$model = User::CreateModelFromRepositoryArray($a);
+			return $model;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
 	 * gets User by name
 	 * @param string $name
 	 * @return User
@@ -591,16 +670,34 @@ class UserRepository extends BasePdoRepository {
 	 * @param User $user
 	 */
 	public function updatePasswordRecovery(User $user) {
-		$query = "UPDATE users SET password_recovery_key = ?, password_recovery_key_deadline = ? WHERE user_id = ?";
+		$query = "UPDATE users SET password_recovery_key = ?, password_recovery_deadline = ? WHERE user_id = ?";
 		
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$user->passwordRecoveryKey,
-				$user->passwordRecoveryKeyDeadline,
+				$user->passwordRecoveryDeadline,
 				$user->userId
 		);
 		$stmt = $this->execute($stmt, $parameters);
 	}
+
+	/**
+	 * sets new password
+	 * @param User $user
+	 */
+	public function setNewPassword(User $user) {
+		$query = "UPDATE users SET password_recovery_key = ?, password_recovery_deadline = ?, password = ? WHERE user_id = ?";
+	
+		$stmt = $this->prepare($query);
+		$parameters = array(
+				$user->passwordRecoveryKey,
+				$user->passwordRecoveryDeadline,
+				$user->password,
+				$user->userId
+		);
+		$stmt = $this->execute($stmt, $parameters);
+	}
+	
 	
 	public function getUsers() {
 		$query = "SELECT user_id, name, title, display_name, email, info, is_verified, type, is_active from users order by email";

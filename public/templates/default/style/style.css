@@ -22,11 +22,16 @@ src: url('BebasNeue.otf') format('opentype');
 }
 
 body {
-    background-color: #FFFFFF;
+	font-family: 'Open Sans';
+	color: rgb(64, 64, 64);
+	font-size: 14px;
+	background-color: #FFFFFF;
     display: block;
     box-sizing: border-box;
     position: static;
     margin: 0;
+	padding: 0px;
+	  margin-bottom: 60px;
 }
 /* sticky footer */
 html {
@@ -35,6 +40,21 @@ html {
 }
 #main {
     padding-bottom: 60px;
+}
+
+.fooooter {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+  padding-top: 10px;
+  z-index: 2000;
+}
+.btn-bottom-bar {
+	font-size: 22px;
+	text-align: center;
 }
 
 
@@ -65,15 +85,12 @@ div.coursetile:hover {
 	background:#ffffff;
 	opacity:0.7;
 }
+div.course-description {
+	margin-bottom: 30px;
+}
 img.coursetile {
 	height: 120px;
 	width: 220px;
-}
-body {
-	font-family: 'Open Sans';
-	color: rgb(64, 64, 64);
-	font-size: 14px;
-
 }
 h1 {
 	font-family: 'Bebas Neue';
@@ -143,4 +160,27 @@ ul.nav li.dropdown:hover ul.dropdown-menu{
 }
 .embed-responsive {
 	border: 1px solid #130f30;
+}
+
+section.white {
+	background-color: #ffffff;
+}
+section.hero {
+	background-color: #130f30;
+	color: #fff;
+}
+section.gray {
+	background-color: #3e3e3e;
+	color: #fff;
+}
+section.footer {
+	background-color: #3e3e3e;
+	color: #fff;
+}
+.container-fluid {
+}
+
+section {
+	margin-top: 15px;
+	padding: 15px;
 }

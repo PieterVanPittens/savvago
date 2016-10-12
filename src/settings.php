@@ -8,8 +8,9 @@ return [
    		'application' => [
 			'name' => 'savvago',
    			'claim' => 'you savvy?',
-			'base' => 'http://localhost:8080/savvago/public/',
-			'api' => 'http://localhost:8080/savvago/public/api/'
+			'base' => 'http://localhost:8080/lms/public/',
+			'template' => 'templates/default/',
+   			'api' => 'http://localhost:8080/lms/public/api/'
    		],
     		
     		
@@ -17,7 +18,7 @@ return [
 
         // Renderer settings
         'renderer' => [
-            'template_path' => __DIR__ . '/../public/templates/'
+            'template_path' => __DIR__ . '/../public/templates/default/'
         ],
 
 		// import
@@ -51,7 +52,7 @@ return [
 		// data base
 		'db' => [
 			'host' => 'localhost',
-			'dbname' => 'savvago',
+			'dbname' => 'lms',
 			'user' => 'root',
 			'pass' => ''
 		],
@@ -59,7 +60,6 @@ return [
   		// caching
    		'cache' => [
    				'service' => __DIR__ . '/../cache/service/'
-				
    		],
 		
         // Monolog settings

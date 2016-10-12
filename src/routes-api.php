@@ -36,6 +36,7 @@ $app->post('/api/users', function ($request, $response, $args) {
 	$user->password = $input->password;
 	
 	$apiResult = $userManager->registerUser($user);
+	$apiResult->object = createJwtToken($user->userId);	
 
 	return json_encode($apiResult);
 });
@@ -181,6 +182,24 @@ $app->post('/api/courses', function ($request, $response, $args) {
 	return json_encode($apiResult);
 });
 
+
+/**
+ * creates jwt token for user
+ */
+function createJwtToken($userId) {
+	$key = "wer34rwerwrqw23";
+	$token = array(
+			'userId' => $userId,
+			'iss' => 'savvago',
+			'iat' => time(),
+			'exp' => time()+3600
+	);
+	
+	$jwt = \Firebase\JWT\JWT::encode($token, $key);
+	return $jwt;
+}
+
+
 // login
 $app->post('/api/login', function ($request, $response, $args) {
 	$credentials = getRequestObject();
@@ -195,15 +214,8 @@ $app->post('/api/login', function ($request, $response, $args) {
 		$apiResult->setError("The email or password you entered are incorrect");
 		return $apiResult->toJson();
 	} else {
-		$key = "wer34rwerwrqw23";
-		$token = array(
-			'userId' => $user->userId,
-			'iss' => 'savvago',
-			'iat' => time(),
-			'exp' => time()+3600
-			);
-
-		$jwt = \Firebase\JWT\JWT::encode($token, $key);
+		$jwt = createJwtToken($user->userId);
+		
 		$apiResult = new ApiResult();
 		$apiResult->setSuccess("Logged in");
 		$apiResult->object = $jwt;
@@ -238,18 +250,30 @@ $app->post('/api/verify', function ($request, $response, $args) {
 	
 	return $result->toJson();
 });
-	
+
+// set newpassword
+$app->post('/api/newpassword', function ($request, $response, $args) {
+	$credentials = getRequestObject();
+	$password = "";
+	$key = "";
+	if (isset($credentials->password)) {
+		$password = $credentials->password;
+	}
+	if (isset($credentials->key)) {
+		$key = $credentials->key;
+	}
+
+	$result = $this->serviceContainer['userManager']->setNewPassword($key, $password);
+
+	return $result->toJson();
+});
+
+// finish lesson
 $app->post('/api/lessons/{lessonId}/finish', function ($request, $response, $args) {
 	$courseManager = $this->serviceContainer['courseManager'];
 	$courseService = $this->serviceContainer['courseService'];
 	$lesson = $courseManager->getLessonById($args['lessonId'], false);
-	$apiResult = $courseService->finishLesson($lesson);
-//	return $apiResult->toJson();
-	
-	
-	return $response->withStatus(200)
-	->withHeader('Content-Type', 'application/json')
-	->write(json_encode($apiResult));
-	
+	$result = $courseService->finishLesson($lesson);
+	return $result->toJson();	
 });
 	

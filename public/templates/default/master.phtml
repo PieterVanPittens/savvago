@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="<?= $settings['base']; ?>">
+<meta charset="utf-8"/>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="57x57" href="<?= $settings['template']; ?>favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="<?= $settings['template']; ?>favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="<?= $settings['template']; ?>favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="<?= $settings['template']; ?>favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="<?= $settings['template']; ?>favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="<?= $settings['template']; ?>favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="<?= $settings['template']; ?>favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="<?= $settings['template']; ?>favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="<?= $settings['template']; ?>favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="<?= $settings['template']; ?>favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="<?= $settings['template']; ?>favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="<?= $settings['template']; ?>favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="<?= $settings['template']; ?>favicon/favicon-16x16.png">
+<link rel="manifest" href="<?= $settings['template']; ?>favicon/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="<?= $settings['template']; ?>favicon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+
+<title><?=htmlspecialchars($page->title);?></title>
+
+<script src="<?= $settings['template']; ?>jquery/jquery-2.2.4.min.js"></script>
+<script src="<?= $settings['template']; ?>jquery/jquery-ui.min.js"></script>
+<script src="<?= $settings['template']; ?>jquery.cookie/jquery.cookie.js"></script>
+<link rel="stylesheet" href="<?= $settings['template']; ?>bootstrap-3.3.6/css/bootstrap.min.css">
+<script src="<?= $settings['template']; ?>bootstrap-3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="<?= $settings['template']; ?>toastr-2.1.1/toastr.css">
+<script src="<?= $settings['template']; ?>toastr-2.1.1/toastr.js"></script>
+
+<link rel="stylesheet" type="text/css" href="<?= $settings['template']; ?>DataTables/datatables.min.css"/>
+
+<script type="text/javascript" src="<?= $settings['template']; ?>DataTables/datatables.min.js"></script>
+<link rel="stylesheet" href="<?= $settings['template']; ?>style/style.css">
+
+
+<script>
+/**
+ * displays apiresult as toast using toastr
+ */
+function toastApiResult(apiResult) {
+	if (apiResult.message.type == 1) { // success
+		toastr.success(apiResult.message.text)
+	}
+	if (apiResult.message.type == 2) { // warning
+		toastr.warning(apiResult.message.text)
+	}
+	if (apiResult.message.type == 3) { // error
+		toastr.error(apiResult.message.text)
+	}
+}
+function toastAjaxResult(result) {
+	var apiResult = JSON.parse(result.responseText);
+	toastApiResult(apiResult);
+}
+</script>
+
+
+
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+
+    <div class="navbar-header">
+	
+	<?php if (isset($back)) { ?>
+	<a class="navbar-brand" href="<?= $back; ?>" role="button"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></a>
+	<?php } ?>
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+
+      <a class="navbar-brand" href="#"><?= $settings['name']; ?></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><p class="navbar-text" style="margin-left: 100px"><?= $settings['claim']; ?></p></li>
+
+      </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+		<?php if ($currentUser->isGuest()) { ?>
+			<li><a href="sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+			<li><a href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+		<?php } else { ?>
+		
+			<?php if ($currentUser->isAdmin()) { ?>
+			<li><a href="admin">Admin</a></li>
+			<?php } ?>
+			<?php if ($currentUser->isTeacher()) { ?>
+			<li><a href="teach">Teach</a></li>
+			<?php } ?>
+			<?php if ($currentUser->isStudent()) { ?>
+			<li><a href="my-courses">Learn</a></li>
+			<?php } ?>
+			<li class="dropdown">
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= $currentUser->displayName; ?> <span class="caret"></span></a>
+			  <ul class="dropdown-menu">
+				<!-- 
+				<li><a href="my-profile">Profile</a></li>
+				<li><a href="my-account">Account Settings</a></li>
+				<li role="separator" class="divider"></li>
+				-->
+				<li><a id="logout">Logout</a></li>
+			  </ul>
+			</li>
+		<?php } ?>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<script>
+$(function() {
+    $('#logout').click(function() {
+    	$.removeCookie("savvago_token", { path: '/' });
+   	
+		window.location.href = "<?= $settings['base']; ?>";
+	});
+});
+</script>
+
+
+<div class="container-fluid">
+
+<?php require __DIR__ . '/'. $page->mainView; ?>
+
+
+<?php require __DIR__ . '/partial_master-footer.phtml'; ?>
+
+</div>
+
+	
+</body>
+</html>

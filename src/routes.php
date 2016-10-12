@@ -62,7 +62,6 @@ $app->get('/teach/{courseId}', function ($request, $response, $args) {
 
 // section lessons
 $app->get('/sections/{sectionId}/lessons', function ($request, $response, $args) {
-	setLastRequestPath($request);
 	
 	$section = new Section();
 	$section->sectionId = $args['sectionId'];
@@ -106,6 +105,29 @@ $app->get('/verify', function ($request, $response, $args) {
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
+// forgot password, set new one
+// changing password only possible with valid password key 
+$app->get('/newpassword/{passwordKey}', function ($request, $response, $args) {
+	$key = $args["passwordKey"];
+	$userManager = $this->serviceContainer['userManager'];
+	$user = $userManager->getUserByPasswordRecoveryKey($key);
+	if (is_null($user)) {
+		$page = new Page();
+		$page->title = 'Invalid Password Recovery Key';
+		$page->mainView = 'new-password_invalid-key.phtml';
+		$this->viewData->data["page"] = $page;
+		return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
+	} else {
+		$page = new Page();
+		$page->title = 'Set new Password';
+		$page->mainView = 'new-password.phtml';
+		$this->viewData->data["page"] = $page;
+		$this->viewData->data["passwordKey"] = $key;
+		$this->viewData->data["user"] = $user;
+		return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
+	}
+});
+	
 
 // verify email adress
 $app->get('/users/{email}/verify/{key}', function ($request, $response, $args) {
@@ -193,6 +215,9 @@ $app->get('/lessons/{lessonId}', function ($request, $response, $args) {
 	$lesson->section = $courseManager->getSectionById($lesson->sectionId, false);
 	$lesson->section->course = $courseManager->getCourseById($lesson->section->courseId, false);
 
+	$isEnrolled = $courseService->isEnrolled($lesson->section->course);
+	$this->viewData->data["isEnrolled"] = $isEnrolled;
+	
 	$courseManager->loadCurriculum($lesson->section->course);
 
 	$this->viewData->data["lesson"] = $lesson;
@@ -210,7 +235,7 @@ $app->get('/lessons/{lessonId}', function ($request, $response, $args) {
 	$page->title = htmlspecialchars($lesson->title);
 	$page->mainView = 'learn-lesson.phtml';
 	$this->viewData->data["page"] = $page;
-
+	
 	
 	// back button
 	$this->viewData->data["back"] = $lesson->section->course->urls['view'];

@@ -102,6 +102,7 @@ class BasePdoRepository {
 			var_dump($e->getMessage());
 			var_dump($statement->queryString);
 			var_dump($parameters);
+			die();
 			throw new RepositoryException($e->getMessage(), 0, $e );
 		}
 	}

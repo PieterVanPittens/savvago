@@ -199,6 +199,15 @@ class CourseService extends BaseService {
 	}
 	
 	/**
+	 * checks if user is enrolled to course
+	 * @param Course $course
+	 * @return bool
+	 */
+	public function isEnrolled($course) {
+		return $this->container['courseManager']->isEnrolled($this->contextUser, $course);
+	}
+	
+	/**
 	 * gets all courses that a this user is enrolled to
 	 * @return array
 	 */
@@ -439,12 +448,14 @@ class CourseManager extends BaseManager {
 	
 	private function prepareCourses($courses, $withContentObjects) {
 		foreach($courses as $course) {
+			/*
 			if (is_null($course->university) && !is_null($course->universityId)) {
 				$course->university = $this->container['universityManager']->getUniversityById($course->universityId);
 			}
 			if (is_null($course->category) && !is_null($course->categoryId)) {
 				$course->category = $this->getCategoryById($course->categoryId);
 			}
+			*/
 			if (is_null($course->user)) {
 				$course->user = $this->container['userManager']->getUserById($course->userId); 
 			}
@@ -668,6 +679,7 @@ class CourseManager extends BaseManager {
 			if (is_null($lesson->course)) {
 				// todo: cache course
 				$lesson->course = $this->repository->getCourseById($lesson->courseId);
+				$this->addCourseUrls($lesson->course);
 			}
 			$imageName = $lesson->course->imageName;
 		} else {
@@ -866,6 +878,18 @@ class CourseManager extends BaseManager {
 		return $lesson;
 	}
 
+	
+	/**
+	 * checks if user is enrolled to course
+	 * @param User $user
+	 * @param Course $course
+	 * @return bool
+	 */
+	public function isEnrolled($user, $course) {
+		$enrollment = $this->repository->getEnrollment($user->userId, $course->courseId);
+		return !(is_null($enrollment));
+	}
+	
 	/**
 	 * creates new Course
 	 * @param User $user

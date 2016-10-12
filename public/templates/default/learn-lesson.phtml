@@ -16,7 +16,7 @@
 		switch($lesson->content->typeId) {
 			case 2: // pdf?>
 			<div class="embed-responsive embed-responsive-16by9">
-			  <iframe class="embed-responsive-item" src="templates/pdf.js/web/viewer.html?file=<?=json_decode($lesson->content->content)->url; ?>"></iframe>
+			  <iframe class="embed-responsive-item" src="<?= $settings['template'] ?>pdf.js/web/viewer.html?file=<?=json_decode($lesson->content->content)->url; ?>"></iframe>
 			</div>
 			<?php
 			break;
@@ -37,14 +37,41 @@
 	<?php } ?>
 	</div> <!-- col -->
 	<div class="col-md-2">
-	
-	<?php if (is_null($progress)) { ?>
-	<button class="btn btn-default" id="finish">Finish Lesson</button>
+	<?php if ($currentUser->isGuest() || !$isEnrolled) { ?>
+		<div class="course-description">
+		<p><a class="btn btn-default" href="<?= $lesson->section->course->urls['enroll']; ?>">Enroll Now</a></p>
+		<p>Enroll now to save your learning progress.</p>
+		</div>
 	<?php } else {?>
-	<p>You have already finished this lesson.</p>
-	<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default" >Start Next Lesson</a>
-	<?php } ?>
+
+		<?php if (is_null($progress)) { ?>
+		<script>
+		$(function() {
+		    $('#finish').click(function() {
+
+				$.post( "<?= $lesson->urls['finish']; ?>",
+					'',
+					function(result) {
+						var apiResult = JSON.parse(result);
+						toastApiResult(apiResult);
+						if (apiResult.message.type == 1) {
+							location.reload();
+						}
+
+					}).fail(function(result) {
+						toastAjaxResult(result);
+					});
+			    
+			});
+		});
+		</script>
+		<button class="btn btn-default" id="finish">Finish Lesson</button>
+		<?php } else {?>
+		<p>You have already finished this lesson.</p>
+		<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default" >Start Next Lesson</a>
+		<?php } ?>
 	
+	<?php } ?>
 	<div>
 	<?= $lesson->description; ?>
 	</div>
@@ -67,17 +94,16 @@
 </div> <!-- row -->
 </section>
 
-
+<!--
 <section class="gray">
 <div class="row">
 <div class="col-md-8 col-md-offset-2">
-
 <a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> ycxcxyc</a>
 <a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>adasdasd </a>
 </div>
 </div>
 </section>
-
+-->
 
 
 <section class="white">
@@ -87,15 +113,13 @@
 
 <h2><?= $lesson->section->numLessons; ?> Lessons in: <?= $lesson->section->title; ?></h2>
 
-<link rel="stylesheet" type="text/css" href="templates/jquery.slick/1.6.0/slick.css"/>
-<link rel="stylesheet" type="text/css" href="templates/jquery.slick/1.6.0/slick-theme.css"/>
+<link rel="stylesheet" type="text/css" href="<?= $settings['template'] ?>jquery.slick/1.6.0/slick.css"/>
+<link rel="stylesheet" type="text/css" href="<?= $settings['template'] ?>jquery.slick/1.6.0/slick-theme.css"/>
 
-<script type="text/javascript" src="templates/jquery.slick/1.6.0/slick.min.js"></script>
+<script type="text/javascript" src="<?= $settings['template'] ?>jquery.slick/1.6.0/slick.min.js"></script>
 
 <style>
-body {
-	background-color: #ffffff; 
-}
+
 .sectiontile {
 	border: 1px solid black;
 	padding-left: 5px;
