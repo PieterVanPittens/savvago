@@ -63,7 +63,11 @@ return [
    			// it will be randomly defined at installation time
    			// when you change the salt in a running system then all passwords become invalid,
    			// they cannot be matched anymore -> noone is able to login anymore
-			'salt' => '1234' 
+			'salt' => '1234',
+			// this is the key for creating login tokens
+			// when you change this key in a running system then all active tokens will become invalid
+			// that means all active users will be logged out
+			'tokenKey' => 'asqqw23424234'
    		],
 		
   		// caching

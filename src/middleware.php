@@ -25,7 +25,7 @@ class Authenticator {
 		// Authentication based on JWT stored in cookie
 		if (isset($_COOKIE['savvago_token'])) {
 			$token = $_COOKIE['savvago_token'];
-			$key = 'wer34rwerwrqw23';
+			$key = $this->app->getContainer()['settings']['security']['tokenKey'];
 			try {
 				$decoded = JWT::decode($token, $key, array('HS256'));
 				$user = $container['userManager']->getUserById($decoded->userId);
@@ -77,7 +77,7 @@ class TemplateMaster {
 		
 		// this is needed by master
 		$this->app->getContainer()['viewData']->data['currentUser'] = $this->app->getContainer()['userContainer']->getUser();
-		$this->app->getContainer()['viewData']->data['categories'] = $container['courseManager']->getCategoriesTree();
+		//$this->app->getContainer()['viewData']->data['categories'] = $container['courseManager']->getCategoriesTree();
 
 		$this->app->getContainer()['viewData']->data['requestUriHost'] = $request->getUri()->getHost();
 		$this->app->getContainer()['viewData']->data['requestUriBasePath'] = $request->getUri()->getBasePath();

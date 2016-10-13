@@ -325,7 +325,7 @@ class UserManager extends BaseManager {
 		$response = new Slim\Http\Response();
 		$data['recoveryLink'] = $recoveryLink;
 		$data['user'] = $user;
-		$response = $renderer->render($response, 'forgot.phtml', $data);
+		$response = $renderer->render($response, 'email/forgot.phtml', $data);
 		$message = $response->getBody();
 
 		
@@ -415,7 +415,7 @@ class UserManager extends BaseManager {
 		$response = new Slim\Http\Response();
 		$data['verificationLink'] = $verificationLink;
 		$data['user'] = $user;
-		$response = $renderer->render($response, 'verify_email.phtml', $data);
+		$response = $renderer->render($response, 'email/verify_email.phtml', $data);
 		$message = $response->getBody();
 		
 		$subject = getFirstLine($message);

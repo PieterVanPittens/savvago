@@ -36,7 +36,8 @@ $app->post('/api/users', function ($request, $response, $args) {
 	$user->password = $input->password;
 	
 	$apiResult = $userManager->registerUser($user);
-	$apiResult->object = createJwtToken($user->userId);	
+	$key = $this->serviceContainer['settings']['security']['tokenKey'];
+	$apiResult->object = createJwtToken($user->userId, $key);	// login user automatically
 
 	return json_encode($apiResult);
 });
@@ -186,8 +187,7 @@ $app->post('/api/courses', function ($request, $response, $args) {
 /**
  * creates jwt token for user
  */
-function createJwtToken($userId) {
-	$key = "wer34rwerwrqw23";
+function createJwtToken($userId, $key) {
 	$token = array(
 			'userId' => $userId,
 			'iss' => 'savvago',
@@ -214,7 +214,8 @@ $app->post('/api/login', function ($request, $response, $args) {
 		$apiResult->setError("The email or password you entered are incorrect");
 		return $apiResult->toJson();
 	} else {
-		$jwt = createJwtToken($user->userId);
+		$key = $this->serviceContainer['settings']['security']['tokenKey'];
+		$jwt = createJwtToken($user->userId, $key);
 		
 		$apiResult = new ApiResult();
 		$apiResult->setSuccess("Logged in");
