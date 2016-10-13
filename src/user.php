@@ -321,7 +321,7 @@ class UserManager extends BaseManager {
 		$recoveryLink = $this->settings['application']['base'] . 'newpassword/' . $user->passwordRecoveryKey;
 		
 		// put link in email template and render template
-		$renderer = new Slim\Views\PhpRenderer(__DIR__ . '/../public/templates/email/');
+		$renderer = new Slim\Views\PhpRenderer($this->settings['renderer']['template_path']);
 		$response = new Slim\Http\Response();
 		$data['recoveryLink'] = $recoveryLink;
 		$data['user'] = $user;
@@ -411,7 +411,7 @@ class UserManager extends BaseManager {
 
 		$verificationLink = $verificationKey;
 		
-		$renderer = new Slim\Views\PhpRenderer(__DIR__ . '/../public/templates/email/');
+		$renderer = new Slim\Views\PhpRenderer($this->settings['renderer']['template_path']);
 		$response = new Slim\Http\Response();
 		$data['verificationLink'] = $verificationLink;
 		$data['user'] = $user;
