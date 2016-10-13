@@ -79,7 +79,8 @@ $protocol->addSuccess("Created Dirs");
 
 // step 3: update config file
 
-// todo: generate machine salt for password hashing
+// todo: security: generate machine salt for password hashing
+// todo: security: generate token key
 
 $protocol->addSuccess("Config updated todo");
 
