@@ -56,7 +56,16 @@ return [
 			'user' => 'root',
 			'pass' => ''
 		],
-    		
+		
+   		// security
+   		'security' => [
+   			// this is the secret key for hashing the passwords
+   			// it will be randomly defined at installation time
+   			// when you change the salt in a running system then all passwords become invalid,
+   			// they cannot be matched anymore -> noone is able to login anymore
+			'salt' => '1234' 
+   		],
+		
   		// caching
    		'cache' => [
    				'service' => __DIR__ . '/../cache/service/'

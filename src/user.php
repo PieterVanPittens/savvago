@@ -269,7 +269,10 @@ class UserManager extends BaseManager {
 		}
 		$user->passwordRecoveryKey = null;
 		$user->passwordRecoveryDeadline = null;
-		$user->password = $password; // Todo encode
+		
+		$machineSalt = $this->settings['security']['salt'];
+		$user->password = password_hash($machineSalt.$user->password, PASSWORD_DEFAULT);
+
 		$this->repository->setNewPassword($user);
 		
 		
@@ -392,8 +395,8 @@ class UserManager extends BaseManager {
 			}
 		}
 		
-		// todo: enable for production
-		//$user->password = password_hash($user->password, PASSWORD_DEFAULT);
+		$machineSalt = $this->settings['security']['salt'];
+		$user->password = password_hash($machineSalt.$user->password, PASSWORD_DEFAULT);
 		$this->repository->createUser($user);
 		
 		/*
@@ -500,14 +503,16 @@ class UserManager extends BaseManager {
 		if (is_null($user)) {
 			return null;
 		} else {
-			if ((true || password_verify($password, $user->password)) && $user->isActive) {
+			$machineSalt = $this->settings['security']['salt'];
+			$saltedPassword = $machineSalt.$password;
+		
+			if ((true || password_verify($saltedPassword, $user->password)) && $user->isActive) {
 				return $user;
 			} else {
 				return null;
 			}
 		}
 	}
-	
 }
 
 /** 
