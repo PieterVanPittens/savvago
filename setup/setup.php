@@ -78,6 +78,9 @@ foreach($dirs as $dir) {
 $protocol->addSuccess("Created Dirs");
 
 // step 3: update config file
+
+// todo: generate machine salt for password hashing
+
 $protocol->addSuccess("Config updated todo");
 
 // ganz einfach: in die default settings kommen platzhalter rein
