@@ -409,7 +409,7 @@ class UserManager extends BaseManager {
 		$queueItem->subject = "Verify Email"; // todo
 		*/
 
-		$verificationLink = $verificationKey;
+		$verificationLink = $this->settings['application']['base'].'users/'.urlencode($user->email) .'/verify/'.urlencode($verificationKey);
 		
 		$renderer = new Slim\Views\PhpRenderer($this->settings['renderer']['template_path']);
 		$response = new Slim\Http\Response();
@@ -447,10 +447,9 @@ class UserManager extends BaseManager {
 	function mail($toUser, $subject, $message) {
 		$to = $toUser->displayName . ' <'.$toUser->email.'>';
 		$from = 'savvago <savvago@domain.com>';
-		$header = 'From: ' . $to . '\r\n' .
-				'Reply-To: ' . $to . '\r\n' .
-				'X-Mailer: PHP/' . phpversion();
-		//$isSent = @mail($to, $subject, $message, $header);		
+		$header = 'From: ' . $from . '\r\n' .
+				'Reply-To: ' . $from . '\r\n';
+		$isSent = @mail($to, $subject, $message, $header);		
 		$isSent = true;
 		
 		return $isSent;

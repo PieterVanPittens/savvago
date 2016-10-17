@@ -6,8 +6,14 @@
  * @param unknown $request
  */
 function setLastRequestPath($request) {
+
+//var_dump($request);
+
+//$lastPath = $request->getServerParams()["REDIRECT_SCRIPT_URI"];
+$lastPath = $request->getUri()->getBasePath().$request->getUri()->getPath();
+//die($lastPath);
 	// cannot set path and domain because that does not always work in IE?!
-	setcookie("savvago_lastpath", $request->getUri()->getBasePath().'/'.$request->getUri()->getPath(), 0, $request->getUri()->getBasePath()); //, 0, $request->getUri()->getBasePath(), $request->getUri()->getHost());
+	setcookie("savvago_lastpath", $lastPath, 0, $request->getUri()->getBasePath()); //, 0, $request->getUri()->getBasePath(), $request->getUri()->getHost());
 }
 
 
@@ -192,7 +198,6 @@ $app->get('/forgot', function ($request, $response, $args) {
 // INDEX
 $app->get('/', function ($request, $response, $args) {
 	setLastRequestPath($request);
-	
 	$page = new Page();
 	$page->title = $this->settings['application']['name'];
 	$page->mainView = 'index.phtml';
