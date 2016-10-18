@@ -483,7 +483,7 @@ class CourseManager extends BaseManager {
 		$urls['teach'] = $this->settings['application']['base'] . 'teach/' . $course->courseId;
 		
 		foreach($this->settings['course']['image_formats'] as $key => $value) {
-			$urls['images'][$key] = $this->settings['application']['base'] . 'upload/'. $value['width'].'x'.$value['height'] .'-'. $course->imageName;
+			$urls['images'][$key] = $this->settings['application']['base'] . 'upload/' . $course->name .'/'. $value['width'].'x'.$value['height'] .'-'. $course->imageName;
 		}
 		
 		$course->urls = $urls;
@@ -674,19 +674,19 @@ class CourseManager extends BaseManager {
 			);
 		
 		$urls['toc'] = $this->settings['application']['base'] . 'courses/' . $lesson->courseId . '/toc';
+		if (is_null($lesson->course)) {
+			// todo: cache course
+			$lesson->course = $this->repository->getCourseById($lesson->courseId);
+			$this->addCourseUrls($lesson->course);
+		}
 		
 		if ($this->isNullOrEmpty($lesson->imageName)) {
-			if (is_null($lesson->course)) {
-				// todo: cache course
-				$lesson->course = $this->repository->getCourseById($lesson->courseId);
-				$this->addCourseUrls($lesson->course);
-			}
 			$imageName = $lesson->course->imageName;
 		} else {
 			$imageName = $lesson->imageName;
 		}
 		foreach($this->settings['course']['image_formats'] as $key => $value) {
-			$urls['images'][$key] = $this->settings['application']['base'] . 'upload/'. $value['width'].'x'.$value['height'] .'-'. $imageName;
+			$urls['images'][$key] = $this->settings['application']['base'] . 'upload/' . $lesson->course->name . '/' . $value['width'].'x'.$value['height'] .'-'. $imageName;
 		}
 		
 		
@@ -1196,8 +1196,11 @@ class CourseManager extends BaseManager {
 		$course->subtitle = $courseImport->subtitle;
 		$course->description = $courseImport->description;
 
-		
-		
+		// upload content files
+		$uploadPath = $this->settings['upload']['upload_path'] . $course->name . '/';
+		if (!file_exists($uploadPath)) {
+			mkdir($uploadPath);
+		}
 		$filesToBeDeleted = array();
 		
 		
@@ -1208,7 +1211,7 @@ class CourseManager extends BaseManager {
 		$newImageName = com_create_guid().'.'.$path_parts['extension'];
 		$course->imageName = $newImageName;		
 		foreach($this->settings['course']['image_formats'] as $key => $value) {
-			$targetFile = $this->settings['upload']['upload_path'] . $value['width'].'x'.$value['height'].'-'.$newImageName;
+			$targetFile = $uploadPath . $value['width'].'x'.$value['height'].'-'.$newImageName;
 			ImageManager::resizeImage($imageFile, $targetFile, $value['width'], $value['height']);
 		}
 
@@ -1250,7 +1253,7 @@ class CourseManager extends BaseManager {
 							$newImageName = com_create_guid().'.'.$path_parts['extension'];
 							$l->imageName = $newImageName;
 							foreach($this->settings['course']['image_formats'] as $key => $value) {
-								$targetFile = $this->settings['upload']['upload_path'] . $value['width'].'x'.$value['height'].'-'.$newImageName;
+								$targetFile = $uploadPath . $value['width'].'x'.$value['height'].'-'.$newImageName;
 								ImageManager::resizeImage($imageFile, $targetFile, $value['width'], $value['height']);
 							}
 						}
@@ -1267,6 +1270,18 @@ class CourseManager extends BaseManager {
 							foreach($lessonImport->attachments as $attachmentImport) {
 								$co = $this->createContentObject($attachmentImport);
 								$this->container['courseRepository']->createAttachment($l->lessonId, $co->objectId);
+							}
+						}
+						
+						// content file
+						if ($co->typeId == 2) {
+							$jsonObject = json_decode($co->content);
+							var_dump($jsonObject);
+							
+							if (isset($jsonObject->file)) {
+								// import file locally
+								copy($tempPath.$jsonObject->file, $uploadPath.$jsonObject->file);
+								$filesToBeDeleted[] = $tempPath.$jsonObject->file;
 							}
 						}
 					}

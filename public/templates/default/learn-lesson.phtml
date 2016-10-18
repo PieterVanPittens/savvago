@@ -16,7 +16,7 @@
 		switch($lesson->content->typeId) {
 			case 2: // pdf?>
 			<div class="embed-responsive embed-responsive-16by9">
-			  <iframe class="embed-responsive-item" src="<?= $settings['template'] ?>pdf.js/web/viewer.html?file=<?=json_decode($lesson->content->content)->url; ?>"></iframe>
+			  <iframe class="embed-responsive-item" src="<?= $settings['template'] ?>pdf.js/web/viewer.html?file=<?= $settings["base"]."upload/". $lesson->course->name ."/" .json_decode($lesson->content->content)->file; ?>"></iframe>
 			</div>
 			<?php
 			break;
