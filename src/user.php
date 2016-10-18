@@ -446,7 +446,7 @@ class UserManager extends BaseManager {
 	 */
 	function mail($toUser, $subject, $message) {
 		$to = $toUser->displayName . ' <'.$toUser->email.'>';
-		$from = 'savvago <savvago@domain.com>';
+		$from = $this->settings['application']['senderEmail'];
 		$header = 'From: ' . $from . '\r\n' .
 				'Reply-To: ' . $from . '\r\n';
 		$isSent = @mail($to, $subject, $message, $header);		
