@@ -14,7 +14,7 @@ margin-bottom: 14px;
 	<h1 class="toc"><a href="<?= $section->lessons[0]->urls['view']; ?>"><?= $section->title; ?></a></h1>
 
 	<?php foreach ($section->lessons as $lesson) { ?>
-	<h2 class="toc"><a href="<?= $lesson->urls['view']; ?>"><?= $lesson->title; ?></a></h2>
+	<h2 class="toc"><img src="<?= $lesson->urls['images']['list']; ?>" alt="<?= $lesson->title; ?>"><a href="<?= $lesson->urls['view']; ?>"><?= $lesson->title; ?></a></h2>
 	<?php }?>
 <?php }?>
 
