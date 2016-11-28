@@ -116,6 +116,15 @@ ul.nav li.dropdown:hover ul.dropdown-menu{
 	margin-top:0px
 }
 
+.line-item-lesson img {
+	border: 1px solid black;
+	margin-right: 25px;
+	margin-bottom: 25px;
+}
+.line-item-lesson a {
+	font-family: 'Bebas Neue';
+	font-size: 20px;
+}
 
 .sectiontile {
 	border: 1px solid #130f30;
