@@ -91,9 +91,13 @@ $user->name = "user";
 foreach($files as $contentFilename) {
 	$filename = __DIR__ . '/../content/' . $contentFilename;
 	try {
-		$course = $courseService->importCourse($user, 1, $filename);
-		$courseManager->publishCourse($course, true);
-		$protocol->addSuccess("course imported: " . $course->name);
+		$result = $courseService->importCourse($user, 1, $filename);
+		if ($result->message->type == MessageTypes::Success) {
+			$courseManager->publishCourse($result->object, true);
+			$protocol->addSuccess("course imported: " . $result->object->name);
+		} else {
+			$protocol->addError($result->message->text);
+		}
 		
 	} catch (GrapesException $ex) {
 		$protocol->addError($ex->apiMessage->text);

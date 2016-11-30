@@ -179,12 +179,14 @@ class CourseService extends BaseService {
 	 * @param User $user
 	 * @param int universityId
 	 * @param string filename
-	 * @return Course
+	 * @return ApiResult
 	 */
 	function importCourse($user, $universityId, $filename) {
-		$course = $this->container['courseManager']->importCourse($user, $universityId, $filename);
-		$this->deleteCaches($course);
-		return $course;
+		$result = $this->container['courseManager']->importCourse($user, $universityId, $filename);
+		if ($result->message->type == MessageTypes::Success) {	
+			$this->deleteCaches($result->object);
+		}
+		return $result;
 	}
 	
 	
@@ -1146,6 +1148,12 @@ class CourseManager extends BaseManager {
 	 * @return Course
 	 */
 	function importCourse($user, $universityId, $filename) {
+
+		// check folders
+		if (!file_exists($this->settings['upload']['upload_path'])) {
+			return ApiResultFactory::createError('upload_path does not exist', null);
+		}
+	
 	
 		// extract zip first
 		$zip = new ZipArchive;
@@ -1264,7 +1272,7 @@ class CourseManager extends BaseManager {
 						$l->courseId = $course->courseId;
 						$l = $this->createLesson($l);
 						
-						
+						/*
 						// attachments
 						if (isset($lessonImport->attachments)) {
 							foreach($lessonImport->attachments as $attachmentImport) {
@@ -1272,7 +1280,7 @@ class CourseManager extends BaseManager {
 								$this->container['courseRepository']->createAttachment($l->lessonId, $co->objectId);
 							}
 						}
-						
+						*/
 						// content file
 						if ($co->typeId == 2) {
 							$jsonObject = json_decode($co->content);
@@ -1281,7 +1289,7 @@ class CourseManager extends BaseManager {
 							if (isset($jsonObject->file)) {
 								// import file locally
 								copy($tempPath.$jsonObject->file, $uploadPath.$jsonObject->file);
-								$filesToBeDeleted[] = $tempPath.$jsonObject->file;
+								$filesToBeDeleted[$tempPath.$jsonObject->file] = '';
 							}
 						}
 					}
@@ -1298,7 +1306,7 @@ class CourseManager extends BaseManager {
 		unlink($filenameCourse);
 		rmdir($tempPath);
 		
-		return $course;
+		return ApiResultFactory::createSuccess("course created", $course);
 	}
 	
 	/**

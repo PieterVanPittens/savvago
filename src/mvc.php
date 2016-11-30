@@ -3,6 +3,40 @@
 // extension of slim MVC framework
 
 /**
+ * ApiResultFactory
+ */
+class ApiResultFactory {
+	/** 
+	 * creates a success result
+	 */
+	public static function createSuccess($message, $object) {
+		$result = new ApiResult();
+		$result->setSuccess($message);
+		$result->object = $object;
+		return $result;
+	}
+	/** 
+	 * creates a warning result
+	 */
+	public static function createWarning($message, $object) {
+		$result = new ApiResult();
+		$result->setWarning($message);
+		$result->object = $object;
+		return $result;
+	}
+	/** 
+	 * creates an error result
+	 */
+	public static function createError($message, $object) {
+		$result = new ApiResult();
+		$result->setError($message);
+		$result->object = $object;
+		return $result;
+	}
+}
+
+
+/**
  * Api Result
  * result of call to REST-Api
  */
