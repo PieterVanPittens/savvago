@@ -88,15 +88,29 @@ $user = new User();
 $user->userId = 1;
 $user->name = "user";
 
+$files = array();
+//$files[] = "minus 3 lessons.zip";
+//$files[] = "plus 2 sections.zip";
+//$files[] = "plus 2 lessons.zip";
+$files[] = "move lessons1.zip";
+
 foreach($files as $contentFilename) {
 	$filename = __DIR__ . '/../content/' . $contentFilename;
 	try {
 		$result = $courseService->importCourse($user, 1, $filename);
 		if ($result->message->type == MessageTypes::Success) {
-			$courseManager->publishCourse($result->object, true);
+			//$courseManager->publishCourse($result->object, true);
 			$protocol->addSuccess("course imported: " . $result->object->name);
 		} else {
-			$protocol->addError($result->message->text);
+			$text = $result->message->text;
+			if (is_array($result->object)) {
+				$text .= " ";
+				foreach($result->object as $s) {
+					$text .= "$s, ";
+				}
+			}
+
+			$protocol->addError($text);
 		}
 		
 	} catch (GrapesException $ex) {

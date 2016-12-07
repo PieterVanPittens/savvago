@@ -868,14 +868,17 @@ class CourseManager extends BaseManager {
 	 * @return Lesson
 	 */
 	public function createLesson($lesson) {
-		$lesson = $this->repository->createLesson($lesson);
 		$section = $this->repository->getSectionById($lesson->sectionId);
+		if (is_null($section)) {
+			throw new ManagerException('section "' . $lesson->sectionId . '" does not exist');
+		}
+		$lesson = $this->repository->createLesson($lesson);
 		$this->repository->increaseCourseNumLessons($section->courseId, 1);
 		$this->repository->increaseSectionNumLessons($section->sectionId, 1);
 		
 		$lessons = $this->repository->getLessonsBySectionId($lesson->sectionId);
-		$rank = count($lessons);
-		$this->repository->updateLessonSectionRank($lesson->lessonId, $rank);
+		$sectionRank = count($lessons);
+		$this->repository->updateLessonRanks($lesson->lessonId, $sectionRank, $lesson->rank);
 		
 		return $lesson;
 	}
@@ -1141,6 +1144,22 @@ class CourseManager extends BaseManager {
 	}
 	
 	/**
+	 * completely deletes a course
+	 * @param Course course
+	 */
+	function deleteCourse($course) {
+		$this->repository->deleteAttachmentContentObjects($course->courseId);
+		$this->repository->deleteCourseAttachments($course->courseId);
+		$this->repository->deleteLessons($course->courseId);
+		$this->repository->deleteSections($course->courseId);
+		$this->repository->deleteServiceCaches(ModelTypes::Course, $course->courseId);
+		$this->repository->deleteCourse($course->courseId);
+	
+		// todo: delete files from disc
+	
+	}
+	
+	/**
 	 * imports course from zip file
 	 * @param User $user
 	 * @param int universityId
@@ -1153,8 +1172,8 @@ class CourseManager extends BaseManager {
 		if (!file_exists($this->settings['upload']['upload_path'])) {
 			return ApiResultFactory::createError('upload_path does not exist', null);
 		}
-	
-	
+
+		
 		// extract zip first
 		$zip = new ZipArchive;
 		$guid = com_create_guid();
@@ -1165,24 +1184,203 @@ class CourseManager extends BaseManager {
 		} else {
 			throw new ManagerException('Could not unzip course file: '.$filename);
 		}
+
+		// read course file
 		$filenameCourse = $tempPath . 'course.json';
 		$courseJson = file_get_contents($filenameCourse);
-	
 		$courseImport = json_decode($courseJson);
 		if (is_null($courseImport)) {
 			throw new ManagerException("$filenameCourse does not contain valid JSON");
 		}
+
+		$uploadPath = $this->settings['upload']['upload_path'] . $courseImport->name . '/';
+
+		// check if course exists
+		$course = $this->repository->getCourseByName($courseImport->name);
+
+		// course exists, check if it can be updated
+		$isDeltaUpdate = false;
+		if ($course != null) {
 		
-		// create course
-		$course = new Course();
-		
-		// create content object for promo video
-		if (isset($courseImport->video)) {
-			if (!is_null($courseImport->video)) {
-				$coVideo = $this->createContentObject($courseImport->video);
-				$course->videoId = $coVideo->objectId;
+			// cannot be updated if published
+			if ($course->isPublished) {
+				return ApiResultFactory::createError('Course "' . $course->name. '" is published. Unpublish the course first if you want to update it.', null);
+			}
+			
+			$hasEnrollments = $course->numEnrollments > 0;
+			$numProgresses = $this->repository->getNumProgresses($course->id);
+			$hasProgresses = $numProgresses > 0;
+			
+			if (!$hasEnrollments && !$hasProgresses) {
+				// delete course completely
+				$this->deleteCourse($course);
+			} else {
+				// course must not be deleted
+				// delta update required
+				$isDeltaUpdate = true;
+				// create course
 			}
 		}
+
+		
+		
+		
+		// course
+		if ($isDeltaUpdate) {
+			
+			// determine lessons to be deleted
+			$lessonsToBeDeleted = array();
+			$lessons = $this->repository->getLessonsByCourseId($course->courseId);
+			foreach($lessons as $lesson) {
+				$lessonFound = false;
+				if (isset($courseImport->sections)) {
+					foreach ($courseImport->sections as $sectionImport) {
+						if (isset($sectionImport->lessons)) {
+							foreach ($sectionImport->lessons as $lessonImport) {
+								if (isset($lessonImport->name)) {
+									$name = $lessonImport->name;
+								} else {
+									$name = url_slug($lessonImport->title);
+								}
+								$lessonImport->name = $name;
+								if ($name == $lesson->name) {
+									$lessonFound = true;
+								}
+							}
+						}
+					}
+				}
+				if (!$lessonFound) {
+					$lessonsToBeDeleted[] = $lesson;
+				}
+			}
+			// determine sections to be deleted
+			// section must be empty to be deleted, otherwise it would imply deleting lessons
+			// if no lessonstobedeleted we can assume that sections can safely be deleted
+			// -> obviously the lessons had been moved to other sections because there are not lessonstobedeleted
+
+			
+			// if there are enrollments already: nothing may be deleted
+			if ($hasEnrollments && count($lessonsToBeDeleted) > 0) {
+				$lessonNames = array();
+				foreach($lessonsToBeDeleted as $lesson) {
+					$lessonNames[] = $lesson->name;
+				}
+				return ApiResultFactory::createError('Course already has enrolled students. It is not allowed to reduce the scope of the course anymore. These lessons need to remain in the course:', $lessonNames);
+			}
+
+			$sectionsToBeDeleted = array();
+			$lessonsToBeAdded = array();
+
+			/*
+						reihenfolge:
+			1. sections adden (rank egal) -> done
+			2. lessons adden (rank egal)
+			3. lessons umhängen und ranks updaten
+			4. sections löschen
+			5. contents updaten
+			
+			vielleicht sollten contentdateien und struktur vielleicht sogar getrennt werden?
+			*/
+
+			// STEP 1: add new sections
+			// determine sections to be added
+			$sectionsToBeAdded = array();
+			$sections = $this->repository->getSectionsByCourseId($course->courseId);
+			if (isset($courseImport->sections)) {
+				foreach ($courseImport->sections as $sectionImport) {
+					$sectionFound = false;
+					if (isset($sectionImport->name)) {
+						$name = $sectionImport->name;
+					} else {
+						$name = url_slug($sectionImport->title);
+					}
+					$sectionImport->name = $name;
+					foreach($sections as $section) {
+						if ($section->name == $name) {
+							$sectionFound = true;
+						}
+					}
+					if (!$sectionFound) {
+						$sectionsToBeAdded[] = $sectionImport;
+					}
+				}
+			}
+			
+			// add new sections
+			foreach($sectionsToBeAdded as $sectionImport) {
+				$section = $this->createSectionFromImport($course, $sectionImport);
+			}
+
+			// STEP 2: add new lessons
+			// determine lessons to be added
+			$lessons = $this->repository->getLessonsByCourseId($course->courseId);
+			if (isset($courseImport->sections)) {
+				foreach ($courseImport->sections as $sectionImport) {
+					if (isset($sectionImport->lessons)) {
+						foreach ($sectionImport->lessons as $lessonImport) {
+							$lessonFound = false;
+							if (isset($lessonImport->name)) {
+								$name = $lessonImport->name;
+							} else {
+								$name = url_slug($lessonImport->title);
+							}
+							foreach($lessons as $lesson) {
+								if ($lesson->name == $name) {
+									$lessonFound = true;
+								}
+							}
+							if (!$lessonFound) {
+								$section = $this->repository->getSectionByName($course->courseId, $sectionImport->name);
+								if (is_null($section)) {
+									throw new ManagerException('section "'.$sectionImport->name.'" does not exist');
+								}
+								// add lesson
+								$l = $this->createLessonFromImport($course, $lessonImport, $section, $tempPath, $uploadPath);
+							}
+						}
+					}
+				}
+			}
+			// STEP 3: update ranks
+			if (isset($courseImport->sections)) {
+				$sectionRank = 0;
+				foreach ($courseImport->sections as $sectionImport) {
+					$numLessons = 0;
+					$section = $this->repository->getSectionByName($course->courseId, $sectionImport->name);
+					if (is_null($section)) {
+						throw new ManagerException('section "'.$setionImport->name.'" does not exist');
+					}
+					$this->repository->updateSectionRank($section->sectionId, $sectionRank);
+					if (isset($sectionImport->lessons)) {
+						$lessonRank = 0;
+						foreach ($sectionImport->lessons as $lessonImport) {
+							$numLessons++;
+							$lesson = $this->repository->getLessonByName($course->courseId, $lessonImport->name);
+							$lesson->sectionRank = $sectionRank;
+							$lesson->rank = $lessonRank;
+							$lesson->sectionId = $section->sectionId;
+							$this->repository->updateLesson($lesson);
+							$lessonRank++;
+						}
+					}
+					$this->repository->updateSectionNumLessons($section->sectionId, $numLessons);
+					$sectionRank++;
+				}
+			}
+			return ApiResultFactory::createSuccess('Course "'.$course->name.'" updated.', $course);
+		} else {
+			$course = new Course();
+			// create content object for promo video
+			if (isset($courseImport->video)) {
+				if (!is_null($courseImport->video)) {
+					$coVideo = $this->createContentObject($courseImport->video);
+					$course->videoId = $coVideo->objectId;
+				}
+			}
+		}
+		$course->categoryId = 0;
+		/* descoped for the moment
 		if (isset($courseImport->category)) {
 			$category = $this->repository->getCategoryByName($courseImport->category);
 			if (is_null($category)) {
@@ -1191,7 +1389,7 @@ class CourseManager extends BaseManager {
 				$course->categoryId = $category->categoryId;
 			}
 		}		
-		
+		*/
 		if (isset($courseImport->name)) {
 			$course->name = $courseImport->name;
 		} else {
@@ -1205,7 +1403,6 @@ class CourseManager extends BaseManager {
 		$course->description = $courseImport->description;
 
 		// upload content files
-		$uploadPath = $this->settings['upload']['upload_path'] . $course->name . '/';
 		if (!file_exists($uploadPath)) {
 			mkdir($uploadPath);
 		}
@@ -1228,50 +1425,13 @@ class CourseManager extends BaseManager {
 		// create sections
 		if (isset($courseImport->sections)) {
 			foreach ($courseImport->sections as $sectionImport) {
-				$section = new Section();
-				$section->courseId = $course->courseId;
-				if (isset($sectionImport->name)) {
-					$section->name = $sectionImport->name;
-				} else {
-					$section->name = url_slug($sectionImport->title);
-				}
-				$section->title = $sectionImport->title;
-				$section->description = $sectionImport->description;
-				$section = $this->createSection($section);
+				$section = $this->createSectionFromImport($course, $sectionImport);
 				
 				// add lessons
 				if (isset($sectionImport->lessons)) {
 					foreach ($sectionImport->lessons as $lessonImport) {
-						
-						$co = $this->createContentObject($lessonImport->content);
-					
-						$l = new Lesson();
-						$l->sectionId = $section->sectionId;
-						
-						if (isset($lessonImport->name)) {
-							$l->name = $lessonImport->name;
-						} else {
-							$l->name = url_slug($lessonImport->title);
-						}
-						if (isset($lessonImport->imageName) && !$this->isNullOrEmpty($lessonImport->imageName)) {
-							// import image
-							$imageFile = $tempPath . $lessonImport->imageName;
-							$filesToBeDeleted[$imageFile] = '';
-							$path_parts = pathinfo($imageFile);
-							$newImageName = com_create_guid().'.'.$path_parts['extension'];
-							$l->imageName = $newImageName;
-							foreach($this->settings['course']['image_formats'] as $key => $value) {
-								$targetFile = $uploadPath . $value['width'].'x'.$value['height'].'-'.$newImageName;
-								ImageManager::resizeImage($imageFile, $targetFile, $value['width'], $value['height']);
-							}
-						}
-						
-						$l->title = $lessonImport->title;
-						$l->description = $lessonImport->description;
-						$l->contentObjectId = $co->objectId;
-						$l->courseId = $course->courseId;
-						$l = $this->createLesson($l);
-						
+
+						$l = $this->createLessonFromImport($course, $lessonImport, $section, $tempPath, $uploadPath);
 						/*
 						// attachments
 						if (isset($lessonImport->attachments)) {
@@ -1308,6 +1468,66 @@ class CourseManager extends BaseManager {
 		
 		return ApiResultFactory::createSuccess("course created", $course);
 	}
+
+	/**
+	 * creates lesson in database from import file
+	 * @param Course $course
+	 * @param object $lessonImport
+	 * @return Lesson
+	 */
+	private function createLessonFromImport($course, $lessonImport, $section, $tempPath, $uploadPath) {
+
+		$co = $this->createContentObject($lessonImport->content);
+	
+		$l = new Lesson();
+		$l->sectionId = $section->sectionId;
+		
+		if (isset($lessonImport->name)) {
+			$l->name = $lessonImport->name;
+		} else {
+			$l->name = url_slug($lessonImport->title);
+		}
+		if (isset($lessonImport->imageName) && !$this->isNullOrEmpty($lessonImport->imageName)) {
+			// import image
+			$imageFile = $tempPath . $lessonImport->imageName;
+			$filesToBeDeleted[$imageFile] = '';
+			$path_parts = pathinfo($imageFile);
+			$newImageName = com_create_guid().'.'.$path_parts['extension'];
+			$l->imageName = $newImageName;
+			foreach($this->settings['course']['image_formats'] as $key => $value) {
+				$targetFile = $uploadPath . $value['width'].'x'.$value['height'].'-'.$newImageName;
+				ImageManager::resizeImage($imageFile, $targetFile, $value['width'], $value['height']);
+			}
+		}
+		
+		$l->title = $lessonImport->title;
+		$l->description = $lessonImport->description;
+		$l->contentObjectId = $co->objectId;
+		$l->courseId = $course->courseId;
+		$l = $this->createLesson($l);
+		return $l;
+	}
+	
+	/**
+	 * creates section in database from import file
+	 * @param Course $course
+	 * @param object $sectionImport
+	 * @return Section
+	 */
+	private function createSectionFromImport($course, $sectionImport) {
+		$section = new Section();
+		$section->courseId = $course->courseId;
+		if (isset($sectionImport->name)) {
+			$section->name = $sectionImport->name;
+		} else {
+			$section->name = url_slug($sectionImport->title);
+		}
+		$section->title = $sectionImport->title;
+		$section->description = $sectionImport->description;
+		$section = $this->createSection($section);
+		return $section;
+	}
+
 	
 	/**
 	 * creates content object based on jsonObject from import file

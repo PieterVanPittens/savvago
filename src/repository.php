@@ -156,6 +156,78 @@ class CourseRepository extends BasePdoRepository {
 		);
 		$stmt = $this->execute($stmt, $parameters);
 	}
+
+	/**
+	 * deletes all lessons of a course
+	 * @param int $courseId
+	 */
+	public function deleteLessons($courseId) {
+		$query = "DELETE from lessons where course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+	}
+
+	/**
+	 * deletes all sections of a course
+	 * @param int $courseId
+	 */
+	public function deleteSections($courseId) {
+		$query = "DELETE from sections where course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+	}
+
+	/**
+	 * deletes a course
+	 * @param int $courseId
+	 */
+	public function deleteCourse($courseId) {
+		$query = "DELETE from courses where course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+	}
+	
+	/**
+	 * deletes all attachments of a course
+	 * @param int $courseId
+	 */
+	public function deleteCourseAttachments($courseId) {
+		// mysql does not support this one:
+		// delete att from attachments as att where att.attachment_id in (
+		// SELECT attachment_id FROM attachments a, lessons l where a.lesson_id = l.lesson_id and l.course_id = 13
+		// )
+		
+		
+		// so read all attachments first, then delete them
+		// not perfect but works
+    	$query = "SELECT attachment_id from attachments a, lessons l where a.lesson_id = l.lesson_id and l.course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+		$attachmentIds = array();
+		while ($a = $stmt->fetch()) {
+			$attachmentIds[] = $a[0];
+		}
+		foreach($attachmentIds as $attachmentId) {
+			$query = "DELETE from attachments where attachment_id = ?";
+			$stmt = $this->prepare($query);
+			$stmt = $this->execute($stmt, array($attachmentId));
+		}
+	}
+	
+	public function deleteAttachmentContentObjects($courseId) {
+    	$query = "select object_id from content_objects o, attachments a, lessons l where l.lesson_id = a.lesson_id and a.content_id = o.object_id and l.course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+		$objectIds = array();
+		while ($a = $stmt->fetch()) {
+			$objectIds[] = $a[0];
+		}
+		foreach($objectIds as $objectId) {
+			$query = "DELETE from content_objects where object_id = ?";
+			$stmt = $this->prepare($query);
+			$stmt = $this->execute($stmt, array($objectId));
+		}
+	}
 	
 	
 	/**
@@ -450,12 +522,43 @@ SELECT section_id FROM sections WHERE course_id = ?
 	 * @param int $lessonId
 	 * @param int $rank
 	 */
-	public function updateLessonSectionRank($lessonId, $rank) {
-		$query = "UPDATE lessons SET section_rank = ? WHERE lesson_id = ?";
+	public function updateLessonRanks($lessonId, $sectionRank, $lessonRank) {
+		$query = "UPDATE lessons SET section_rank = ?, rank = ? WHERE lesson_id = ?";
+		$stmt = $this->prepare($query);
+		$parameters = array(
+				$sectionRank,
+				$lessonRank,
+				$lessonId
+		);
+		$stmt = $this->execute($stmt, $parameters);
+	}
+
+	/**
+	 * updates the rank of a section
+	 * @param int $sectionId
+	 * @param int $rank
+	 */
+	public function updateSectionRank($sectionId, $rank) {
+		$query = "UPDATE sections SET rank = ? WHERE section_id = ?";
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$rank,
-				$lessonId
+				$sectionId
+		);
+		$stmt = $this->execute($stmt, $parameters);
+	}
+
+	/**
+	 * updates numlessons a section
+	 * @param int $sectionId
+	 * @param int $numLessons
+	 */
+	public function updateSectionNumLessons($sectionId, $numLessons) {
+		$query = "UPDATE sections SET num_lessons = ? WHERE section_id = ?";
+		$stmt = $this->prepare($query);
+		$parameters = array(
+				$numLessons,
+				$sectionId
 		);
 		$stmt = $this->execute($stmt, $parameters);
 	}
@@ -592,12 +695,13 @@ SELECT section_id FROM sections WHERE course_id = ?
 	 * @param Lesson $lesson
 	 */
 	public function updateLesson($lesson) {
-		$query = "UPDATE lessons SET section_id = ?, rank = ? WHERE lesson_id = ?";
+		$query = "UPDATE lessons SET section_id = ?, rank = ?, section_rank = ? WHERE lesson_id = ?";
 	
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$lesson->sectionId,
 				$lesson->rank,
+				$lesson->sectionRank,
 				$lesson->lessonId
 		);
 		$stmt = $this->execute($stmt, $parameters);
@@ -768,14 +872,15 @@ public function getNextLesson($userId, $courseId) {
 	}
 
 	/**
-	 * get Lesson by id
-	 * @param int $id
+	 * get Lesson by name
+	 * @param int $courseId
+	 * @param string $name
 	 * @return Lesson 
 	 */	
-	public function getLessonById($id) {
-		$query = "SELECT lesson_id, name, title, section_id, content_object_id, course_id, description, rank, section_rank, image_name FROM lessons where lesson_id = ?";
+	public function getLessonByName($courseId, $name) {
+		$query = "SELECT lesson_id, name, title, section_id, content_object_id, course_id, description, rank, section_rank, image_name FROM lessons where name = ? AND course_id = ?";
 		$stmt = $this->prepare($query);
-		$stmt = $this->execute($stmt, array($id));
+		$stmt = $this->execute($stmt, array($name, $courseId));
 		if ($a = $stmt->fetch()) {
 			$model = Lesson::CreateModelFromRepositoryArray($a);
 			return $model;
@@ -830,6 +935,22 @@ public function getNextLesson($userId, $courseId) {
 		}
 		return $models;
 	}
+
+	/**
+	 * retrieves all Sections
+	 * @param int $courseId
+	 * @return Array
+	 */
+	public function getSectionsByCourseId($courseId) {
+		$query = "SELECT section_id, name, course_id, title, rank, description, num_lessons FROM sections WHERE course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+		$models = array();
+		while ($a = $stmt->fetch()) {
+			$models[] = Section::CreateModelFromRepositoryArray($a);
+		}
+		return $models;
+	}
 	/**
 	 * creates Enrollment 
 	 * @param Enrollment $model
@@ -859,6 +980,23 @@ public function getNextLesson($userId, $courseId) {
 			return $model;
 		} else {
 			return null;
+		}
+	}
+	
+	/**
+	 * gets number of Progresses of one course
+	 * @param int $courseId
+	 * @return int
+	 */	
+	public function getNumProgresses($courseId) {
+		$query = "SELECT COUNT(*) as c FROM progress where course_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($courseId));
+
+		if ($a = $stmt->fetch()) {
+			return $a['c'];
+		} else {
+			return 0;
 		}
 	}
 	
