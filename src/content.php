@@ -130,6 +130,21 @@ class ContentRepository extends BasePdoRepository {
 		$model->objectId = $this->pdo->lastInsertId();
 		return $model;
 	}
+
+	/**
+	 * updates md5hash of ContentObject 
+	 * @param ContentObject $model
+	 */	
+	public function updateMd5Hash($model) {
+		$query = "UPDATE content_objects SET md5_hash = ? where object_id = ?";
+		$stmt = $this->prepare($query);
+		$parameters = array(
+			$model->md5Hash
+			, $model->objectId
+		);
+		$stmt = $this->execute($stmt, $parameters);
+	}
+
 	/**
 	 * gets ContentObject by id
 	 * @param string $id

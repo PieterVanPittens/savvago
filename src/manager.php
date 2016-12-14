@@ -1193,6 +1193,8 @@ class CourseManager extends BaseManager {
 			throw new ManagerException("$filenameCourse does not contain valid JSON");
 		}
 
+		$courseImport->name = time();
+		
 		$uploadPath = $this->settings['upload']['upload_path'] . $courseImport->name . '/';
 
 		// check if course exists
@@ -1280,6 +1282,19 @@ class CourseManager extends BaseManager {
 			pauschal jeden content updaten? oder kann man ein delta erkennen?
 			erkennen dürfte sinnvoller sein
 			also metadaten speichern, am besten ein hash vom content
+			
+			checks: 
+			1 typeid geändert?
+			-> datensatz und content löschen
+			2 "content" geändert?
+			-> feld updaten, binary löschen und neu kopieren
+			3 title, description immer pauschal updaten
+			4 hash geändert? binary löschen und updaten
+			
+			checken anhand importlessons
+			ist zwar ineffizient, jede lesson nochmal zu laden und dazu noch das contentobject
+			reicht aber für den moment
+			
 			*/
 
 			// STEP 1: add new sections
@@ -1468,24 +1483,6 @@ class CourseManager extends BaseManager {
 							}
 						}
 						*/
-						// content file
-						$co = $l->content;
-						if ($co->typeId == 2) {
-							$jsonObject = json_decode($co->content);
-							var_dump($jsonObject);
-							
-							if (isset($jsonObject->file)) {
-								// import file locally
-								copy($tempPath.$jsonObject->file, $uploadPath.$jsonObject->file);
-								$filesToBeDeleted[$tempPath.$jsonObject->file] = '';
-								// save md5hash
-								$hash = md5_file($uploadPath.$jsonObject->file);
-								dadadadasdasdasdasd
-								hier weitermachen: den md5 hash im co updaten
-								und dann kann beim delta import die  neue datei gehashed und hiermit verglichen werden
-								und damit ist der deltaupload dann endlich fertig
-							}
-						}
 					}
 				}
 			}
@@ -1540,6 +1537,23 @@ class CourseManager extends BaseManager {
 		$l->courseId = $course->courseId;
 		$l->content = $co;
 		$l = $this->createLesson($l);
+				
+		// content file
+		if ($co->typeId == 2) {
+			$jsonObject = json_decode($co->content);
+			var_dump($jsonObject);
+			
+			if (isset($jsonObject->file)) {
+				// import file locally
+				copy($tempPath.$jsonObject->file, $uploadPath.$jsonObject->file);
+				$hash = md5_file($tempPath.$jsonObject->file);
+				unlink($tempPath.$jsonObject->file);
+				// save md5hash
+				$co->md5Hash = $hash;
+				$this->container['contentRepository']->updateMd5Hash($co);
+			}
+		}		
+		
 		return $l;
 	}
 	
