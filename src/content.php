@@ -9,6 +9,7 @@ class ContentObject extends BaseModel {
 	public $content;
 	public $title;
 	public $description;
+	public $md5Hash;
 }
 
 /**
@@ -117,12 +118,13 @@ class ContentRepository extends BasePdoRepository {
 	 * @return ContentObject 
 	 */	
 	public function createContentObject($model) {
-		$query = "INSERT INTO content_objects (type_id, content, title, description) VALUES ( ?, ?, ?, ?)";
+		$query = "INSERT INTO content_objects (type_id, content, title, description, md5_hash) VALUES ( ?, ?, ?, ?, ?)";
 		$stmt = $this->prepare($query);
 		$parameters = array($model->typeId
 			, $model->content
 			, $model->title
 			, $model->description
+			, $model->md5Hash
 		);
 		$stmt = $this->execute($stmt, $parameters);
 		$model->objectId = $this->pdo->lastInsertId();
@@ -137,7 +139,7 @@ class ContentRepository extends BasePdoRepository {
 		if (is_null($id)) {
 			throw new RepositoryException('id must not be null');
 		}
-		$query = "SELECT object_id, type_id, content, title, description FROM content_objects where object_id = ?";
+		$query = "SELECT object_id, type_id, content, title, description, md5_hash FROM content_objects where object_id = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($id));
 
@@ -154,7 +156,7 @@ class ContentRepository extends BasePdoRepository {
 	 * @return array
 	 */	
 	public function getLessonAttachments($lessonId) {
-		$query = "SELECT o.object_id, type_id, content, title, description FROM content_objects o, attachments a where o.object_id = a.content_id and a.lesson_id = ?";
+		$query = "SELECT o.object_id, type_id, content, title, description, md5_hash FROM content_objects o, attachments a where o.object_id = a.content_id and a.lesson_id = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($lessonId));
 

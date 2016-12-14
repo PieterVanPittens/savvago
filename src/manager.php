@@ -1269,18 +1269,17 @@ class CourseManager extends BaseManager {
 				return ApiResultFactory::createError('Course already has enrolled students. It is not allowed to reduce the scope of the course anymore. These lessons need to remain in the course:', $lessonNames);
 			}
 
-			$sectionsToBeDeleted = array();
-			$lessonsToBeAdded = array();
 
 			/*
 						reihenfolge:
 			1. sections adden (rank egal) -> done
-			2. lessons adden (rank egal)
-			3. lessons umhängen und ranks updaten
-			4. sections löschen
+			2. lessons adden (rank egal) -> done
+			3. lessons umhängen und ranks updaten -> done
+			4. sections löschen -> done
 			5. contents updaten
-			
-			vielleicht sollten contentdateien und struktur vielleicht sogar getrennt werden?
+			pauschal jeden content updaten? oder kann man ein delta erkennen?
+			erkennen dürfte sinnvoller sein
+			also metadaten speichern, am besten ein hash vom content
 			*/
 
 			// STEP 1: add new sections
@@ -1368,6 +1367,34 @@ class CourseManager extends BaseManager {
 					$sectionRank++;
 				}
 			}
+			// STEP 4: delete lessons
+				// this case does not exist for delta update:
+				// deletion is allowed only if no enrollments and progress yet
+				// and that means the whole course will be deleted anyway
+				
+			// STEP 5: delete sections
+			// by definition now only empty sections should be left for deletion
+			$sectionsToBeDeleted = array();
+			foreach($sections as $section) {
+				$found = false;
+				if (isset($courseImport->sections)) {
+					foreach ($courseImport->sections as $sectionImport) {
+						if ($section->name == $sectionImport->name) {
+							$found = true;
+						}
+					}
+				}
+				if (!$found) {
+					// section not in file anymore, so needs to be deleted
+					$s = $this->repository->getSectionById($section->sectionId);
+					if ($s->numLessons == 0) {
+						$this->repository->deleteSection($section->sectionId);
+					} else {
+						throw ManagerException('Section "'.$section->name.'" cannot be deleted because it still contains lessons. Remove these lessons first.');
+					}
+				}
+			}
+			
 			return ApiResultFactory::createSuccess('Course "'.$course->name.'" updated.', $course);
 		} else {
 			$course = new Course();
@@ -1442,6 +1469,7 @@ class CourseManager extends BaseManager {
 						}
 						*/
 						// content file
+						$co = $l->content;
 						if ($co->typeId == 2) {
 							$jsonObject = json_decode($co->content);
 							var_dump($jsonObject);
@@ -1450,6 +1478,12 @@ class CourseManager extends BaseManager {
 								// import file locally
 								copy($tempPath.$jsonObject->file, $uploadPath.$jsonObject->file);
 								$filesToBeDeleted[$tempPath.$jsonObject->file] = '';
+								// save md5hash
+								$hash = md5_file($uploadPath.$jsonObject->file);
+								dadadadasdasdasdasd
+								hier weitermachen: den md5 hash im co updaten
+								und dann kann beim delta import die  neue datei gehashed und hiermit verglichen werden
+								und damit ist der deltaupload dann endlich fertig
 							}
 						}
 					}
@@ -1504,6 +1538,7 @@ class CourseManager extends BaseManager {
 		$l->description = $lessonImport->description;
 		$l->contentObjectId = $co->objectId;
 		$l->courseId = $course->courseId;
+		$l->content = $co;
 		$l = $this->createLesson($l);
 		return $l;
 	}

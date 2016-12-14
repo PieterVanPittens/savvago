@@ -168,6 +168,16 @@ class CourseRepository extends BasePdoRepository {
 	}
 
 	/**
+	 * deletes a lesson
+	 * @param int $lessonId
+	 */
+	public function deleteLesson($lessonId) {
+		$query = "DELETE from lessons where lesson_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($lessonId));
+	}
+
+	/**
 	 * deletes all sections of a course
 	 * @param int $courseId
 	 */
@@ -175,6 +185,16 @@ class CourseRepository extends BasePdoRepository {
 		$query = "DELETE from sections where course_id = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($courseId));
+	}
+
+	/**
+	 * deletes one section
+	 * @param int $sectionId
+	 */
+	public function deleteSection($sectionId) {
+		$query = "DELETE from sections where section_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($sectionId));
 	}
 
 	/**
@@ -586,12 +606,12 @@ SELECT section_id FROM sections WHERE course_id = ?
 	 */
 	public function increaseSectionNumLessons($sectionId, $increase) {
 		$query = "UPDATE sections SET num_lessons =  num_lessons + ? WHERE section_id = ?";
-	
+		
 		$stmt = $this->prepare($query);
 		$parameters = array(
-				$increase,
-				$sectionId
-		);
+			$increase,
+			$sectionId
+			);
 		$stmt = $this->execute($stmt, $parameters);
 	}
 	
