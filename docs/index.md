@@ -3,11 +3,13 @@
 Well, still looking for the right claim ("the social gamified mobile open source LMS" seems rather long)
 
 
-## Vision
+## What's the Vision?
 savvago is a learning management system that is open source yet enterprise enabled, social and gamified. The focus is on mobile and micro learning, being a simple yet powerful LMS for a broad range of applications.
 
+## What's the status?
+I started some months ago, working on some basic concepts like courses, lessons, users. There is no working release yet. The repository does contain code but it's not working software yet. But still I think it makes sense to get some feedback already...
 
-## Roadmap
+## What's the plan?
 ### Step 1: First Beta Version, just to get started somewhere
 
 - [x] basic user self service (register, login, lost password)
@@ -41,9 +43,9 @@ Hopefully...
 
 
 
-### Feedback and Discussion
+## Feedback and Discussion
 
 Leave your feedback or comments here:
-https://groups.google.com/forum/#!forum/getsavvago
+<https://groups.google.com/forum/#!forum/getsavvago>
 
 
