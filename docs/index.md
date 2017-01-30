@@ -1,5 +1,12 @@
 # Here goes the claim
 
 
-[Page2](Page2)
+
+
+
+### Feedback and Discussion
+
+Leave your feedback or comments here:
+https://groups.google.com/forum/#!forum/getsavvago
+
 
