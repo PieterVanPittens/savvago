@@ -39,6 +39,11 @@
 <link rel="stylesheet" href="<?= $settings['template']; ?>style/style.css">
 
 
+<script src="<?= $settings['template']; ?>jquery.fileupload/vendor/jquery.ui.widget.js"></script>
+<script src="<?= $settings['template']; ?>jquery.fileupload/jquery.iframe-transport.js"></script>
+<script src="<?= $settings['template']; ?>jquery.fileupload/jquery.fileupload.js"></script>
+
+
 <script>
 /**
  * displays apiresult as toast using toastr
@@ -58,72 +63,11 @@ function toastAjaxResult(result) {
 	var apiResult = JSON.parse(result.responseText);
 	toastApiResult(apiResult);
 }
-</script>
 
-
-
-</head>
-<body>
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-
-    <div class="navbar-header">
-	
-	<?php if (isset($back)) { ?>
-	<a class="navbar-brand" href="<?= $back; ?>" role="button"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></a>
-	<?php } ?>
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-
-
-      <a class="navbar-brand" href="#"><?= $settings['name']; ?></a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><p class="navbar-text" style="margin-left: 100px"><?= $settings['claim']; ?></p></li>
-
-      </ul>
-      
-      <ul class="nav navbar-nav navbar-right">
-		<?php if ($currentUser->isGuest()) { ?>
-			<li><a href="sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-			<li><a href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-		<?php } else { ?>
-		
-			<?php if ($currentUser->isAdmin()) { ?>
-			<li><a href="admin">Admin</a></li>
-			<?php } ?>
-			<?php if ($currentUser->isTeacher()) { ?>
-			<li><a href="teach">Teach</a></li>
-			<?php } ?>
-			<?php if ($currentUser->isStudent()) { ?>
-			<li><a href="my-courses">Learn</a></li>
-			<?php } ?>
-			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?= $currentUser->displayName; ?> <span class="caret"></span></a>
-			  <ul class="dropdown-menu">
-				<!-- 
-				<li><a href="my-profile">Profile</a></li>
-				<li><a href="my-account">Account Settings</a></li>
-				<li role="separator" class="divider"></li>
-				-->
-				<li><a id="logout">Logout</a></li>
-			  </ul>
-			</li>
-		<?php } ?>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-<script>
 $(function() {
+
+	$('.dropdown-toggle').dropdown()
+	
     $('#logout').click(function() {
     	$.removeCookie("savvago_token", { path: '/' });
    	
@@ -133,15 +77,69 @@ $(function() {
 </script>
 
 
-<div class="container-fluid">
+</head>
+<body>
 
-<?php require __DIR__ . '/'. $page->mainView; ?>
+<div class="container-fluid">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+
+
+
+<div class="row">
+<div class="col-md-1">
+      <a class="navbar-brand" href="#"><?= $settings['name']; ?></a>
+</div>
+<div class="col-md-7">
+	<p class="navbar-text" style="margin-left: 100px"><?= $settings['claim']; ?></p>
+</div>
+
+
+<div class="col-md-4 text-right" style="padding-top: 15px">
+		<?php if ($currentUser->isGuest()) { ?>
+		<div class="btn-group" role="group" aria-label="Menu">
+			<a class="btn btn-default" href="sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+			<a class="btn btn-default" href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+		</div>
+		<?php } else { ?>
+		<div class="btn-group" role="group" aria-label="Menu">
+			<?php if ($currentUser->isAdmin()) { ?>
+			<a class="btn btn-default" href="home/admin">Admin</a>
+			<?php } ?>
+			<?php if ($currentUser->isTeacher()) { ?>
+			<a class="btn btn-default" href="home/teacher">Teach</a>
+			<?php } ?>
+			<?php if ($currentUser->isStudent()) { ?>
+			<a class="btn btn-default" href="home/student">Learn</a>
+			<?php } ?>
+
+
+  <div class="btn-group" role="group">
+  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><?= $currentUser->displayName; ?> <span class="caret"></span></button>
+    <ul class="dropdown-menu dropdown-menu-right">
+	<li><a href="my-profile">Profile</a></li>
+	<li><a href="my-account">Account Settings</a></li>
+	<li role="separator" class="divider"></li>
+	<li><a id="logout">Logout</a></li>
+    </ul>
+  </div>
+
+		</div>
+		<?php } ?>
+</div>
+</div>
+
+
+<?php require $templatePath . '/'. $page->mainView; ?>
 
 
 <?php require __DIR__ . '/partial_master-footer.phtml'; ?>
 
-</div>
 
-	
+
+</div><!-- outer offset col -->
+</div><!--  outer row -->
+</div><!-- container -->
+
 </body>
 </html>

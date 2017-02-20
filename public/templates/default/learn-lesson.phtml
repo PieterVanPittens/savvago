@@ -1,115 +1,99 @@
 <section class="hero">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
 <h1>Lesson <?= $lesson->sectionRank; ?> of <?= $lesson->section->numLessons; ?>: <?= htmlspecialchars($lesson->title); ?></h1>
-</div>
-</div>
 </section>
 
 <section class="white">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-
-	<div class="row">
-	<div class="col-md-10">
-	<?php if (!is_null($lesson->content)) { 
-		switch($lesson->content->typeId) {
-			case 2: // pdf?>
-			<div class="embed-responsive embed-responsive-16by9">
-			  <iframe class="embed-responsive-item" src="<?= $settings['template'] ?>pdf.js/web/viewer.html?file=<?= $settings["base"]."upload/". $lesson->course->name ."/" .json_decode($lesson->content->content)->file; ?>"></iframe>
-			</div>
-			<?php
-			break;
-			case 1: // youtube ?>
-			<div class="embed-responsive embed-responsive-16by9">
-			  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/<?= json_decode($lesson->content->content)->videoId; ?>"></iframe>
-			</div> 
-			<?php 
-			break;
-			default:
-			echo "content type not supported";			
-			break;
-		}
-		
-		?>
-	<?php } else { ?>
-	no content...
-	<?php } ?>
-	</div> <!-- col -->
-	<div class="col-md-2">
-	<?php if ($currentUser->isGuest() || !$isEnrolled) { ?>
-		<div class="course-description">
-		<p><a class="btn btn-default" href="<?= $lesson->section->course->urls['enroll']; ?>">Enroll Now</a></p>
-		<p>Enroll now to save your learning progress.</p>
+<?php if (!is_null($lesson->content)) { 
+	switch($lesson->content->typeId) {
+		case 2: // pdf?>
+		<div class="embed-responsive embed-responsive-16by9">
+		  <iframe class="embed-responsive-item" src="<?= $settings['template'] ?>pdf.js/web/viewer.html?file=<?= $settings["base"]."upload/". $lesson->course->name ."/" .json_decode($lesson->content->content)->file; ?>"></iframe>
 		</div>
-	<?php } else {?>
+		<?php
+		break;
+		case 1: // youtube ?>
+		<div class="embed-responsive embed-responsive-16by9">
+		  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/<?= json_decode($lesson->content->content)->videoId; ?>"></iframe>
+		</div> 
+		<?php 
+		break;
+		default:
+		echo "content type not supported";			
+		break;
+	}
+	
+	?>
+<?php } else { ?>
+no content...
+<?php } ?>
+</section>
 
-		<?php if (is_null($progress)) { ?>
-		<script>
-		$(function() {
-		    $('#finish').click(function() {
+<section class="lightgray">
+<?php if ($currentUser->isGuest() || !$isEnrolled) { ?>
+	<div class="course-description">
+	<p><a class="btn btn-default" href="<?= $lesson->section->course->urls['enroll']; ?>">Enroll Now</a></p>
+	<p>Enroll now to save your learning progress.</p>
+	</div>
+<?php } else {?>
 
-				$.post( "<?= $lesson->urls['finish']; ?>",
-					'',
-					function(result) {
-						var apiResult = JSON.parse(result);
-						toastApiResult(apiResult);
-						if (apiResult.message.type == 1) {
-							location.reload();
-						}
+	<?php if (is_null($progress)) { ?>
+	<script>
+	$(function() {
+	    $('#finish').click(function() {
 
-					}).fail(function(result) {
-						toastAjaxResult(result);
-					});
-			    
-			});
+			$.post( "<?= $lesson->urls['finish']; ?>",
+				'',
+				function(result) {
+					var apiResult = JSON.parse(result);
+					toastApiResult(apiResult);
+					if (apiResult.message.type == 1) {
+						location.reload();
+					}
+
+				}).fail(function(result) {
+					toastAjaxResult(result);
+				});
+		    
 		});
-		</script>
-		<button class="btn btn-default" id="finish">Finish Lesson</button>
-		<?php } else {?>
+	});
+	</script>
+	<button class="btn btn-default" id="finish">Finish Lesson</button>
+	<?php } else {?>
+	<div class="row">
+		<div class="col-md-6">
 		<p>You have already finished this lesson.</p>
-		<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default" >Start Next Lesson</a>
-		<?php } ?>
+		</div>
+		<div class="col-md-6">
+		<div>
+		<span class="pull-right">
+		<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default" >Start Next Lesson</a>	
+		</span>
+		</div>
+		</div>
+	</div>	
 	
 	<?php } ?>
-	<div>
-	<?= $lesson->description; ?>
-	</div>
 
-	<?php if (count($attachments) > 0) { ?>
-	<div>
-	<h3>Additional files</h3>
-		<ul>
-		<?php foreach($attachments as $attachment) { ?>
-			<li><?= $attachment->description; ?>: <a href="<?= $attachment->content->url; ?>" target="_new"><?= $attachment->title; ?></a></li>
-		<?php } ?>
-		</ul>
-	</div>
+<?php } ?>
+
+<div>
+<?= $lesson->description; ?>
+</div>
+
+<?php if (count($attachments) > 0) { ?>
+<div>
+<h3>Additional files</h3>
+	<ul>
+	<?php foreach($attachments as $attachment) { ?>
+		<li><?= $attachment->description; ?>: <a href="<?= $attachment->content->url; ?>" target="_new"><?= $attachment->title; ?></a></li>
 	<?php } ?>
+	</ul>
+</div>
+<?php } ?>
 
-	</div>
-	</div>
-	</div>
-
-</div> <!-- row -->
 </section>
 
-<!--
-<section class="gray">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-<a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> ycxcxyc</a>
-<a class="btn btn-default" href="#" role="button"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>adasdasd </a>
-</div>
-</div>
-</section>
--->
-
-
-<section class="white">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-	
+<section class="white">	
 
 <h2><?= $lesson->section->numLessons; ?> Lessons in: <?= $lesson->section->title; ?></h2>
 
@@ -232,26 +216,10 @@ $(document).ready(function(){
 
 <div class="lessontiles" id="lessons"></div>
 
-</div>
-</div>
 </section>
 
-
-
-
-    <footer class="fooooter">
-      <div class="container">
-      <div class="row btn-bottom-bar">
-       <div class="col-xs-4">
-		<a href="#" role="button" class="btn btn-bottom-bar btn-primary"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
-       </div>
-       <div class="col-xs-4">
-		<a href="#" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></a>       
-       </div>
-       <div class="col-xs-4">
-		<a href="<?= $lesson->urls['toc']; ?>" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-road" aria-hidden="true"></span></a>
-       </div>
-      
-      </div>
-      </div>
-    </footer>
+<section class="lightgray">
+<p>
+<b>Course</b> <a href="<?= $lesson->section->course->urls['view']; ?>" role="button" class="btn btn-default">Overview</a> <a href="#" role="button" class="btn btn-default disabled">Next Lesson</a> <a href="<?= $lesson->urls['toc']; ?>" role="button" class="btn btn-default">Outline</a>
+</p>
+</section>

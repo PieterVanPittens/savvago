@@ -1,0 +1,144 @@
+<h1>I am authoring all these courses...</h1>
+<!--
+<form>
+<input type="text" name="title" id="title"><button type="button" id="create">Create new Course</button>
+</form>
+<p>
+<form>
+<input type="file" name="import" id="file"><button type="button" id="import">Create or update course by uploading a Course File</button>
+</form>
+</p>-->
+
+<input id="fileupload" type="file" name="importfiles" data-url="<?= $settings['api']; ?>courses/import" multiple/>
+<button type="button" id="import">Import Course File</button>
+<p>Courses can only be created or modified by importing <a href="https://github.com/PieterVanPittens/savvago/wiki/Course-Files" target="_new">Course Files</a> (while a course editor is still in development...)</p>
+<script>
+$(function() {
+    var upload = $('#fileupload').fileupload({
+        dataType: 'json',
+        add: function (e, data) {
+            data.context = $('#import')
+                .click(function () {
+                    data.submit();
+                });
+        },
+        done: function (e, data) {
+			toastApiResult(data.result)
+			table.ajax.reload()
+        }
+    });
+
+
+
+
+    var table = $('#courses').DataTable( {
+			lengthChange: false,
+		dom: '<"toolbar">frtip',
+		ajax: "<?= $settings['api']; ?>courses-teaching",
+	    select: false,
+		columns: [
+		          { data: null, render: function ( data, type, row ) {
+					  var html = '<p><a href="<?= $settings['base']; ?>apps/course-editor/'+data.courseId+'">'+data.title +'</a></p>'
+					  html += '<p>'+data.description +'</p>'
+					  html += '<p><button class="btn btn-danger delete" data-courseid= "'+data.courseId+'"><span data-courseid= "'+data.courseId+'" class="glyphicon glyphicon-trash"></button></p>'
+					  
+					  
+					  
+					  
+					  return html
+				  } },
+				  { data: "numEnrollments" },
+				  { data: "numLessons" },
+		          { data: null, render: function ( data, type, row ) {
+		          	var selected = '';
+					var html = '';
+					html += '<select class="status" data-courseid="'+data.courseId+'">';
+					selected = data.isPublished == 1 ? " selected" : "";
+					html += '<option value="1"'+selected+'>Published</option>';
+					selected = data.isPublished == 0 ? " selected" : "";
+					html += '<option value="0"'+selected+'>Unpublished</option>';
+					html += '</select>';
+
+					if (data.isPublished == 1) {
+						html += '<p>Visible to all Students, Students can enroll to this course</p>'
+					} else {
+						html += '<p>Visible to you and all Students that are already enrolled ('+data.numEnrollments+' Students)</p>'
+					}
+
+					return html;
+		          
+	            } }
+				  ],
+	    "fnDrawCallback": function( oSettings ) {
+	    	$(".delete").click(function(event) {
+		    	var courseId = event.target.dataset.courseid;
+				$.ajax({
+					url: '<?= $settings['api']; ?>courses/' + courseId,
+					type: 'DELETE',
+					success: function(resultJson) {
+						var result = JSON.parse(resultJson);
+						var course = result.object;
+						toastApiResult(result)
+						table.ajax.reload()
+					},
+					fail: function(resultJson) {
+						var result = JSON.parse(resultJson)
+						toastApiResult(result)
+					}
+				});
+			});
+	    	$(".status").change(function(event) {
+		    	var courseId = event.target.dataset.courseid;
+
+		    	var isPublished = event.target.value;
+		    	
+	    		$.post( '<?= $settings['api']; ?>courses/' + courseId + '/publish',
+					JSON.stringify({ isPublished: isPublished }),
+					function( resultJson ) {
+						var result = JSON.parse(resultJson);
+						var course = result.object;
+						toastApiResult(result)
+						table.ajax.reload()
+					}).fail(function(resultJson) {
+						var result = JSON.parse(resultJson)
+						toastApiResult(result)
+					});
+	    	});
+	      }
+	});
+	
+	
+	
+	
+	
+	
+    $('#create').click(function() {
+
+		$.post( "<?= $settings['api']; ?>courses",
+			JSON.stringify({ title: $("#title").val() }),
+			function( resultJson ) {
+				var result = JSON.parse(resultJson);
+				var course = result.object;
+				toastApiResult(result)
+				window.location='<?= $settings['base']; ?>teach/' + course.courseId;
+			}).fail(function(resultJson) {
+				var result = JSON.parse(resultJson)
+				toastApiResult(result)
+			});
+	});
+});
+</script>
+
+<table id="courses" class="table table-bordered">
+<thead>
+	<tr>
+	<th>Course</th>
+	<th>Students</th>
+	<th>Lessons</th>
+	<th>Status</th>
+	</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+

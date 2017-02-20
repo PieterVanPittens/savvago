@@ -1,14 +1,5 @@
 <?php
 
-function notAuthenticated($app, $response) {
-	$app->response = $response->withStatus(401);
-	$apiResult = new ApiResult();
-	$apiResult->message = 'Please login my friend...';
-	$apiResult->type = MessageTypes::Error;
-	return json_encode($apiResult);
-}
-
-
 /**
  * gets input from request body as object
  * json converted to object + all content htmlencoded for security reasons
@@ -25,8 +16,77 @@ function getRequestObject() {
 	return $input;	
 }
 
+
+// get course
+$app->get('/api/courses/{courseId}', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	
+	// TODO security check: ist user der autor dieses kurses?
+	$courseService = $this->serviceContainer['courseService'];
+	$course = $courseService->getCourseById($args['courseId'], true);
+
+	// hack: remove course references to avoid circular references, json encode cannot handle that
+	foreach($course->sections as $section) {
+		$section->course = null;
+		foreach($section->lessons as $lesson) {
+			$lesson->course = null;
+			
+		}
+	}
+	
+	
+	return json_encode($course);
+});
+
+// import course
+$app->post('/api/courses/import', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	// TODO security check: user needs to be teacher at least
+
+	$uploadDir = $this->serviceContainer['settings']['import']['import_path'];
+	
+	$uploadFile = $uploadDir  . com_create_guid();
+	if (move_uploaded_file($_FILES['importfiles']['tmp_name'], $uploadFile)) {	
+		$courseService = $this->serviceContainer['courseService'];
+		$apiResult = $courseService->importCourse($uploadFile);
+	} else {
+		$apiResult = ApiResultFactory::CreateError('Could not move uploaded file', null);
+	}
+	return json_encode($apiResult);
+
+});
+
+// get all courses that I am teaching
+$app->get('/api/courses-teaching', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: user needs to be teacher at least
+	$courseService = $this->serviceContainer['courseService'];
+	$courses = $courseService->getAllAuthorCourses();
+
+	return json_encode(array('data' => $courses));
+
+});
+// publish/unpublish course
+$app->post('/api/courses/{courseId}/publish', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	$input = getRequestObject();
+	$courseId = $args['courseId'];
+	$isPublished = $input->isPublished ? 1 : 0;
+
+	$courseService = $this->serviceContainer['courseService'];
+	$courseService->publishCourse($courseId, $isPublished);
+
+	
+	$apiResult = ApiResultFactory::CreateSuccess('Course Status changed', null);
+
+	return json_encode($apiResult);
+});
+
 // registers new user
 $app->post('/api/users', function ($request, $response, $args) {
+	
 	$userManager = $this->serviceContainer['userManager'];
 
 	$input = getRequestObject();
@@ -44,10 +104,9 @@ $app->post('/api/users', function ($request, $response, $args) {
 
 // gets list of all users
 $app->get('/api/users', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return notAuthenticated($this, $response);
-	}
-	// todo security check: ist user ein admin?
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user ein admin?
 
 	$userService = $this->serviceContainer['userService'];
 	$users = $userService->getUsers();
@@ -58,10 +117,9 @@ $app->get('/api/users', function ($request, $response, $args) {
 
 // promotes/demotes a user
 $app->post('/api/users/{userId}/promote', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return notAuthenticated($this, $response);
-	}
-	// todo security check: ist user ein admin?
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user ein admin?
 
 	
 	$input = getRequestObject();
@@ -72,40 +130,36 @@ $app->post('/api/users/{userId}/promote', function ($request, $response, $args) 
 	$userService = $this->serviceContainer['userService'];
 	$userService->promoteUser($userId, $newType);
 
-	$apiResult = new ApiResult();
-	$apiResult->message = "User Type changed";
+	$apiResult = ApiResultFactory::CreateSuccess("User Type changed", null);
 	return json_encode($apiResult);
 	
 });
 
 // activates a user
 $app->post('/api/users/{userId}/activate', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return notAuthenticated($this, $response);
-	}
-	// todo security check: ist user ein admin?
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user ein admin?
 
 
 	$input = getRequestObject();
 
 	$userId = $args['userId'];
-	$isActive = $input->active == "true";
+	$isActive = $input->active == "true" ? 1 : 0;
 
 	$userService = $this->serviceContainer['userService'];
 	$userService->activateUser($userId, $isActive);
 
-	$apiResult = new ApiResult();
-	$apiResult->message = "User Status changed";
+	$apiResult = ApiResultFactory::CreateSuccess("User Status changed", null);
 	return json_encode($apiResult);
 
 });
 
-// create curriculum based on string
+// get lessons of course
 $app->get('/api/courses/{courseId}/lessons', function ($request, $response, $args) {
-	//if (!isAuthenticated($this)) {
-	//	return notAuthenticated($this, $response);
-	//}
-	// todo security check: ist user der autor dieses kurses?
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
 
 	$courseService = $this->serviceContainer['courseService'];
 	$courseManager = $this->serviceContainer['courseManager'];
@@ -117,21 +171,19 @@ $app->get('/api/courses/{courseId}/lessons', function ($request, $response, $arg
 
 });
 
-// create curriculum based on string
+
+
+// reorder lesson
 $app->post('/api/courses/{courseId}/reorderlesson', function ($request, $response, $args) {
-	//if (!isAuthenticated($this)) {
-	//	return notAuthenticated($this, $response);
-	//}
-	// todo security check: ist user der autor dieses kurses?
+	checkIsAuthenticated($this);
 
+	// TODO security check: ist user der autor dieses kurses?
 	$input = getRequestObject();
-
 	
 	$courseManager = $this->serviceContainer['courseManager'];
 	$course = $courseManager->getCourseById($args['courseId'], false);
 
 	$courseManager->reorderLesson($course, $input->sourceId, $input->targetId);
-	
 	
 	$apiResult = new ApiResult();
 	$apiResult->message = "lessons reordered";
@@ -139,15 +191,157 @@ $app->post('/api/courses/{courseId}/reorderlesson', function ($request, $respons
 
 });
 
+// reorder section
+$app->post('/api/sections/switch', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+	$input = getRequestObject();
+
+	$courseManager = $this->serviceContainer['courseManager'];
+	$apiResult = $courseManager->switchSections($input->sourceId, $input->targetId);
+	return $apiResult->toJson();
+});
+
+// reorder lesson
+$app->post('/api/lessons/switch', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+	$input = getRequestObject();
+
+	$courseManager = $this->serviceContainer['courseManager'];
+	$apiResult = $courseManager->switchLessons($input->sourceId, $input->targetId);
+	return $apiResult->toJson();
+});
+
+// add section to course
+$app->post('/api/courses/{courseId}/sections', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+
+	$input = getRequestObject();
+
+	$section = new Section();
+	$section->title = $input->title;
+	$courseId = $args["courseId"];
+	$courseService = $this->serviceContainer['courseService'];
+	$apiResult = $courseService->createSection($courseId, $section);
+
+	return json_encode($apiResult);
+});
+
+// add lesson to section
+$app->post('/api/sections/{sectionId}/lessons', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+
+	$input = getRequestObject();
+
+	$sectionId = $args["sectionId"];
+
+	$lesson = new Lesson();
+	$lesson->title = $input->title;
+	$lesson->sectionId = $sectionId;
+	$lesson->courseId = $input->courseId;
+	$courseService = $this->serviceContainer['courseService'];
+	$apiResult = $courseService->createLesson($lesson);
+
+	return json_encode($apiResult);
+});
+
+// upload content to course
+$app->post('/api/courses/{courseId}/upload', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	// TODO security check: user needs to be teacher at least
+
+	$uploadDir = $this->serviceContainer['settings']['upload']['upload_path'];
+	
+	$courseService = $this->serviceContainer['courseService'];
+	$courseId = $args["courseId"];
+	$course = $courseService->getCourseById($courseId, false);
+	$uploadDir .= $course->uuid ."/";
+	if (!is_dir($uploadDir)) {
+		mkdir($uploadDir);
+	}
+
+	$filename = $_FILES['files']['name'];	
+	$uploadFile = $uploadDir . $filename;
+	if (move_uploaded_file($_FILES['files']['tmp_name'], $uploadFile)) {
+		$apiResult = $courseService->addContentFileToCourse($courseId, $filename, $uploadFile);
+	} else {
+		$apiResult = ApiResultFactory::CreateError('Could not move uploaded file', null);
+	}
+	return json_encode($apiResult);
+
+});
+
+// get contents of course
+$app->get('/api/courses/{courseId}/contents', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	// TODO security check: user needs to be teacher at least
+
+	$contentManager = $this->serviceContainer['contentManager'];
+	$courseId = $args["courseId"];
+	$contents = $contentManager->getCourseContents($courseId);
+
+	return json_encode(array('data' => $contents));
+});
+
+// get apps
+$app->get('/api/apps', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	// TODO security check: user needs to be teacher at least
+
+	$appService = $this->serviceContainer['appService'];
+	$apps = $appService->getApps();
+
+	return json_encode(array('data' => $apps));
+});
+
+// update section
+$app->post('/api/sections/{sectionId}', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+
+	$input = getRequestObject();
+
+	$section = new Section();
+	$section->sectionId = $args["sectionId"];
+	$section->title = $input->title;
+	$section->description = $input->description;
+	$sectionId = $args["sectionId"];
+	$courseService = $this->serviceContainer['courseService'];
+	$apiResult = $courseService->updateSection($section);
+
+	return $apiResult->toJson();
+});
+
+
+// delete section
+$app->delete('/api/sections/{sectionId}', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check
+
+	$sectionId = $args["sectionId"];
+	$courseService = $this->serviceContainer['courseService'];
+	$apiResult = $courseService->deleteSection($sectionId);
+
+	return json_encode($apiResult);
+
+});
 
 
 
 // create curriculum based on string
 $app->post('/api/courses/{courseId}/curriculum', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return notAuthenticated($this, $response);
-	}
-	// todo security check: ist user der autor dieses kurses?
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
 
 	$input = getRequestObject();
 
@@ -163,11 +357,24 @@ $app->post('/api/courses/{courseId}/curriculum', function ($request, $response, 
 	
 });
 
+// create curriculum based on string
+$app->delete('/api/courses/{courseId}', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
+	// TODO security check: ist user der autor dieses kurses?
+	$courseId = $args['courseId'];
+
+	$courseService = $this->serviceContainer['courseService'];
+	
+	$apiResult = $courseService->deleteCourse($courseId);
+	return $apiResult->toJson();
+	
+});
+
 // create course
 $app->post('/api/courses', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return notAuthenticated($this, $response);
-	}
+	checkIsAuthenticated($this);
+
 
 	$courseService = $this->serviceContainer['courseService'];
 	$courseJson = getRequestObject();
@@ -177,9 +384,7 @@ $app->post('/api/courses', function ($request, $response, $args) {
 	$course->universityId = 1; //$this->userService->getUser()->universityId;
 	$courseService->createCourse($course);
 	
-	$apiResult = new ApiResult();
-	$apiResult->message = 'A new course was born';
-	$apiResult->object = $course;
+	$apiResult = ApiResultFactory::CreateSuccess('A new course was born', $course);
 	return json_encode($apiResult);
 });
 
@@ -192,7 +397,7 @@ function createJwtToken($userId, $key) {
 			'userId' => $userId,
 			'iss' => 'savvago',
 			'iat' => time(),
-			'exp' => time()+3600
+			'exp' => time()+86400 // 24 hours
 	);
 	
 	$jwt = \Firebase\JWT\JWT::encode($token, $key);
@@ -271,6 +476,8 @@ $app->post('/api/newpassword', function ($request, $response, $args) {
 
 // finish lesson
 $app->post('/api/lessons/{lessonId}/finish', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+
 	$courseManager = $this->serviceContainer['courseManager'];
 	$courseService = $this->serviceContainer['courseService'];
 	$lesson = $courseManager->getLessonById($args['lessonId'], false);

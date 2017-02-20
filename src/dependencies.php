@@ -41,6 +41,6 @@ $container['serviceContainer'] = function ($c) {
 	$serviceContainer['settings'] = $c['settings'];
 	$serviceContainer['contextUser'] = $c['userContainer']->getUser();
 	return $serviceContainer;
-}
+};
 
 ?>

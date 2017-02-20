@@ -70,24 +70,54 @@ class TemplateMaster {
 
 	
 	public function __invoke(RequestInterface $request, ResponseInterface $response, callable $next) {
-		$container = $this->app->getContainer()['serviceContainer'];
+		//$serviceContainer = $this->app->getContainer()['serviceContainer'];
+		$container = $this->app->getContainer();
 
 		// always put application settings into view, e.g. for url rendering
-		$this->app->getContainer()['viewData']->data['settings'] = $this->app->getContainer()['settings']['application'];
+		$container['viewData']->data['settings'] = $container['settings']['application'];
 		
 		// this is needed by master
-		$this->app->getContainer()['viewData']->data['currentUser'] = $this->app->getContainer()['userContainer']->getUser();
-		//$this->app->getContainer()['viewData']->data['categories'] = $container['courseManager']->getCategoriesTree();
+		$container['viewData']->data['currentUser'] = $container['userContainer']->getUser();
 
-		$this->app->getContainer()['viewData']->data['requestUriHost'] = $request->getUri()->getHost();
-		$this->app->getContainer()['viewData']->data['requestUriBasePath'] = $request->getUri()->getBasePath();
+		$container['viewData']->data['requestUriHost'] = $request->getUri()->getHost();
+		$container['viewData']->data['requestUriBasePath'] = $request->getUri()->getBasePath();
+
 		
+//		$container['settings']['application']
+		// set template path from where master.phtml will include views
+		// from template folder or app folder
+		$templatePath = $container['settings']['renderer']['template_path'];
 		
-		
+		// check if this is a call to an app and require the routes of that app
+		// e.g. request like /public/savvago/apps/content-management
+		$relativePath = $_SERVER["SCRIPT_NAME"];
+		$relativePath = str_replace('/index.php', '', $relativePath);
+
+		$uri = $_SERVER["REQUEST_URI"];
+		$uri = str_replace($relativePath.'/', '', $uri);
+
+		$tokens = explode('/', $uri);
+		$isCallToApp = false;
+		$appFolder = '';
+		if (count($tokens) == 2) {
+			if ($tokens[0] == "apps") {
+				$appName = $tokens[1];
+				$appFolder = str_replace("index.php", "", __DIR__ . "/../apps/".$appName."/");
+				$isCallToApp = true;
+				// override path to templates with apps folder
+				$templatePath = $appFolder;
+			}
+		}
+		if ($isCallToApp) {
+			require $appFolder.'routes.php';
+		}
+
+		$container['viewData']->data['templatePath'] = $templatePath;
 		
         return $next($request, $response);
 	}
 }
+
 
 $app->add(new TemplateMaster($app));
 $app->add(new Authenticator($app));

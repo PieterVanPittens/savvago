@@ -21,22 +21,47 @@ $serviceContainer['courseRepository'] = function ($c) {
 	return new courseRepository($db['host'], $db['dbname'], $db['user'], $db['pass']);
 };
 $serviceContainer['courseManager'] = function ($c) {
-	return new CourseManager($c['courseRepository'], $c['settings'], $c);
+	return new CourseManager($c['courseRepository'], $c['settings'], $c, $c['serviceCacheRepository']);
 };
 $serviceContainer['courseService'] = function ($c) {
-	return new CourseService($c['contextUser'], $c['courseRepository'], $c['settings'], $c);
+	return new CourseService($c['contextUser'], $c['courseManager'], $c['serviceCacheManager'], $c);
 };
+
+// ServiceCacheManager
+$serviceContainer['serviceCacheRepository'] = function ($c) {
+	$db = $c['settings']['db'];
+	return new ServiceCacheRepository($db['host'], $db['dbname'], $db['user'], $db['pass']);
+};
+$serviceContainer['serviceCacheManager'] = function ($c) {
+	return new ServiceCacheManager($c['serviceCacheRepository'], $c['settings']);
+};
+
 
 // User
 $serviceContainer['userRepository'] = function ($c) {
 	$db = $c['settings']['db'];
 	return new UserRepository($db['host'], $db['dbname'], $db['user'], $db['pass']);
 };
+$serviceContainer['displayUserRepository'] = function ($c) {
+	$db = $c['settings']['db'];
+	return new DisplayUserRepository($db['host'], $db['dbname'], $db['user'], $db['pass']);
+};
 $serviceContainer['userManager'] = function ($c) {
 	return new UserManager($c['userRepository'], $c['settings'], $c);
 };
 $serviceContainer['userService'] = function ($c) {
-	return new UserService($c['contextUser'], $c['userRepository'], $c['settings'], $c);
+	return new UserService($c['contextUser'], $c['userManager'], $c['serviceCacheManager']);
+};
+// App
+$serviceContainer['appRepository'] = function ($c) {
+	$db = $c['settings']['db'];
+	return new AppRepository($db['host'], $db['dbname'], $db['user'], $db['pass']);
+};
+$serviceContainer['appManager'] = function ($c) {
+	return new AppManager($c['appRepository']);
+};
+$serviceContainer['appService'] = function ($c) {
+	return new AppService($c['appManager']);
 };
 
 // Content

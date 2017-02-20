@@ -1,10 +1,51 @@
 <html>
 <head>
-<title>savvago - Setup</title>
+<title>savvago - Installer</title>
 </head>
 <body>
-<h1>savvago - Setup</h1>
+<h1>savvago - Installer</h1>
+
+
+<?php 
+$databaseUser = null;
+$databasePw = null;
+$databaseHost = null;
+$databaseName = null;
+
+if (isset($_POST["dbName"])) {
+	$databaseName = $_POST["dbName"];
+}
+if (isset($_POST["dbUser"])) {
+	$databaseUser = $_POST["dbUser"];
+}
+if (isset($_POST["dbPw"])) {
+	$databasePw = $_POST["dbPw"];
+}
+if (isset($_POST["dbHost"])) {
+	$databaseHost = $_POST["dbHost"];
+}
+?>
+
+
+<?php if ($databaseUser == null) {?>
+
+<?php } ?>
+
+
+
+PauL  2.0
+
+mariel brian
+klaudia x
+robin s katja
+moritz s katja
+robin k x
+eric jörb
+
+
 <?php
+
+die();
 set_time_limit(0);
 
 class Message {
@@ -33,7 +74,7 @@ $protocol = new Protocol();
 // step 1: create database contents
 // assumption: database already exists
 
-$databaseName = "savvago";
+$databaseName = "savvago_installation";
 $databaseUser = "root";
 $databasePw = "";
 $databaseHost = "localhost";

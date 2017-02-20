@@ -93,7 +93,8 @@ $files = array();
 //$files[] = "plus 2 sections.zip";
 //$files[] = "plus 2 lessons.zip";
 //$files[] = "move lessons1.zip";
-$files[] = "minus complete section.zip";
+//$files[] = "minus complete section.zip";
+$files[] = "ev3lessons-beginner.zip";
 
 foreach($files as $contentFilename) {
 	$filename = __DIR__ . '/../content/' . $contentFilename;

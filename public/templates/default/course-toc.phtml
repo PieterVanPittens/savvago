@@ -5,14 +5,17 @@ margin-bottom: 14px;
 }
 </style>
 
-<section class="white">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-
+<section class="hero">
 <h1><?= $course->title; ?></h1>
+</section>
+<section class="white">
 <?php foreach ($course->sections as $section) { ?>
-	<h1 class="toc"><a href="<?= $section->lessons[0]->urls['view']; ?>"><?= $section->title; ?></a></h1>
 
+	<?php if (isset($section->lessons[0])) { ?>
+		<h1 class="toc"><a href="<?= $section->lessons[0]->urls['view']; ?>"><?= $section->title; ?></a></h1>
+	<?php } else { ?>
+		<h1 class="toc"><?= $section->title; ?></h1>
+	<?php } ?>
 	<?php foreach ($section->lessons as $lesson) { ?>
 		<div class="line-item-lesson">
 		<img src="<?= $lesson->urls['images']['list']; ?>" alt="<?= $lesson->title; ?>"><a href="<?= $lesson->urls['view']; ?>"><?= $lesson->title; ?></a>
@@ -20,25 +23,9 @@ margin-bottom: 14px;
 	<?php }?>
 <?php }?>
 
-
-
-</div>
-</div>
 </section>
-
-    <footer class="fooooter">
-      <div class="container">
-      <div class="row btn-bottom-bar">
-       <div class="col-xs-4">
-		<a href="#" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
-       </div>
-       <div class="col-xs-4">
-		<a href="#" role="button" class="btn btn-bottom-bar"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></a>       
-       </div>
-       <div class="col-xs-4">
-		<a href="<?= $lesson->urls['toc']; ?>" role="button" class="btn btn-bottom-bar btn-primary"><span class="glyphicon glyphicon-road" aria-hidden="true"></span></a>
-       </div>
-      
-      </div>
-      </div>
-    </footer>
+<section class="lightgray">
+<p>
+<b>Course</b> <a href="<?= $course->urls['view']; ?>" role="button" class="btn btn-default">Overview</a> <a href="<?= $nextLesson->urls['view']; ?>" role="button" class="btn btn-default">Next Lesson</a> <a href="<?= $lesson->urls['toc']; ?>" role="button" class="btn btn-default disabled">Outline</a>
+</p>
+</section>

@@ -1,25 +1,21 @@
 <section class="hero">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
 
 <h1><?= htmlspecialchars($course->title); ?></h1>
 <?php if (!is_null($course->subtitle)) { ?> 
 	<div><?= $course->subtitle; ?></div>
 <?php } ?>
 
+<div class="course-description">
+<?= $course->description; ?>
 </div>
-</div>
+
+
+
 </section>
 
 
 
 <section class="white">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-
-<div class="row">
-<div class="col-md-8">
-
 
 <?php if (!is_null($course->video)) { ?>
 
@@ -31,15 +27,10 @@
 <img src="<?= $course->urls['images']['promo']; ?>" class="img-responsive" alt="<?= $course->title; ?>"/>
 <?php } ?>
 
-
-</div>
-<div class="col-md-4">
-<div class="course-description">
-<?= $course->description; ?>
-</div>
+</section>
 
 
-
+<section class="lightgray">
 <?php if (count($course->progresses) == 0) { ?>
 <div>
 <p><a class="btn btn-default" href="<?= $course->urls['enroll']; ?>">Enroll Now</a></p>
@@ -59,31 +50,32 @@ if ($course->numLessons > 0) {
 }
 
 ?>
-<div style="margin-top: 5px;"><a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default">Start Next Lesson</a></div>
-<div style="margin-top: 5px;"><?= $numFinishedLessons; ?> of <?= $course->numLessons; ?> lessons complete
-	<div class="progress">
-	  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<?= $numFinishedLessons; ?>"
-	  aria-valuemin="0" aria-valuemax="<?= $course->numLessons; ?>" style="width: <?= 
-	  $percent;
-	  ?>%">&nbsp;
-	  </div>
+<div class="row">
+	<div class="col-md-6">
+		
+	<div style="margin-top: 5px;">
+		<div style="float:left; margin: 10px"><?= $numFinishedLessons; ?> of <?= $course->numLessons; ?> lessons complete</div>
+		<div class="progress" style="margin: 10px">
+		  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<?= $numFinishedLessons; ?>"
+		  aria-valuemin="0" aria-valuemax="<?= $course->numLessons; ?>" style="width: <?= 
+		  $percent;
+		  ?>%">&nbsp;
+		  </div>
+		</div>
+	</div>
+	</div>
+	<div class="col-md-6">
+	<div style="margin-top: 5px;">
+	<span class="pull-right">
+		<a href="<?= $nextLesson->urls['view']; ?>" class="btn btn-default">Start Next Lesson</a>
+	</span>
+	</div>
 	</div>
 </div>
 <?php } ?>
-
-</div>
-</div>
-
-
-</div>
-</div>
 </section>
 
 <section class="gray">
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-
-
 
 <h2>Curriculum</h2>
 
@@ -138,7 +130,10 @@ foreach($course->sections as $section) {
 <?php if ($isRowOpen) { ?>
 </div>
 <?php } ?>
+</section>
 
-</div>
-</div>
+<section class="lightgray">
+<p>
+<b>Course</b> <a href="<?= $course->urls['view']; ?>" role="button" class="btn btn-default disabled">Overview</a> <a href="<?= $nextLesson->urls['view']; ?>" role="button" class="btn btn-default">Next Lesson</a> <a href="<?= $course->urls['toc']; ?>" role="button" class="btn btn-default">Outline</a>
+</p>
 </section>

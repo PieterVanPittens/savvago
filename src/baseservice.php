@@ -1,0 +1,9 @@
+<?php
+/**
+ * BaseService
+ */
+class BaseService {
+
+}
+
+?>

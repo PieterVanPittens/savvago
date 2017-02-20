@@ -38,6 +38,14 @@ function isAuthenticated($app) {
 	return ($user->userId != 0) && $user->isActive;
 }
 
+/**
+ * throws UnauthorizedException if noone is logged in
+ */
+function checkIsAuthenticated($app) {
+	if (!isAuthenticated($app)) {
+		throw new UnauthorizedException('Please login my friend...');
+	}	
+}
 
 // course manager
 $app->get('/sign-up', function ($request, $response, $args) {
@@ -186,6 +194,51 @@ $app->get('/login', function ($request, $response, $args) {
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
+// apps home screen of a role
+$app->get('/home/{roleName}', function ($request, $response, $args) {
+
+
+	$role = new Role();
+	switch($args['roleName']) {
+		case 'admin':
+			$role->title = 'Admin';
+			$role->name = 'admin';
+			$role->roleId = 4;
+		break;
+		case 'teacher':
+			$role->title = 'Teacher';
+			$role->name = 'teacher';
+			$role->roleId = 3;
+		break;
+		case 'student':
+			$role->title = 'Student';
+			$role->name = 'student';
+			$role->roleId = 2;
+		break;
+		default:
+			$role->title = 'Guest';
+			$role->name = 'guest';
+			$role->roleId = 1;
+		break;
+	}
+
+	$page = new Page();
+	$page->title = 'Home - '.$role->title;
+	$page->mainView = 'home.phtml';
+
+	
+	$appService = $this->serviceContainer['appService'];
+	$apps = $appService->getRoleApps($role->roleId);
+
+	
+	$this->viewData->data['role'] = $role;
+	$this->viewData->data['apps'] = $apps;
+	$this->viewData->data['page'] = $page;
+	
+	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
+});
+
+
 $app->get('/forgot', function ($request, $response, $args) {
 	$page = new Page();
 	$page->title = 'Forgot Password';
@@ -202,7 +255,7 @@ $app->get('/', function ($request, $response, $args) {
 	$page->title = $this->settings['application']['name'];
 	$page->mainView = 'index.phtml';
 	$this->viewData->data['page'] = $page;
-	$this->viewData->data['courses'] = $this->serviceContainer['courseManager']->getTopNCourses(20, true);
+	$this->viewData->data['courses'] = $this->serviceContainer['courseService']->getTopNCourses(20, true);
 
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
@@ -490,6 +543,7 @@ $app->get('/courses/{courseName}', function ($request, $response, $args) {
 
 
 
+
 // toc of a course
 $app->get('/courses/{courseId}/toc', function ($request, $response, $args) {
 
@@ -517,55 +571,8 @@ $app->get('/courses/{courseId}/toc', function ($request, $response, $args) {
 });
 
 
-// home screen of a topic
-$app->get('/{uniName}/{courseName}/{topicName}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$courseManager = new CourseManager($this->db, $this->settings);
-	try {
-		$university = $courseManager->getUniversityByName($args['uniName']);
-		$this->viewData->data['university'] = $university;
-
-		$course = $courseManager->getCourseByName($university, $args['courseName']);
-		$this->viewData->data['course'] = $course;
-
-		$topic = $courseManager->getSectionByName($course, $args['topicName']);
-		$this->viewData->data['topic'] = $topic;
-		
-		$sections = $courseManager->getCourseSections($course);
-		$this->viewData->data['sections'] = $sections;
-
-		$learningObjects = $courseManager->getSectionLessons($topic);
-		$this->viewData->data['learningObjects'] = $learningObjects;
-		
-		// Render index view
-		return $this->renderer->render($response, 'topic.phtml', $this->viewData->data);
-	} catch (NotFoundException $e) {
-		return $this->renderer->render($response, '404.phtml', $this->viewData->data);
-	}
-});
-
-
-/* ADMIN */
-// my settings
-$app->get('/admin', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	if (!isAuthenticated($this)) {
-		return showLogin($this, $response, $this->viewData->data);
-	}
-
-	$page = new Page();
-	$page->title = 'Administration - Users';
-	$page->mainView = 'admin-users.phtml';
-	$this->viewData->data["page"] = $page;
-	$this->viewData->data['menu'] = 'users';
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-
 $app->get('/sitemap.xml', function ($request, $response, $args) {
-	$this->viewData->data['courses'] = $this->serviceContainer['courseManager']->getTopNCourses(20, true);
+	$this->viewData->data['courses'] = $this->serviceContainer['courseService']->getTopNCourses(20, true);
 
 	$newResponse = $response->withHeader('Content-Type', 'application/xml');
 	

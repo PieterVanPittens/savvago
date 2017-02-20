@@ -8,9 +8,9 @@ return [
    		'application' => [
 			'name' => 'savvago',
    			'claim' => 'you savvy?',
-			'base' => 'http://localhost:8080/savvago/public/',
+			'base' => 'http://localhost/savvago/public/',
 			'template' => 'templates/default/',
-   			'api' => 'http://localhost:8080/savvago/public/api/',
+   			'api' => 'http://localhost/savvago/public/api/',
 			// sender email
 			// sender of automated emails sent to users
    			'senderEmail' => 'savvago <savvago@domain.com>'

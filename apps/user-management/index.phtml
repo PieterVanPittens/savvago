@@ -1,0 +1,114 @@
+<h1>User Management</h1>
+
+
+<script>
+$(document).ready(function() {
+	var table = $('#users').DataTable( {
+		lengthChange: false,
+		dom: '<"toolbar">frtip',
+	    ajax: "<?= $settings['api']; ?>users",
+		columns: [
+		          { data: "email" },
+		          { data: "name" },
+	          { data: null, render: function ( data, type, row ) {
+	                return data.displayName+'<br/>'+data.title;
+	            } },
+	          { data: null, render: function ( data, type, row ) {
+		          	var selected = '';
+					var html = '';
+					html += '<select class="usertype" data-userid="'+data.userId+'">';
+					selected = data.type == 1 ? " selected" : "";
+					html += '<option value="1"'+selected+'>Anonymous</option>';
+					selected = data.type == 2 ? " selected" : "";
+					html += '<option value="2"'+selected+'>Student</option>';
+					selected = data.type == 3 ? " selected" : "";
+					html += '<option value="3"'+selected+'>Teacher</option>';
+					selected = data.type == 4 ? " selected" : "";
+					html += '<option value="4"'+selected+'>Admin</option>';
+				
+					html += '</select>';
+					return html;
+		          
+	            } },
+		          { data: null, render: function(data, type, row) {
+						var html = '';
+
+						var checked = data.isVerified == 1 ? " checked" : "";
+						html += '<input type="checkbox"'+checked+' disabled/>'
+			          
+						return html;
+		          } },
+		          { data: null, render: function(data, type, row) {
+						var html = '';
+
+						var checked = data.isActive == 1 ? " checked" : "";
+						html += '<input type="checkbox"'+checked+' class="isactive" data-userid="'+data.userId+'"/>'
+			          
+						return html;
+		          } },
+	          
+		      	],
+	    select: false,
+	    "fnDrawCallback": function( oSettings ) {
+	    	$(".usertype").change(function(event) {
+		    	var userId = event.target.dataset.userid;
+		    	var newType = event.target.value;
+		    	
+	    		$.post( '<?= $settings['api']; ?>users/' + userId + '/promote',
+	    				JSON.stringify({ type: newType }),
+	    				function( resultJson ) {
+	    					var result = JSON.parse(resultJson);
+	    					var course = result.object;
+	    					toastApiResult(result)
+	    				}).fail(function(resultJson) {
+	    					var result = JSON.parse(resultJson)
+	    					toastApiResult(result)
+	    				});
+	    	});
+	    	$(".isactive").change(function(event) {
+		    	var userId = event.target.dataset.userid;
+		    	var isActive = event.target.checked;
+	    	
+	    		$.post( '<?= $settings['api']; ?>users/' + userId + '/activate',
+	    				JSON.stringify({ active: isActive }),
+	    				function( resultJson ) {
+	    					var result = JSON.parse(resultJson);
+	    					var course = result.object;
+	    					toastApiResult(result)
+	    				}).fail(function(resultJson) {
+	    					var result = JSON.parse(resultJson)
+	    					toastApiResult(result)
+	    				});
+	    	});
+	      }
+	});
+  
+});
+
+</script>
+
+
+
+<table id="users" class="table table-striped table-bordered">
+<thead>
+<tr>
+	<th>Email</th>
+	<th>Name</th>
+	<th>Display Name</th>
+	<th>Type</th>
+	<th>Verified</th>
+	<th>Active</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+	<th>Email</th>
+	<th>Name</th>
+	<th>Display Name</th>
+	<th>Type</th>
+	<th>Verified</th>
+	<th>Active</th>
+</tr>
+</tfoot>
+</table>
+
