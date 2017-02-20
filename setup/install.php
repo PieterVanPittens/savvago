@@ -1,9 +1,16 @@
 <html>
 <head>
 <title>savvago - Installer</title>
+<style>
+body {
+	font-family: sans-serif;
+	}
+
+</style>
 </head>
 <body>
 <h1>savvago - Installer</h1>
+
 
 
 <?php 
@@ -28,12 +35,19 @@ if (isset($_POST["dbHost"])) {
 
 
 <?php if ($databaseUser == null) {?>
-
+<h2>MySQL Database</h2>
+<form method="post">
+<p>Name <input type="text" name="dbName" placeholder="database name"/></p>
+<p>Host <input type="text" name="dbHost" placeholder="database host"/></p>
+<p>User <input type="text" name="dbUser" placeholder="database user name"/></p>
+<p>Password <input type="password" name="dbPw" placeholder="database password"/></p>
+<p><input type="submit" value="Install"></p>
+</form>
 <?php } ?>
 
 <?php
 
-die();
+
 set_time_limit(0);
 
 class Message {
@@ -62,7 +76,7 @@ $protocol = new Protocol();
 // step 1: create database contents
 // assumption: database already exists
 
-$databaseName = "savvago_installation";
+$databaseName = "savvago_installation2";
 $databaseUser = "root";
 $databasePw = "";
 $databaseHost = "localhost";
@@ -122,11 +136,7 @@ $protocol->addSuccess("Database initialized todo");
 // step 5: create admin user
 $protocol->addSuccess("Administrator created todo");
 
-
-
-
 ?>
-
 
 <table border=1>
 <?php
