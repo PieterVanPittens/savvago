@@ -444,6 +444,7 @@ ALTER TABLE `enrollments`
 --
 ALTER TABLE `lessons`
   ADD FOREIGN KEY (`course_id`) REFERENCES Courses(`course_id`),
+  ADD FOREIGN KEY (`content_object_id`) REFERENCES content_objects(`object_id`),
   ADD FOREIGN KEY (`section_id`) REFERENCES Sections(`section_id`)
 	;
 
