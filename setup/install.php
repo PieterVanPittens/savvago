@@ -31,18 +31,6 @@ if (isset($_POST["dbHost"])) {
 
 <?php } ?>
 
-
-
-PauL  2.0
-
-mariel brian
-klaudia x
-robin s katja
-moritz s katja
-robin k x
-eric jörb
-
-
 <?php
 
 die();
