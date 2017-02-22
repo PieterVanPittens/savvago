@@ -66,15 +66,14 @@ class BasePdoRepository {
 		}
 	}
 
+	/**
+	 * PDO instance
+	 * @var PDO
+	 */
 	public $pdo;
+	
 
-	function __construct($host, $database, $user, $pass) {
-
-		$pdo = new PDO("mysql:host=" . $host . ";dbname=" . $database,
-				$user, $pass);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
+	function __construct($pdo) {
 		$this->pdo = $pdo;
 	}
 
