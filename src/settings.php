@@ -55,7 +55,7 @@ return [
 		// data base
 		'db' => [
 			'host' => 'localhost',
-			'dbname' => 'savvago',
+			'dbname' => 'savvago_dev',
 			'user' => 'root',
 			'pass' => ''
 		],
@@ -71,11 +71,6 @@ return [
 			// when you change this key in a running system then all active tokens will become invalid
 			// that means all active users will be logged out
 			'tokenKey' => 'asqqw23424234'
-   		],
-		
-  		// caching
-   		'cache' => [
-   				'service' => __DIR__ . '/../cache/service/'
    		],
 		
         // Monolog settings

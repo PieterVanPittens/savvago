@@ -110,15 +110,13 @@ $protocol->addSuccess("Tables created");
 $dirs[] = __DIR__ . '/../public/upload';
 $dirs[] = __DIR__ . '/../temp';
 $dirs[] = __DIR__ . '/../log';
-$dirs[] = __DIR__ . '/../cache';
-$dirs[] = __DIR__ . '/../cache/service';
 foreach($dirs as $dir) {
 	if (!is_dir($dir)) {
 		mkdir($dir);
 	}
 }
 
-$protocol->addSuccess("Created Dirs");
+$protocol->addSuccess("Directories created");
 
 // step 3: update config file
 

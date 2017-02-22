@@ -41,6 +41,9 @@ class CourseService extends BaseService {
 	public function publishCourse($courseId, $isPublished) {
 		// todo: security check
 		$this->manager->publishCourse($courseId, $isPublished);
+		$course = new Course();
+		$course->courseId = $courseId;
+		$this->serviceCacheManager->deleteCaches($course);
 	}
 
 
@@ -81,6 +84,7 @@ class CourseService extends BaseService {
 	 */
 	public function enrollToCourse($course) {
 		$this->manager->enrollToCourse($this->contextUser, $course);
+		$this->serviceCacheManager->deleteCaches($course);
 	}
 
 	/**
@@ -106,10 +110,11 @@ class CourseService extends BaseService {
 	 */
 	public function finishLesson($lesson) {
 		$this->manager->finishLesson($this->contextUser, $lesson);
+		$this->serviceCacheManager->deleteCaches($lesson);
+		
 		$apiResult = new ApiResult();
 		$apiResult->setSuccess("lesson finished");
 		return $apiResult;
-
 	}
 
 	/**
@@ -129,6 +134,9 @@ class CourseService extends BaseService {
 	function deleteCourse($courseId) {
 		// todo: security check
 		$apiResult = $this->manager->deleteCourse($courseId);
+		$course = new Course();
+		$course->courseId = $courseId;
+		$this->serviceCacheManager->deleteCaches($course);
 		return $apiResult;
 	}
 
@@ -270,7 +278,6 @@ class CourseService extends BaseService {
 		$this->manager->loadCurriculum($course);
 		$this->serviceCacheManager->updateCache("course", $cacheKey, $course);
 
-
 		return $course;
 	}
 
@@ -283,18 +290,14 @@ class CourseService extends BaseService {
 	public function getCourseById($courseId, $withContentObjects) {
 		$cacheKey = array($courseId, $withContentObjects);
 
-		// TODO: reactive caching
-		//$cacheHit = $this->serviceCacheManager->cacheFind("course", $cacheKey);
-		//if (!is_null($cacheHit)) {
-		//	return $cacheHit;
-		//}
-
+		$cacheHit = $this->serviceCacheManager->cacheFind("course", $cacheKey);
+		if (!is_null($cacheHit)) {
+			return $cacheHit;
+		}
 
 		$course = $this->manager->getCourseById($courseId, $withContentObjects);
 		$this->manager->loadCurriculum($course);
-		// TODO: reactive caching
-		//$this->serviceCacheManager->updateCache("course", $cacheKey, $course);
-
+		$this->serviceCacheManager->updateCache("course", $cacheKey, $course);
 		return $course;
 	}
 

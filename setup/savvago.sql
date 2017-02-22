@@ -196,7 +196,8 @@ CREATE TABLE `sections` (
 CREATE TABLE `service_cache` (
   `tag` varchar(50) NOT NULL,
   `model_type` int(10) UNSIGNED NOT NULL,
-  `model_id` int(10) UNSIGNED NOT NULL
+  `model_id` int(10) UNSIGNED NOT NULL,
+  `content` mediumtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

@@ -30,31 +30,22 @@ class ServiceCacheManager {
 				$this->settings = $settings;
 	}
 
-
-	private $cacheInfo = array();
-
 	/**
 	 * checks if cache for this object is available
-	 * @param unknown $objectName
-	 * @param unknown $objectId
+	 * @param string $cacheName name of cache, e.g. course
+	 * @param stirng $cacheKey key in cache, e.g. courseId
 	 */
 	function cacheFind($cacheName, $cacheKey) {
 		$cacheTag = $this->createCacheTag($cacheName, $cacheKey);
 		$deliverFromCache = false;
-		$cacheFileExists = false;
-		$tag = $this->repository->getServiceCacheByTag($cacheTag);
-		$cacheFileName = $this->settings['cache']['service'] . str_replace(":", "_", $cacheTag);
-		if (!is_null($tag)) {
+		$content = $this->repository->getServiceCacheByTag($cacheTag);
+		if (!is_null($content)) {
 			// valid cache
 
-			// now check if cache file is available on disc
-			$cacheFileExists = file_exists($cacheFileName);
-			$deliverFromCache = $cacheFileExists;
+			$deliverFromCache = true;
 		}
-		$this->cacheInfo[$cacheTag] = array('cacheFileExists' => $cacheFileExists, 'tagExists' => !is_null($tag), 'cacheFileName' => $cacheFileName);
 		if ($deliverFromCache) {
-			$s = file_get_contents($cacheFileName);
-			$a = unserialize($s);
+			$a = unserialize($content);
 			return $a;
 		}
 		return null;
@@ -62,8 +53,8 @@ class ServiceCacheManager {
 
 	/**
 	 * creates the cache tag from cache name and cache key
-	 * @param unknown $cacheName
-	 * @param unknown $cacheKey
+	 * @param string $cacheName
+	 * @param string $cacheKey
 	 */
 	private function createCacheTag($cacheName, $cacheKey) {
 		if (is_array($cacheKey)) {
@@ -84,29 +75,25 @@ class ServiceCacheManager {
 	 * updates cache
 	 * @param string $cacheName
 	 * @param string $cacheKey
-	 * @param object $object
+	 * @param iCachable $object
 	 */
 	function updateCache($cacheName, $cacheKey, iCachable $object) {
 		$cacheTag = $this->createCacheTag($cacheName, $cacheKey);
-		// update cache
-		if (!$this->cacheInfo[$cacheTag]['tagExists']) {
-			$this->repository->createServiceCache($cacheTag, $object->getModelType(), $object->getId());
-		}
-		if (!$this->cacheInfo[$cacheTag]['cacheFileExists']) {
-			$s = serialize($object);
-			$result = file_put_contents($this->cacheInfo[$cacheTag]['cacheFileName'], $s);
-			if ($result === false) {
-				throw new Exception("Check your configuration file for settings['cache']['service']. It seems the path does not exist or cannot be written to.");
-			}
+		$s = serialize($object);
+		
+		$exists = $this->repository->getServiceCacheByTag($cacheTag);
+		
+		if (is_null($exists)) {
+			$this->repository->createServiceCache($cacheTag, $object->getModelType(), $object->getId(), $s);
+		} else {
+			$this->repository->updateServiceCache($object->getModelType(), $object->getId(), $s);
 		}
 	}
-
-
 
 	/**
 	 * invalidates all caches for an object
 	 * i.e. all cache tags that are associated to this object will be deleted
-	 * @param object $object
+	 * @param iCachable $object
 	 */
 	function deleteCaches(iCachable $object) {
 		$this->repository->deleteServiceCaches($object->getModelType(), $object->getId());
