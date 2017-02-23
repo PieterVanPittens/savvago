@@ -337,7 +337,7 @@ class UserManager extends BaseManager {
 			$machineSalt = $this->settings['security']['salt'];
 			$saltedPassword = $machineSalt.$password;
 
-			if ((true || password_verify($saltedPassword, $user->password)) && $user->isActive) {
+			if ((password_verify($saltedPassword, $user->password)) && $user->isActive) {
 				return $user;
 			} else {
 				return null;
