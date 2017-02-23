@@ -736,12 +736,6 @@ class CourseManager extends BaseManager {
 	}
 
 
-
-
-
-
-
-
 	/**
 	 * gets category by id
 	 * @param int $categoryId
