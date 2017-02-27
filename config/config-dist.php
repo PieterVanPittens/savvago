@@ -6,14 +6,14 @@ return [
 		// these settings will automatically be available in template rendering
 		// you have to modify them
    		'application' => [
-			'name' => 'savvago',
-   			'claim' => 'you savvy?',
-			'base' => 'http://localhost/savvago/public/',
+			'name' => '{{applicationName}}',
+   			'claim' => '{{applicationClaim}}',
+			'base' => '{{applicationBaseUri}}',
 			'template' => 'templates/default/',
-   			'api' => 'http://localhost/savvago/public/api/',
+   			'api' => '{{applicationApiUri}}',
 			// sender email
 			// sender of automated emails sent to users
-   			'senderEmail' => 'savvago <savvago@domain.com>'
+   			'senderEmail' => '{{applicationSenderEmail}}'
    		],
     		
     		
@@ -54,10 +54,10 @@ return [
 		
 		// data base
 		'db' => [
-			'host' => 'localhost',
-			'dbname' => 'savvago_dev',
-			'user' => 'root',
-			'pass' => ''
+			'host' => '{{dbHost}}',
+			'dbname' => '{{dbName}}',
+			'user' => '{{dbUser}}',
+			'pass' => '{{dbPass}}'
 		],
 		
    		// security
@@ -66,11 +66,11 @@ return [
    			// it will be randomly defined at installation time
    			// when you change the salt in a running system then all passwords become invalid,
    			// they cannot be matched anymore -> noone is able to login anymore
-			'salt' => '1234',
+			'salt' => '{{securityPasswordSalt}}',
 			// this is the key for creating login tokens
 			// when you change this key in a running system then all active tokens will become invalid
 			// that means all active users will be logged out
-			'tokenKey' => 'asqqw23424234'
+			'tokenKey' => '{{securityTokenKey}}'
    		],
 		
         // Monolog settings

@@ -2,13 +2,14 @@
 
 // DIC configuration
 
+
 $container = $app->getContainer();
+
 
 // view Data
 $container['viewData'] = function ($c) {
     return new ViewData();
 };
-
 
 
 // view renderer

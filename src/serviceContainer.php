@@ -5,7 +5,6 @@ $serviceContainer = new Container();
 
 // University
 $serviceContainer['universityRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new universityRepository($c['pdo']);
 };
 $serviceContainer['universityManager'] = function ($c) {
@@ -17,7 +16,6 @@ $serviceContainer['universityService'] = function ($c) {
 
 // Course
 $serviceContainer['courseRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new courseRepository($c['pdo']);
 };
 $serviceContainer['courseManager'] = function ($c) {
@@ -29,7 +27,6 @@ $serviceContainer['courseService'] = function ($c) {
 
 // ServiceCacheManager
 $serviceContainer['serviceCacheRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new ServiceCacheRepository($c['pdo']);
 };
 $serviceContainer['serviceCacheManager'] = function ($c) {
@@ -39,11 +36,9 @@ $serviceContainer['serviceCacheManager'] = function ($c) {
 
 // User
 $serviceContainer['userRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new UserRepository($c['pdo']);
 };
 $serviceContainer['displayUserRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new DisplayUserRepository($c['pdo']);
 };
 $serviceContainer['userManager'] = function ($c) {
@@ -54,7 +49,6 @@ $serviceContainer['userService'] = function ($c) {
 };
 // App
 $serviceContainer['appRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new AppRepository($c['pdo']);
 };
 $serviceContainer['appManager'] = function ($c) {
@@ -66,7 +60,6 @@ $serviceContainer['appService'] = function ($c) {
 
 // Content
 $serviceContainer['contentRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new ContentRepository($c['pdo']);
 };
 $serviceContainer['contentManager'] = function ($c) {
@@ -75,7 +68,6 @@ $serviceContainer['contentManager'] = function ($c) {
 
 // Mail
 $serviceContainer['mailQueueRepository'] = function ($c) {
-	$db = $c['settings']['db'];
 	return new MailQueueRepository($c['pdo']);
 };
 $serviceContainer['mailQueueManager'] = function ($c) {

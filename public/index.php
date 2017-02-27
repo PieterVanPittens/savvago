@@ -22,12 +22,14 @@ require __DIR__ . '/../vendor/url_slug/url_slug.php';
 require __DIR__ . '/../vendor/parsedown/Parsedown.php';
 
 
-$settings = require __DIR__ . '/../src/settings.php';
+
+// require savvago business logic
+require '/../src/require.php';
+$settings = require __DIR__ . '/../config/config.php';
 
 
-
-// settings are complete and we can instantiate the app
 $app = new \Slim\App($settings);
+require '/../src/dependencies.php';
 
 
 
@@ -72,64 +74,6 @@ $c['errorHandler'] = function ($c) {
 	};
 };
 
-// load savvago stuff
-require __DIR__ . '/../src/imodel.php';
-require __DIR__ . '/../src/basemodel.php';
-require __DIR__ . '/../src/icachable.php';
-require __DIR__ . '/../src/basemanager.php';
-require __DIR__ . '/../src/baseservice.php';
-require __DIR__ . '/../src/basepdorepository.php';
-require __DIR__ . '/../src/model.php';
-require __DIR__ . '/../src/ImageManager.php';
-
-require __DIR__ . '/../src/UserService/helper.php';
-require __DIR__ . '/../src/UserService/manager.php';
-require __DIR__ . '/../src/UserService/repository.php';
-require __DIR__ . '/../src/UserService/role.php';
-require __DIR__ . '/../src/UserService/service.php';
-require __DIR__ . '/../src/UserService/user.php';
-require __DIR__ . '/../src/UserService/usertypes.php';
-require __DIR__ . '/../src/UserService/usercontainer.php';
-
-require __DIR__ . '/../src/ContentService/contentobject.php';
-require __DIR__ . '/../src/ContentService/contenttype.php';
-require __DIR__ . '/../src/ContentService/manager.php';
-require __DIR__ . '/../src/ContentService/repository.php';
-
-require __DIR__ . '/../src/UniversityService/manager.php';
-require __DIR__ . '/../src/UniversityService/repository.php';
-require __DIR__ . '/../src/UniversityService/service.php';
-require __DIR__ . '/../src/UniversityService/university.php';
-
-require __DIR__ . '/../src/CourseService/category.php';
-require __DIR__ . '/../src/CourseService/course.php';
-require __DIR__ . '/../src/CourseService/enrollment.php';
-require __DIR__ . '/../src/CourseService/lesson.php';
-require __DIR__ . '/../src/CourseService/manager.php';
-require __DIR__ . '/../src/CourseService/progress.php';
-require __DIR__ . '/../src/CourseService/progresstypes.php';
-require __DIR__ . '/../src/CourseService/repository.php';
-require __DIR__ . '/../src/CourseService/section.php';
-require __DIR__ . '/../src/CourseService/service.php';
-
-require __DIR__ . '/../src/ServiceCache/manager.php';
-require __DIR__ . '/../src/ServiceCache/repository.php';
-
-
-require __DIR__ . '/../src/MailService/mail.php';
-
-require __DIR__ . '/../src/AppService/app.php';
-require __DIR__ . '/../src/AppService/manager.php';
-require __DIR__ . '/../src/AppService/repository.php';
-require __DIR__ . '/../src/AppService/service.php';
-
-require __DIR__ . '/../src/displayUser.php';
-require __DIR__ . '/../src/mvc.php';
-require __DIR__ . '/../src/helpers.php';
-
-
-// Set up dependencies
-require __DIR__ . '/../src/dependencies.php';
 
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
