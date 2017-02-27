@@ -264,6 +264,8 @@ class UserManager extends BaseManager {
 		} else {
 			$apiResult->setError('You are registered now. But we could not send an email with your verification key.');
 		}
+		$user->password = '';
+		$apiResult->object = $user;
 		return $apiResult;
 	}
 
