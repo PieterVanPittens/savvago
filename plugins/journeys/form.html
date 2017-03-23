@@ -1,0 +1,26 @@
+
+<div ng-app="journeysApp" ng-controller="FormCtrl">
+<h2>Journey {{journey.title}}</h2>
+
+<form id="journeyForm" name="journeyForm" ng-submit="submitForm(journeyForm.$valid)" novalidate>
+  <div class="form-group" ng-class="{ 'has-error' : errors.title }">
+	<input type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="journey.title" required>
+	<p ng-show="errors.title" class="help-block">{{errors.title}}</p>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error' : errors.tags }">
+    <input type="text" class="form-control" id="tags" name="tags" placeholder="Tags, separated by space" ng-model="journey.tags" ng-change="loadLessons()" required>
+	<p ng-show="errors.tags" class="help-block">{{errors.tags}}</p>
+  </div>
+  <div class="form-group">
+  Based on the tags this journey will cover these lessons:
+  <div id="lessons">
+  <span>&nbsp;</span>
+  <span ng-show="lessons.length == 0">None</span>
+  <span ng-repeat="lesson in lessons">{{lesson.title}}&nbsp;</span>
+  </div>
+  </div>
+  <button id="save" name="save" type="submit" class="btn btn-primary">Save</button>
+  <a id="cancel" href="{{current.backPath}}" class="btn btn-default">Cancel</a>
+</form>
+
+

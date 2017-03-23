@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="<?= $settings['base']; ?>"/>
+
+<meta charset="utf-8"/>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="57x57" href="<?= $settings['template']; ?>favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="<?= $settings['template']; ?>favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="<?= $settings['template']; ?>favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="<?= $settings['template']; ?>favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="<?= $settings['template']; ?>favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="<?= $settings['template']; ?>favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="<?= $settings['template']; ?>favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="<?= $settings['template']; ?>favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="<?= $settings['template']; ?>favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="<?= $settings['template']; ?>favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="<?= $settings['template']; ?>favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="<?= $settings['template']; ?>favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="<?= $settings['template']; ?>favicon/favicon-16x16.png">
+<link rel="manifest" href="<?= $settings['template']; ?>favicon/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="<?= $settings['template']; ?>favicon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+
+<title><?=htmlspecialchars($page->title);?></title>
+
+<script src="<?= $settings['template']; ?>vendor/jquery/jquery-2.2.4.min.js"></script>
+<script src="<?= $settings['template']; ?>vendor/jquery/jquery-ui.min.js"></script>
+<script src="<?= $settings['template']; ?>vendor/jquery.cookie/jquery.cookie.js"></script>
+<link rel="stylesheet" href="<?= $settings['template']; ?>vendor/bootstrap-3.3.6/css/bootstrap.min.css">
+<script src="<?= $settings['template']; ?>vendor/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="<?= $settings['template']; ?>vendor/toastr-2.1.1/toastr.css">
+<script src="<?= $settings['template']; ?>vendor/toastr-2.1.1/toastr.js"></script>
+
+
+<link rel="stylesheet" href="<?= $settings['template']; ?>style/style.css">
+
+
+
+<script src="<?= $settings['template']; ?>vendor/jquery.fileupload/vendor/jquery.ui.widget.js"></script>
+<script src="<?= $settings['template']; ?>vendor/jquery.fileupload/jquery.iframe-transport.js"></script>
+<script src="<?= $settings['template']; ?>vendor/jquery.fileupload/jquery.fileupload.js"></script>
+
+
+<script src="<?= $settings['template']; ?>vendor/angularjs/angular.min.js"></script>
+<script src="<?= $settings['template']; ?>vendor/angularjs/angular-route.js"></script>
+<script src="<?= $settings['template']; ?>vendor/angularjs/angular-animate.js"></script>
+
+
+<script>
+
+/**
+ * displays apiresult as toast using toastr
+ */
+function toastApiResult(apiResult) {
+	if (apiResult.message.type == 1) { // success
+		toastr.success(apiResult.message.text)
+	}
+	if (apiResult.message.type == 2) { // warning
+		toastr.warning(apiResult.message.text)
+	}
+	if (apiResult.message.type == 3) { // error
+		toastr.error(apiResult.message.text)
+	}
+}
+function toastAjaxResult(result) {
+	var apiResult = JSON.parse(result.responseText);
+	toastApiResult(apiResult);
+}
+
+$(function() {
+
+	$('.dropdown-toggle').dropdown()
+	
+    $('#logout').click(function() {
+    	$.removeCookie("savvago_token", { path: '/' });
+   	
+		window.location.href = "<?= $settings['base']; ?>";
+	});
+});
+</script>
+
+
+</head>
+<body>
+
+
+
+
+<div class="container-fluid">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+
+
+
+<div class="row">
+<div class="col-md-1">
+      <a class="navbar-brand" href="#"><?= $settings['name']; ?></a>
+</div>
+<div class="col-md-7">
+	<p class="navbar-text" style="margin-left: 100px"><?= $settings['claim']; ?></p>
+</div>
+
+
+<div class="col-md-4 text-right" style="padding-top: 15px">
+		<?php if ($currentUser->isGuest()) { ?>
+		<div class="btn-group" role="group" aria-label="Menu">
+			<a class="btn btn-default" href="sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+			<a class="btn btn-default" href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+		</div>
+		<?php } else { ?>
+		<div class="btn-group" role="group" aria-label="Menu">
+			<a class="btn btn-default" href="home">Home</a>
+
+
+  <div class="btn-group" role="group">
+  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><?= $currentUser->displayName; ?> <span class="caret"></span></button>
+    <ul class="dropdown-menu dropdown-menu-right">
+	<li><a href="my-profile">Profile</a></li>
+	<li><a href="my-account">Account Settings</a></li>
+	<li role="separator" class="divider"></li>
+	<li><a id="logout">Logout</a></li>
+    </ul>
+  </div>
+
+		</div>
+		<?php } ?>
+</div>
+</div>
+
+
+<?php require $templatePath . '/'. $page->mainView; ?>
+
+
+<?php require __DIR__ . '/partial_master-footer.phtml'; ?>
+
+
+
+</div><!-- outer offset col -->
+</div><!--  outer row -->
+</div><!-- container -->
+
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 
 
-class User extends BaseModel implements iModel{
+class User extends BaseModel implements iEntity {
 	public $userId;
 	public $title;
 	public $name;
@@ -31,7 +31,10 @@ class User extends BaseModel implements iModel{
 	public function getId() {
 		return $this->userId;
 	}
-
+	public function getEntityType() {
+		return EntityTypes::User;
+	}
+	
 	public function isAdmin() {
 		return $this->type == UserTypes::Admin;
 	}

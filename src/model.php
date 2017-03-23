@@ -63,8 +63,36 @@ class PluginException extends GrapesException {
 }
 class WebApiException extends GrapesException {
 }
+
+/**
+ * ValidationException
+ * Thrown by Managers when Validation of one property fails
+ */
 class ValidationException extends GrapesException {
+
+	/**
+	 * PropertyName
+	 * @var string
+	 */
+	public $propertyName;
+	
+	/**
+	 * Validation Message
+	 * @var string
+	 */
+	public $message;
+	
+	/**
+	 * constructor
+	 * @param string $propertyName property that validation error
+	 * @param string $message validation message
+	 */
+	function __construct($propertyName, $message) {
+		$this->propertyName = $propertyName;
+		$this->message = $message;
+	}
 }
+
 /**
  * Ressource was not found
  * this exception will result in 404 error code in API Response
@@ -77,9 +105,6 @@ class NotFoundException extends GrapesException {
 class UnauthorizedException extends GrapesException {
 	
 }
-
-
-
 
 class ModelHelper {
 
@@ -94,9 +119,6 @@ class ModelHelper {
 	}
 }
 
-
-
-
 /**
  * Page
  */
@@ -105,19 +127,16 @@ class Page {
 	public $mainView;
 }
 
-
-
-
-
-
-
 /**
- * ModelTypes
+ * EntityTypes
  * enum
  */
-abstract class ModelTypes {
-	const Course = 1;
+abstract class EntityTypes {
+	const Tag = 2;
+	const App = 3;
+	const Role = 4;
+	const User = 5;
+	const Lesson = 6;
+	const Journey = 7;
+	const Comment = 8;
 }
-
-
-?>

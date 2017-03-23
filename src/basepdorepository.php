@@ -11,7 +11,7 @@ class BasePdoRepository {
 	 */
 	protected $objectCaches = array();
 
-	public function cacheObject(iModel $object) {
+	public function cacheObject(iEntity $object) {
 		if (is_null($object)) {
 			throw new RepositoryException('object must not be null');
 		}
@@ -39,10 +39,10 @@ class BasePdoRepository {
 	/**
 	 * gets object from cache by id
 	 * only objectid needs to be set
-	 * @param iModel $object
-	 * @return iModel
+	 * @param iEntity $object
+	 * @return iEntity
 	 */
-	public function getFromCacheById(iModel $object) {
+	public function getFromCacheById(iEntity $object) {
 		if (is_null($object)) {
 			throw new RepositoryException('object must not be null');
 		}

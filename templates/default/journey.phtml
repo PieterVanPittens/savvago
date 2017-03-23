@@ -1,0 +1,41 @@
+<section class="white">
+<h1><?= $journey->title; ?></h1>
+<p><a href="">tag1</a> <a href="">tag1</a></p>
+<p>lorem ipsum description</p>
+
+
+<h2>newest stations</h2>
+<?php 
+foreach($lessons as $lesson) {
+?>
+	<div><a href="<?= $lesson->urls["view"]; ?>"><?= $lesson->title; ?></a></div>
+<?php 
+}
+?>
+
+<h2>most active stations</h2>
+
+<div class="row">
+<?php
+$i = 0;
+foreach($lessons as $lesson) {
+	?>
+		<div class="col-md-3 stationTile">
+		<p><img src="" class="stationTile"/></p>
+		
+		<h3 class="stationTile"><a href="<?= $lesson->urls["view"]; ?>"><?= $lesson->title; ?></a></h3>
+		<p class="stationTile"><?= $lesson->stats[EntityStats::numViews]; ?> Views * <?= ViewHelper::renderDate($lesson->created); ?></p>
+		</div>
+	<?php 
+	$i++;
+}
+?>
+</div>
+
+
+<h2>visited but not finished by you</h2>
+
+
+<a href="stations">All Stations</a>
+
+</section>

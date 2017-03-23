@@ -1,0 +1,53 @@
+<style>
+.appTile {
+	padding: 15px;
+	border: 1px solid #DEDEDE;
+
+	height: 150px;
+	margin-bottom: 45px;
+}
+.appTile:hover {
+	background-color: rgb(240,240,250);
+}
+.appTitle {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+</style>
+<script>
+$(function() {
+	$('.appTile').click(function(event) {
+		console.log(event)
+		var appId = event.currentTarget.dataset.appid
+		var appName = event.currentTarget.dataset.appname
+		console.log(appId)
+		window.location.href = '<?= $settings['base']; ?>apps/' + appName;
+	})
+})
+</script>
+<section class="white">
+<div class="row">
+<?php 
+$i = 1;
+foreach($apps as $app) { ?>
+
+	<div class="col-md-3">
+		<div class="appTile" data-appid="<?=$app->appId; ?>" data-appname="<?= $app->name; ?>">
+
+		<div class="appTitle"><?= $app->title; ?></div>
+		<div class="appDescription"><?= $app->decription; ?></div>
+		
+		</div>
+	</div>
+		
+	<?php
+	if ($i%4 == 0) { ?>
+		</div>
+		<div class="row">
+		<?php 
+	}
+	$i++;
+} ?>
+</div>
+
+</section>

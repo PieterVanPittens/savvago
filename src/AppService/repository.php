@@ -5,7 +5,7 @@
  * App Repository
  */
 class AppRepository extends BasePdoRepository {
-	private $fieldNames = 'name, title, description, is_active';
+	private $fieldNames = 'name, title, description, is_active, role_id';
 
 	/**
 	 * gets all apps
@@ -25,7 +25,7 @@ class AppRepository extends BasePdoRepository {
 	 * gets all apps of one role
 	 */
 	public function getRoleApps($roleId) {
-		$query = "SELECT a.app_id, ".$this->fieldNames." FROM apps a, role_apps ra WHERE a.app_id = ra.app_id and ra.role_id = ? ORDER BY name";
+		$query = "SELECT app_id, ".$this->fieldNames." FROM apps WHERE role_id = ? ORDER BY role_id desc, name";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($roleId));
 		$models = array();
@@ -35,6 +35,22 @@ class AppRepository extends BasePdoRepository {
 		return $models;
 	}
 
+	/**
+	 * gets app by name
+	 * @param string $name
+	 * @return App
+	 */
+	public function getAppByName($name) {
+		$query = "SELECT app_id, ".$this->fieldNames." FROM apps where name = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($name));
+		if ($a = $stmt->fetch()) {
+			return App::CreateModelFromRepositoryArray($a);
+		}
+		return null;
+		
+	}
+	
 }
 
 ?>

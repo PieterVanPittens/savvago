@@ -4,7 +4,7 @@
  * Course
  *
  */
-class Course extends BaseModel implements iCachable {
+class Course extends BaseModel implements iEntity {
 	public $courseId;
 	public $userId;
 	public $universityId;
@@ -65,7 +65,7 @@ class Course extends BaseModel implements iCachable {
 	public $user;
 
 
-	public function getModelType() {
+	public function getEntityType() {
 		return ModelTypes::Course;
 	}
 	public function getId() {

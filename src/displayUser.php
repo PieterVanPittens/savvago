@@ -2,7 +2,7 @@
 /**
  * simple data transfer object
  */
-class DisplayUser extends BaseModel implements iModel {
+class DisplayUser extends BaseModel implements iEntity {
 	public $userId;
 	public $title;
 	public $name;
@@ -19,7 +19,10 @@ class DisplayUser extends BaseModel implements iModel {
 	public function getId() {
 		return $this->userId;
 	}
-}
+	public function getEntityType() {
+		return EntityTypes::User;
+	}
+	}
 
 
 /** 

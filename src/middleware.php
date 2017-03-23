@@ -92,14 +92,14 @@ class TemplateMaster {
 		// e.g. request like /public/savvago/apps/content-management
 		$relativePath = $_SERVER["SCRIPT_NAME"];
 		$relativePath = str_replace('/index.php', '', $relativePath);
-
+		
 		$uri = $_SERVER["REQUEST_URI"];
 		$uri = str_replace($relativePath.'/', '', $uri);
-
+	/*	
 		$tokens = explode('/', $uri);
 		$isCallToApp = false;
 		$appFolder = '';
-		if (count($tokens) == 2) {
+		if (count($tokens) > 2) {
 			if ($tokens[0] == "apps") {
 				$appName = $tokens[1];
 				$appFolder = str_replace("index.php", "", __DIR__ . "/../apps/".$appName."/");
@@ -108,10 +108,7 @@ class TemplateMaster {
 				$templatePath = $appFolder;
 			}
 		}
-		if ($isCallToApp) {
-			require $appFolder.'routes.php';
-		}
-
+*/
 		$container['viewData']->data['templatePath'] = $templatePath;
 		
         return $next($request, $response);

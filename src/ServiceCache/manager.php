@@ -75,28 +75,28 @@ class ServiceCacheManager {
 	 * updates cache
 	 * @param string $cacheName
 	 * @param string $cacheKey
-	 * @param iCachable $object
+	 * @param iEntity $object
 	 */
-	function updateCache($cacheName, $cacheKey, iCachable $object) {
+	function updateCache($cacheName, $cacheKey, iEntity $object) {
 		$cacheTag = $this->createCacheTag($cacheName, $cacheKey);
 		$s = serialize($object);
 		
 		$exists = $this->repository->getServiceCacheByTag($cacheTag);
 		
 		if (is_null($exists)) {
-			$this->repository->createServiceCache($cacheTag, $object->getModelType(), $object->getId(), $s);
+			$this->repository->createServiceCache($cacheTag, $object->getEntityType(), $object->getId(), $s);
 		} else {
-			$this->repository->updateServiceCache($object->getModelType(), $object->getId(), $s);
+			$this->repository->updateServiceCache($object->getEntityType(), $object->getId(), $s);
 		}
 	}
 
 	/**
 	 * invalidates all caches for an object
 	 * i.e. all cache tags that are associated to this object will be deleted
-	 * @param iCachable $object
+	 * @param iEntity $object
 	 */
-	function deleteCaches(iCachable $object) {
-		$this->repository->deleteServiceCaches($object->getModelType(), $object->getId());
+	function deleteCaches(iEntity $object) {
+		$this->repository->deleteServiceCaches($object->getEntityType(), $object->getId());
 	}
 }
 

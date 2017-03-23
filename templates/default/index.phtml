@@ -1,0 +1,34 @@
+
+<?php
+require __DIR__ . '/partial_home-hero.phtml';
+?>
+
+
+<section class="white">
+
+<?php
+
+
+foreach($journeys as $journey) { 
+	?>
+<div class="row" id="journey<?= $journey->journeyId; ?>" style="background-color: #DDDDDD; margin-bottom: 25px;">
+	<div class="col-md-1">
+		<img src="<?= $journey->urls['images']['tile']; ?>"/>
+	</div>
+
+	<div class="col-md-10">
+		<h1><a href="<?= $journey->urls['view']; ?>"><?= htmlspecialchars($journey->title); ?></a></h1>
+		<p><?= $journey->numEnrollments; ?> Travelers, <?= $journey->numStations; ?> Stations</p>
+	</div>	
+	
+	
+</div>
+<?php
+}
+?>
+
+</section>
+
+<?php
+require __DIR__ . '/partial_home-footer.phtml';
+?>

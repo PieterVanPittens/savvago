@@ -33,6 +33,22 @@ class ApiResultFactory {
 		$result->object = $object;
 		return $result;
 	}
+	
+	/**
+	 * creates ApiResult from ValidationException
+	 * @param ValidationException $exception
+	 * @return ApiResult
+	 */
+	public static function createErrorFromValidationException(ValidationException $exception) {
+		$result = new ApiResult();
+		$message = new Message();
+		$message->type = MessageTypes::Error;
+		$message->text = $exception->message;
+		$message->AddPropertyMessage($exception->propertyName, $exception->message);
+		$result->message = $message;
+		$result->object = null;
+		return $result;
+	}
 }
 
 
@@ -108,5 +124,20 @@ class Message {
 	 */
 	public $type = MessageTypes::Success;
 	public $text;
+	
+	/**
+	 * key value pairs of property names and validation messages
+	 * @var array
+	 */
+	public $propertyMessages = array();
+
+	/**
+	 * adds validation message text to propertyName
+	 * @param string $propertyName
+	 * @param string $message
+	 */
+	public function AddPropertyMessage($propertyName, $message) {
+		$this->propertyMessages[$propertyName] = $message;
+	}
 }
 ?>

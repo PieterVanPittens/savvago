@@ -194,50 +194,6 @@ $app->get('/login', function ($request, $response, $args) {
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
-// apps home screen of a role
-$app->get('/home/{roleName}', function ($request, $response, $args) {
-
-
-	$role = new Role();
-	switch($args['roleName']) {
-		case 'admin':
-			$role->title = 'Admin';
-			$role->name = 'admin';
-			$role->roleId = 4;
-		break;
-		case 'teacher':
-			$role->title = 'Teacher';
-			$role->name = 'teacher';
-			$role->roleId = 3;
-		break;
-		case 'student':
-			$role->title = 'Student';
-			$role->name = 'student';
-			$role->roleId = 2;
-		break;
-		default:
-			$role->title = 'Guest';
-			$role->name = 'guest';
-			$role->roleId = 1;
-		break;
-	}
-
-	$page = new Page();
-	$page->title = 'Home - '.$role->title;
-	$page->mainView = 'home.phtml';
-
-	
-	$appService = $this->serviceContainer['appService'];
-	$apps = $appService->getRoleApps($role->roleId);
-
-	
-	$this->viewData->data['role'] = $role;
-	$this->viewData->data['apps'] = $apps;
-	$this->viewData->data['page'] = $page;
-	
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
 
 $app->get('/forgot', function ($request, $response, $args) {
 	$page = new Page();
@@ -255,24 +211,32 @@ $app->get('/', function ($request, $response, $args) {
 	$page->title = $this->settings['application']['name'];
 	$page->mainView = 'index.phtml';
 	$this->viewData->data['page'] = $page;
-	$this->viewData->data['courses'] = $this->serviceContainer['courseService']->getTopNCourses(20, true);
+	$this->viewData->data['journeys'] = $this->serviceContainer['journeyService']->getTopNJourneys(20);
 
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
 
 
-// learn a lesson
-$app->get('/lessons/{lessonId}', function ($request, $response, $args) {
+// home page of a lesson
+$app->get('/lessons/{name}', function ($request, $response, $args) {
 	setLastRequestPath($request);
 	
-	$courseService = $this->serviceContainer['courseService'];
-	$courseManager = $this->serviceContainer['courseManager'];
+	$lessonService = $this->serviceContainer['lessonService'];
 
-	$lesson = $courseManager->getLessonById($args['lessonId'], true);
-	$lesson->section = $courseManager->getSectionById($lesson->sectionId, false);
-	$lesson->section->course = $courseManager->getCourseById($lesson->section->courseId, false);
+	$lesson = $lessonService->getLessonByName($args['name']);
+	$this->viewData->data['lesson'] = $lesson;
+	
+	$markService = $this->serviceContainer['markService'];
+	$isLiked = $markService->likesLesson($lesson->lessonId);
+	$this->viewData->data['isLiked'] = $isLiked;
+	
+	$isChecked= $markService->isLessonChecked($lesson->lessonId);
+	$this->viewData->data['isChecked'] = $isChecked;
+	
 
+	
+	/*
 	$isEnrolled = $courseService->isEnrolled($lesson->section->course);
 	$this->viewData->data["isEnrolled"] = $isEnrolled;
 	
@@ -285,19 +249,13 @@ $app->get('/lessons/{lessonId}', function ($request, $response, $args) {
 
 	$attachments = $this->serviceContainer['contentManager']->getLessonAttachments($lesson->lessonId);
 	$this->viewData->data["attachments"] = $attachments;
+	*/
 	
-	$nextLesson = $courseService->getNextLesson($lesson->courseId);
-	$this->viewData->data['nextLesson'] = $nextLesson;
-		
 	$page = new Page();
 	$page->title = htmlspecialchars($lesson->title);
-	$page->mainView = 'learn-lesson.phtml';
+	$page->mainView = 'lesson.phtml';
 	$this->viewData->data["page"] = $page;
-	
-	
-	// back button
-	$this->viewData->data["back"] = $lesson->section->course->urls['view'];
-	
+
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
@@ -324,27 +282,6 @@ $app->get('/courses/{courseId}/enroll', function ($request, $response, $args) {
 
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
-
-// home screen of a category
-$app->get('/courses/category/{name}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$courseManager = $this->serviceContainer['courseManager'];
-
-	$category = $courseManager->getCategoryByName($args['name']);
-	$this->viewData->data['category'] = $category;
-
-	$page = new Page();
-	$page->title = htmlspecialchars($category->title);
-	$page->mainView = 'category.phtml';
-	$this->viewData->data["page"] = $page;
-
-	$courses = $courseManager->getCategoryCourses($category, true);
-	$this->viewData->data['courses'] = $courses;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
 
 // my courses
 $app->get('/my-courses', function ($request, $response, $args) {
@@ -479,63 +416,25 @@ $app->post('/my-picture', function ($request, $response, $args) {
 		
 });
 
-
-// home screen of a university
-$app->get('/university/[{name}]', function ($request, $response, $args) {
+// home screen of a journey
+$app->get('/journeys/{name}', function ($request, $response, $args) {
 	setLastRequestPath($request);
 	
-	$universityManager = $this->serviceContainer['universityManager'];
-	$courseManager = $this->serviceContainer['courseManager'];
+	$journeyService = $this->serviceContainer['journeyService'];
+	$journey= $journeyService->getJourneyByName($args['name'], true);
+	$this->viewData->data['journey'] = $journey;
 
-	$university = $universityManager->getUniversityByName($args['name']);
-	$this->viewData->data['university'] = $university;
-
-	$page = new Page();
-	$page->title = htmlspecialchars($university->title);
-	$page->mainView = 'university.phtml';
-	$this->viewData->data["page"] = $page;
-
-	$courses = $courseManager->getUniversityCourses($university, true);
-	$this->viewData->data['courses'] = $courses;
-	
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-// home screen of a course
-$app->get('/courses/{courseName}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$courseManager = $this->serviceContainer['courseManager'];
-	$courseService = $this->serviceContainer['courseService'];
-	//$universityService = $this->serviceContainer['universityService'];
-	$userManager = $this->serviceContainer['userManager'];
-	//$university = $universityService->getUniversityByName($args['uniName']);
-	$course = $courseService->getCourseByName($args['courseName'], true);
-
-	//$course->university = $university;
-	$course->category = $courseManager->getCategoryById($course->categoryId);
-	if (!is_null($course->category)) {
-		$course->parentCategory = $courseManager->getCategoryById($course->category->parentId);
-	}
-	$course->user = $userManager->getUserById($course->userId);
-
-	$courseService->loadCourseProgresses($course);
-	$this->viewData->data['course'] = $course;
-	
-	$nextLesson = $courseService->getNextLesson($course->courseId);
-	$this->viewData->data['nextLesson'] = $nextLesson;
-	
-	//$moreCourses = $courseService->getMoreCourses($course->university, $course);
-	//$this->viewData->data['moreCourses'] = $moreCourses;
+	$lessonService = $this->serviceContainer['lessonService'];
+	$lessons = $lessonService->getJourneyLessons($journey->journeyId);
+	$this->viewData->data['lessons'] = $lessons;
 	
 	$page = new Page();
-	$page->title = htmlspecialchars($course->title);
-	$page->mainView = 'course.phtml';
+	$page->title = htmlspecialchars($journey->title);
+	$page->mainView = 'journey.phtml';
 	$this->viewData->data["page"] = $page;
 	
 	// back button
 	$this->viewData->data["back"] = $this->settings['application']['base'];
-	
 	
 	// Render index view
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);

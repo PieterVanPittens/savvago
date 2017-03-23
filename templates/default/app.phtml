@@ -1,0 +1,50 @@
+<script>
+var savvagoApp = angular.module('savvagoApp', ['ngRoute']);
+
+savvagoApp.config(['$locationProvider',
+    function($locationProvider) {
+	$locationProvider.html5Mode({
+	    enabled: false,
+	    requireBase: true
+	});
+	$locationProvider.hashPrefix('');
+    }]);
+
+savvagoApp.provider('settings', function() {
+	this.$get = function getSettings() {
+		return {
+			templatePath: 'plugins/<?= $app->name; ?>/'
+			, appPath: 'apps/<?= $app->name; ?>'
+			, homePath: 'home'
+		};
+	};
+});
+
+savvagoApp.run(['$rootScope', 'settings', function($rootScope, settingsProvider) {
+	$rootScope.settings = settingsProvider;
+}]);
+
+</script>
+<script src="plugins/<?= $app->name; ?>/app.js"></script>
+
+<style>
+.appHead {
+	margin-top: 15px;
+	margin-bottom: 25px;
+}
+.appHead h1  {
+	margin: 0px;
+}
+</style>
+
+<section class="white" ng-app="savvagoApp">
+
+<div class="row appHead">
+	<div class="col-md-1 col-xs-2"><a href="{{current.backPath}}" class="btn btn-default"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></div>
+	<div class="col-md-10 col-xs-6"><h1 class="appHead"><?= $app->title; ?></h1></div>
+	<div class="col-md-1 col-xs-1"><a href="{{settings.homePath}}" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></div>
+</div>
+
+<div class="ng-view"></div>
+
+</section>

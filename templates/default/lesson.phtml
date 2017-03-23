@@ -1,0 +1,146 @@
+<script>
+$(function() {
+	var isLiked = <?= $isLiked ? 1:0?>;
+    $('#like').click(function() {
+		$.post( "<?= $lesson->urls['like']; ?>",
+			'',
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+				isLiked = !isLiked;
+				if (isLiked) {
+					$('#like').switchClass('btn-default', 'btn-primary');
+					var num = parseInt($('#numLikes').text()) + 1;
+					$('#numLikes').text(num);
+				} else {
+					$('#like').switchClass('btn-primary', 'btn-default');
+					var num = parseInt($('#numLikes').text()) - 1;
+					$('#numLikes').text(num);
+				}
+			}).fail(function(result) {
+				toastAjaxResult(result);
+			});
+	});
+
+	var isChecked = <?= $isChecked ? 1 : 0 ?>;
+    $('#check').click(function() {
+		$.post( "<?= $lesson->urls['check']; ?>",
+			'',
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+				isChecked = !isChecked;
+				if (isChecked) {
+					$('#check').switchClass('btn-default', 'btn-primary');
+					var num = parseInt($('#numChecks').text()) + 1;
+					$('#numChecks').text(num);
+				} else {
+					$('#check').switchClass('btn-primary', 'btn-default');
+					var num = parseInt($('#numChecks').text()) - 1;
+					$('#numChecks').text(num);
+				}
+			}).fail(function(result) {
+				toastAjaxResult(result);
+			});
+	});
+
+
+});
+</script>
+
+<script>
+var app = angular.module('app', []);
+
+
+/**
+ * loads further lessons
+ */
+app.controller('FurtherLessonsCtrl', function($scope, $http){
+	
+	$http.get('api/lessons').then(function(response) {
+	      $scope.lessons = response.data;
+	    });
+    
+})
+
+
+</script>
+
+
+
+<section class="white" ng-app="app">
+<div class="row">
+<div class="col-md-10 col-sm-10 col-xs-10">
+
+
+<div style="border: 1px solid black; width: 100%">
+content
+</div>
+
+<h2><?= $lesson->title; ?></h2>
+<p>created <?= ViewHelper::renderDate($lesson->created); ?> by <?= $lesson->user->name; ?></p>
+<p>
+<button class="btn <?= $isLiked ? 'btn-primary' : 'btn-default' ?>" id="like" title="Like this lesson"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>&nbsp;
+<span id="numLikes"><?= $lesson->stats[EntityStats::numLikes]; ?></span>
+</button>
+
+<button class="btn <?= $isChecked ? 'btn-primary' : 'btn-default' ?>" id="check" title="Mark this lesson as checked in your personal travel journal"><span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;
+<span id="numChecks"><?= $lesson->stats[EntityStats::numStationChecks]; ?></span>
+</button>
+&nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp;<?= $lesson->stats[EntityStats::numViews]; ?>
+&nbsp;<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>&nbsp;<?= $lesson->stats[EntityStats::numComments]; ?>
+</p>
+
+<p>description</p>
+
+<p>attachments</p>
+
+<p>comments</p>
+
+<p>results</p>
+
+<h2>Journeys</h2>
+<p>This lesson is part of these journeys: </p>
+
+</div> <!-- left col with lesson content -->
+<div class="col-md-2 col-sm-2 col-xs-2" >
+
+<div ng-controller="FurtherLessonsCtrl">
+
+<h2>further lessons</h2>
+
+<div class="stationTile" ng-repeat="lesson in lessons">
+
+	<p><img src="" class="stationTile"/></p>
+	
+	<h3 class="stationTile"><a href="">{{lesson.title}}</a></h3>
+	<p class="stationTile">x Views * {{lesson.created}}</p>
+
+
+
+
+</div>
+
+</div>
+
+</div> <!--  right col with list of additional lessons -->
+</div> <!-- main content -->
+</section>
+
+
+<pre>
+gebaut wie bei yt:
+
+1. content
+2. title
+3. metadaten
+4. desription
+5. kommentare
+
+und am linken rand eine leiste mit weiteren lessons
+jo, das ist gut
+
+und dann noch: I was here...
+liste mit den n letzten leuten, die diese lesson gecheckt haben
+
+</pre>

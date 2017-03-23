@@ -22,6 +22,17 @@ class AppManager extends BaseManager {
 	public function getRoleApps($roleId) {
 		return $this->repository->getRoleApps($roleId);
 	}
+	
+	
+	/**
+	 * gets app by name
+	 * @param string $name
+	 * @return App
+	 */
+	public function getAppByName($name) {
+		$app = $this->repository->getAppByName($name);
+		return $app;
+	}
 }
 
 ?>

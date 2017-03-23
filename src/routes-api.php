@@ -11,50 +11,14 @@ function getRequestObject() {
 		throw new ValidationException("Request is empty, object expected");
 	}
 	foreach($input as $key => $value) {
-		$input->$key = htmlentities($value);
+		if (!is_array($value)) {
+			$input->$key = htmlentities($value);
+		}
 	}
 	return $input;	
 }
 
 
-// get course
-$app->get('/api/courses/{courseId}', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-	
-	// TODO security check: ist user der autor dieses kurses?
-	$courseService = $this->serviceContainer['courseService'];
-	$course = $courseService->getCourseById($args['courseId'], true);
-
-	// hack: remove course references to avoid circular references, json encode cannot handle that
-	foreach($course->sections as $section) {
-		$section->course = null;
-		foreach($section->lessons as $lesson) {
-			$lesson->course = null;
-			
-		}
-	}
-	
-	
-	return json_encode($course);
-});
-
-// import course
-$app->post('/api/courses/import', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-	// TODO security check: user needs to be teacher at least
-
-	$uploadDir = $this->serviceContainer['settings']['import']['import_path'];
-	
-	$uploadFile = $uploadDir  . com_create_guid();
-	if (move_uploaded_file($_FILES['importfiles']['tmp_name'], $uploadFile)) {	
-		$courseService = $this->serviceContainer['courseService'];
-		$apiResult = $courseService->importCourse($uploadFile);
-	} else {
-		$apiResult = ApiResultFactory::CreateError('Could not move uploaded file', null);
-	}
-	return json_encode($apiResult);
-
-});
 
 // get all courses that I am teaching
 $app->get('/api/courses-teaching', function ($request, $response, $args) {
@@ -155,21 +119,6 @@ $app->post('/api/users/{userId}/activate', function ($request, $response, $args)
 
 });
 
-// get lessons of course
-$app->get('/api/courses/{courseId}/lessons', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-
-	$courseService = $this->serviceContainer['courseService'];
-	$courseManager = $this->serviceContainer['courseManager'];
-	$course = $courseManager->getCourseById($args['courseId'], false);
-
-	$lessons = $courseService->getCourseLessons($course);
-
-	return json_encode(array('data' => $lessons));
-
-});
 
 
 
@@ -203,17 +152,6 @@ $app->post('/api/sections/switch', function ($request, $response, $args) {
 	return $apiResult->toJson();
 });
 
-// reorder lesson
-$app->post('/api/lessons/switch', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-	$input = getRequestObject();
-
-	$courseManager = $this->serviceContainer['courseManager'];
-	$apiResult = $courseManager->switchLessons($input->sourceId, $input->targetId);
-	return $apiResult->toJson();
-});
 
 // add section to course
 $app->post('/api/courses/{courseId}/sections', function ($request, $response, $args) {
@@ -232,25 +170,6 @@ $app->post('/api/courses/{courseId}/sections', function ($request, $response, $a
 	return json_encode($apiResult);
 });
 
-// add lesson to section
-$app->post('/api/sections/{sectionId}/lessons', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-
-	$input = getRequestObject();
-
-	$sectionId = $args["sectionId"];
-
-	$lesson = new Lesson();
-	$lesson->title = $input->title;
-	$lesson->sectionId = $sectionId;
-	$lesson->courseId = $input->courseId;
-	$courseService = $this->serviceContainer['courseService'];
-	$apiResult = $courseService->createLesson($lesson);
-
-	return json_encode($apiResult);
-});
 
 // upload content to course
 $app->post('/api/courses/{courseId}/upload', function ($request, $response, $args) {
@@ -289,7 +208,7 @@ $app->get('/api/courses/{courseId}/contents', function ($request, $response, $ar
 
 	return json_encode(array('data' => $contents));
 });
-
+/*
 // get apps
 $app->get('/api/apps', function ($request, $response, $args) {
 	checkIsAuthenticated($this);
@@ -300,7 +219,7 @@ $app->get('/api/apps', function ($request, $response, $args) {
 
 	return json_encode(array('data' => $apps));
 });
-
+*/
 // update section
 $app->post('/api/sections/{sectionId}', function ($request, $response, $args) {
 	checkIsAuthenticated($this);
@@ -474,14 +393,5 @@ $app->post('/api/newpassword', function ($request, $response, $args) {
 	return $result->toJson();
 });
 
-// finish lesson
-$app->post('/api/lessons/{lessonId}/finish', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
 
-	$courseManager = $this->serviceContainer['courseManager'];
-	$courseService = $this->serviceContainer['courseService'];
-	$lesson = $courseManager->getLessonById($args['lessonId'], false);
-	$result = $courseService->finishLesson($lesson);
-	return $result->toJson();	
-});
 	

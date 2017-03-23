@@ -2,7 +2,7 @@
 
 
 
-class Role extends BaseModel implements iModel {
+class Role extends BaseModel implements iEntity {
 	public $roleId;
 	public $name;
 	public $title;
@@ -11,6 +11,7 @@ class Role extends BaseModel implements iModel {
 	public function getId() {
 		return $this->roleId;
 	}
+	public function getEntityType() {
+		return EntityTypes::Role;
+	}
 }
-
-?>
