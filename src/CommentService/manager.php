@@ -21,4 +21,13 @@ class CommentManager extends BaseManager {
 		$comments = $this->repository->getEntityComments($entityType, $entityId);
 		return $comments;
 	}
+	
+
+	/**
+	 * creates comment
+	 * @param Comment $comment
+	 */
+	public function createComment(Comment $comment) {
+		$this->repository->createComment($comment);
+	}
 }

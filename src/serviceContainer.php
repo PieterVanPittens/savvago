@@ -123,7 +123,7 @@ $serviceContainer['commentManager'] = function ($c) {
 	return new CommentManager($c['commentRepository'], $c['settings'], $c);
 };
 $serviceContainer['commentService'] = function ($c) {
-	$s = new CommentService($c['contextUser'], $c['commentManager'], $c['settings'], $c);
+	$s = new CommentService($c['contextUser'], $c['commentManager'], $c['entityStatsManager'], $c['settings'], $c);
 	$s->transactionManager = $c['transactionManager'];
 	return $s;
 };

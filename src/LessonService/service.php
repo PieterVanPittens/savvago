@@ -261,6 +261,7 @@ class LessonService extends BaseService {
 	 */
 	public function getLessons() {
 		$lessons = $this->manager->getLessons();
+		$this->addLessonsUrls($lessons);
 		return $lessons;
 	}
 
