@@ -1,7 +1,7 @@
 <?php
 // load savvago stuff
 require __DIR__ . '/basemodel.php';
-require __DIR__ . '/icachable.php';
+require __DIR__ . '/iEntity.php';
 require __DIR__ . '/basemanager.php';
 require __DIR__ . '/baseservice.php';
 require __DIR__ . '/basepdorepository.php';
