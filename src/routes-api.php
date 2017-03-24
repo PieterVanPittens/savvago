@@ -11,7 +11,7 @@ function getRequestObject() {
 		throw new ValidationException("Request is empty, object expected");
 	}
 	foreach($input as $key => $value) {
-		if (!is_array($value)) {
+		if (!is_array($value) && !is_object($value)) {
 			$input->$key = htmlentities($value);
 		}
 	}
