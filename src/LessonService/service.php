@@ -41,7 +41,17 @@ class LessonService extends BaseService {
 	 */
 	private $entityStatsManager;
 	
+	/**
+	 * @var iProviderPlugin
+	 */
+	private $storageProvider;
 	
+	/**
+	 * @var ContentManager
+	 */
+	private $contentManager;
+	
+
 	/**
 	 * settings
 	 * @var array
@@ -58,6 +68,8 @@ class LessonService extends BaseService {
 	 * @param TagMatchingManager $tagMatchingManager
 	 * @param UserManager $userManager
 	 * @param EntityStatsManager $entityStatsManager
+	 * @param iProviderPlugin $storageProvider
+	 * @param ContentManager $contentManager
 	 */
 	function __construct(
 			$contextUser
@@ -68,6 +80,8 @@ class LessonService extends BaseService {
 			, $tagMatchingManager
 			, $userManager
 			, $entityStatsManager
+			, $storageProvider
+			, $contentManager
 		) {
 		$this->contextUser = $contextUser;
 		$this->settings = $settings;
@@ -77,6 +91,8 @@ class LessonService extends BaseService {
 		$this->tagMatchingManager = $tagMatchingManager;
 		$this->userManager = $userManager;
 		$this->entityStatsManager = $entityStatsManager;
+		$this->storageProvider = $storageProvider;
+		$this->contentManager = $contentManager;
 	}
 
 	/**
@@ -177,7 +193,11 @@ class LessonService extends BaseService {
 		$this->addLessonUrls($lesson);
 		$lesson->stats = $this->entityStatsManager->getEntityStats(EntityTypes::Lesson, $lesson->lessonId);
 		$lesson->user = $this->userManager->getUserById($lesson->userId);
-		
+		$lesson->content = $this->contentManager->getContentObject($lesson->contentObjectId);
+		$lesson->content->type = $this->contentManager->getContentType($lesson->content->typeId);
+		if (is_null($lesson->content->type)) {
+			throw new Exception('content type does not exist: '.$lesson->content->typeId);
+		}
 		// log view of this lesson
 		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numViews, 1);
 		
@@ -253,6 +273,9 @@ class LessonService extends BaseService {
 			, 'like' => $this->settings['application']['api'] . 'lessons/' . $lesson->lessonId . '/like'
 		);
 		$lesson->urls = $urls;
+		
+		// convert image name to full url of asset
+		$lesson->image = $this->storageProvider->getAssetUrl($lesson->image);
 	}
 	
 	/**

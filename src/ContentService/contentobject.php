@@ -4,12 +4,17 @@
  */
 class ContentObject extends BaseModel {
 	public $objectId;
-	public $courseId;
 	public $typeId;
 	public $content;
 	public $name;
-	public $description;
 	public $md5Hash;
+	
+	/**
+	 * ContentType
+	 * @var ContentType
+	 */
 	public $type;
+	
+	public $url;
 }
 ?>

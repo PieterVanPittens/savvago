@@ -96,15 +96,15 @@ $(function() {
 
 
 <div class="row">
-<div class="col-md-1">
+<div class="col-md-2 col-sm-2">
       <a class="navbar-brand" href="#"><?= $settings['name']; ?></a>
 </div>
-<div class="col-md-7">
-	<p class="navbar-text" style="margin-left: 100px"><?= $settings['claim']; ?></p>
+<div class="col-md-6 col-sm-6">
+	<p class="navbar-text"><?= $settings['claim']; ?></p>
 </div>
 
 
-<div class="col-md-4 text-right" style="padding-top: 15px">
+<div class="col-md-4 col-sm-4 text-right" style="padding-top: 15px">
 		<?php if ($currentUser->isGuest()) { ?>
 		<div class="btn-group" role="group" aria-label="Menu">
 			<a class="btn btn-default" href="sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
@@ -115,15 +115,15 @@ $(function() {
 			<a class="btn btn-default" href="home">Home</a>
 
 
-  <div class="btn-group" role="group">
-  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><?= $currentUser->displayName; ?> <span class="caret"></span></button>
-    <ul class="dropdown-menu dropdown-menu-right">
-	<li><a href="my-profile">Profile</a></li>
-	<li><a href="my-account">Account Settings</a></li>
-	<li role="separator" class="divider"></li>
-	<li><a id="logout">Logout</a></li>
-    </ul>
-  </div>
+			  <div class="btn-group" role="group">
+			  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><?= $currentUser->displayName; ?> <span class="caret"></span></button>
+			    <ul class="dropdown-menu dropdown-menu-right">
+				<li><a href="my-profile">Profile</a></li>
+				<li><a href="my-account">Account Settings</a></li>
+				<li role="separator" class="divider"></li>
+				<li><a id="logout">Logout</a></li>
+			    </ul>
+			  </div>
 
 		</div>
 		<?php } ?>

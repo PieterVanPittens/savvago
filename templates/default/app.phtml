@@ -13,7 +13,7 @@ savvagoApp.config(['$locationProvider',
 savvagoApp.provider('settings', function() {
 	this.$get = function getSettings() {
 		return {
-			templatePath: 'plugins/<?= $app->name; ?>/'
+			templatePath: 'plugins/apps/<?= $app->name; ?>/'
 			, appPath: 'apps/<?= $app->name; ?>'
 			, homePath: 'home'
 		};
@@ -25,7 +25,7 @@ savvagoApp.run(['$rootScope', 'settings', function($rootScope, settingsProvider)
 }]);
 
 </script>
-<script src="plugins/<?= $app->name; ?>/app.js"></script>
+<script src="plugins/apps/<?= $app->name; ?>/app.js"></script>
 
 <style>
 .appHead {

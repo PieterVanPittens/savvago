@@ -90,6 +90,16 @@ require __DIR__ . '/src/routes-api.php';
 
 require __DIR__ . '/src/ViewHelper.php';
 
+// register provider in serviceContainer
+$app->getContainer()['serviceContainer']['storageProvider'] = function($c) {
+	// load storage plugin
+	$name = $c['settings']['storage']['provider'];
+	require __DIR__ . '/plugins/storage/'.$name.'/plugin.php';
+	$provider = new $name();
+	return $provider;
+	
+};
+
 
 
 // Run app

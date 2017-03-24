@@ -173,12 +173,12 @@ app.controller('CommentsCtrl', function($scope, $http){
 <div class="col-md-9 col-sm-9 col-xs-9">
 
 
-<div style="border: 1px solid black; width: 100%">
-content
+<div style="width: 100%">
+<?php $contentPlugin->viewContent($lesson->content); ?>
 </div>
 
 <h2><?= $lesson->title; ?></h2>
-<p>created <?= ViewHelper::renderDate($lesson->created); ?> by <?= $lesson->user->name; ?></p>
+<p><?= $lesson->content->type->name; ?> - Created <?= ViewHelper::renderDate($lesson->created); ?> by <a href="#"><?= $lesson->user->name; ?></a></p>
 <p>
 <button class="btn <?= $isLiked ? 'btn-primary' : 'btn-default' ?>" id="like" title="Like this lesson"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>&nbsp;
 <span id="numLikes"><?= $lesson->stats[EntityStats::numLikes]; ?></span>
@@ -242,12 +242,9 @@ li.comment {
 
 <div class="stationTile" ng-repeat="lesson in lessons">
 
-	<p><img src="" class="stationTile"/></p>
+	<p><img src="{{lesson.image}}" class="stationTile"/></p>
 	<h3 class="stationTile"><a href="{{lesson.urls.view}}">{{lesson.title}}</a></h3>
-	<p class="stationTile">x Views * {{lesson.created}}</p>
-
-
-
+	<p class="stationTile">x Views * {{lesson.created | dateFormat}}</p>
 
 </div>
 
@@ -256,21 +253,3 @@ li.comment {
 </div> <!--  right col with list of additional lessons -->
 </div> <!-- main content -->
 </section>
-
-
-<pre>
-gebaut wie bei yt:
-
-1. content
-2. title
-3. metadaten
-4. desription
-5. kommentare
-
-und am linken rand eine leiste mit weiteren lessons
-jo, das ist gut
-
-und dann noch: I was here...
-liste mit den n letzten leuten, die diese lesson gecheckt haben
-
-</pre>

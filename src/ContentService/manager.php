@@ -7,6 +7,31 @@
 class ContentManager extends BaseManager {
 
 	/**
+	 * ContentRepository
+	 * @var ContentRepository
+	 */
+	protected $repository;
+
+	/**
+	 * @var iProviderPlugin
+	 */
+	private $storageProvider;
+	
+	
+	/**
+	 * constructor
+	 * @param ContentRepository $repository
+	 * @param iProviderPlugin $storageProvider
+	 */
+	function __construct(
+			$repository
+			, $storageProvider
+			) {
+				$this->repository = $repository;
+				$this->storageProvider = $storageProvider;
+	}
+	
+	/**
 	 * creates a ContentObject
 	 * @param $ContentObject $contentObject
 	 */
@@ -34,6 +59,17 @@ class ContentManager extends BaseManager {
 		return $model;
 	}
 
+	/**
+	 * gets ContentType by id
+	 * @param int $id
+	 * @return ContentType
+	 */
+	public function getContentType($id) {
+		$model = $this->repository->getContentType($id);
+		return $model;
+	}
+	
+	
 	/**
 	 * gets ContentObjects of a lesson (attachments)
 	 * @param int $lessonId
@@ -65,6 +101,16 @@ class ContentManager extends BaseManager {
 		$attachment->content = json_decode($attachment->content);
 	}
 
+	/**
+	 * gets contentobject by id
+	 * @param int $objectId
+	 * @return ContentObject
+	 */
+	function getContentObject($objectId) {
+		$contentObject = $this->repository->getContentObjectById($objectId);
+		$contentObject->url = $this->storageProvider->getAssetUrl($contentObject->name);
+		return $contentObject;
+	}
 }
 
 ?>

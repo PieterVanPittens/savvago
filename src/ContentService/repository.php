@@ -26,10 +26,9 @@ class ContentRepository extends BasePdoRepository {
 	 * @return ContentType
 	 */
 	public function getContentTypeByName($name) {
-		$query = "SELECT type_id, name, is_internal, extension FROM content_types where name = ?";
+		$query = "SELECT type_id, name, source, extension FROM content_types where name = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($name));
-
 		if ($a = $stmt->fetch()) {
 			$model = ContentType::CreateModelFromRepositoryArray($a);
 			return $model;
@@ -38,6 +37,24 @@ class ContentRepository extends BasePdoRepository {
 		}
 	}
 
+	/**
+	 * gets ContentType by id
+	 * @param int $id
+	 * @return ContentType
+	 */
+	public function getContentType($id) {
+		$query = "SELECT type_id, name, source, extension FROM content_types where type_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($id));	
+		if ($a = $stmt->fetch()) {
+			$model = ContentType::CreateModelFromRepositoryArray($a);
+			return $model;
+		} else {
+			return null;
+		}
+	}
+	
+	
 	/**
 	 * gets ContentType by extension
 	 * @param string $name
@@ -99,7 +116,7 @@ class ContentRepository extends BasePdoRepository {
 		if (is_null($id)) {
 			throw new RepositoryException('id must not be null');
 		}
-		$query = "SELECT object_id, course_id, type_id, content, name, description, md5_hash FROM content_objects where object_id = ?";
+		$query = "SELECT object_id,  type_id, content, name, md5_hash FROM content_objects where object_id = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($id));
 
@@ -118,7 +135,7 @@ class ContentRepository extends BasePdoRepository {
 	 * @return ContentObject
 	 */
 	public function getContentObjectByName($courseId, $name) {
-		$query = "SELECT object_id, course_id, type_id, content, name, description, md5_hash FROM content_objects where course_id = ? and name = ?";
+		$query = "SELECT object_id, type_id, content, name, md5_hash FROM content_objects where course_id = ? and name = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($courseId, $name));
 
@@ -148,28 +165,6 @@ class ContentRepository extends BasePdoRepository {
 		return $models;
 	}
 
-	/**
-	 * gets ContentObjects of a course
-	 * @param int $courseId
-	 * @return array
-	 */
-	function getCourseContents($courseId) {
-		$query = "SELECT o.object_id, o.course_id, o.type_id, o.content, o.name as oname, o.description, o.md5_hash, t.name as tname, t.is_internal, t.extension
-		FROM content_objects o, content_types t where o.type_id = t.type_id and o.course_id = ?";
-		$stmt = $this->prepare($query);
-		$stmt = $this->execute($stmt, array($courseId));
-
-		$models = array();
-		while ($a = $stmt->fetch()) {
-			$contentObject = ContentObject::CreateModelFromRepositoryArray($a);
-			$contentObject->name = $a["oname"];
-			$contentType = ContentType::CreateModelFromRepositoryArray($a);
-			$contentType->name = $a["tname"];
-			$contentObject->type = $contentType;
-			$models[] = $contentObject;
-		}
-		return $models;
-	}
 }
 
 ?>

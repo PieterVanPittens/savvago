@@ -2,7 +2,7 @@
 
 class LessonRepository extends BasePdoRepository {
 
-	private $lessonFieldNames = 'name, title, content_object_id, description, is_active, tags, created, user_id';
+	private $lessonFieldNames = 'name, title, content_object_id, description, is_active, tags, created, user_id, image';
 
 	/**
 	 * retrieves all Lessons
@@ -80,8 +80,9 @@ class LessonRepository extends BasePdoRepository {
 		, is_active
 		, tags
 		, created
+		, image
 		) VALUES (
-		?, ?, ?, ?, ?, ?, ?
+		?, ?, ?, ?, ?, ?, ?, ?
 		)";
 		$stmt = $this->prepare($query);
 		$parameters = array(
@@ -92,6 +93,7 @@ class LessonRepository extends BasePdoRepository {
 			, $model->isActive ? 1 : 0
 			, $model->tags
 			, $model->created
+			, $model->image
 		);
 		$stmt = $this->execute($stmt, $parameters);
 		$model->lessonId = $this->pdo->lastInsertId();

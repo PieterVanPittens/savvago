@@ -69,6 +69,8 @@ $serviceContainer['lessonService'] = function ($c) {
 			, $c['tagMatchingManager']
 			, $c['userManager']
 			, $c['entityStatsManager']
+			, $c['storageProvider']
+			, $c['contentManager']
 			);
 
 	$s->transactionManager = $c['transactionManager'];
@@ -135,7 +137,7 @@ $serviceContainer['contentRepository'] = function ($c) {
 	return new ContentRepository($c['pdo']);
 };
 $serviceContainer['contentManager'] = function ($c) {
-	return new ContentManager($c['contentRepository'], $c['settings'], $c);
+	return new ContentManager($c['contentRepository'] , $c['storageProvider'], $c['settings'], $c);
 };
 
 // TransactionManager

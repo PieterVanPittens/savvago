@@ -234,7 +234,12 @@ $app->get('/lessons/{name}', function ($request, $response, $args) {
 	$isChecked= $markService->isLessonChecked($lesson->lessonId);
 	$this->viewData->data['isChecked'] = $isChecked;
 	
-
+	$pluginName = $lesson->content->type->name;
+	require __DIR__ . '/../plugins/content/'.$pluginName.'/plugin.php';
+	$className = $pluginName.'Content';
+	$plugin = new $className();
+	$this->viewData->data['contentPlugin'] = $plugin;
+	
 	
 	/*
 	$isEnrolled = $courseService->isEnrolled($lesson->section->course);

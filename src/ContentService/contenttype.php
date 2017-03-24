@@ -5,7 +5,11 @@
 class ContentType extends BaseModel {
 	public $typeId;
 	public $name;
-	public $isInternal;
+	
+	/**
+	 * @var ContentSourceTypes
+	 */
+	public $source;
 	public $extension;
 }
 

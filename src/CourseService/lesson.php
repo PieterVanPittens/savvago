@@ -32,6 +32,7 @@ class Lesson extends BaseModel implements iEntity, JsonSerializable {
 	 */
 	public $stats;
 	
+	public $image;
 	/**
 	 * created date time
 	 * @var int
@@ -53,7 +54,6 @@ class Lesson extends BaseModel implements iEntity, JsonSerializable {
 	public $progresses = array();
 	public $urls = array();
 
-
 	/**
 	 * @var ContentObject
 	 */
@@ -71,9 +71,7 @@ class Lesson extends BaseModel implements iEntity, JsonSerializable {
 				'isActive' => $this->isActive,
 				'tags' => $this->tags,
 				'created' => $this->created,
-				'numViews' => $this->numViews,
-				'numLikes' => $this->numLikes,
-				'numFinished' => $this->numFinished,
+				'image' => $this->image,
 				'urls' => $this->urls,
 				'user' => json_encode($this->user),
 				'stats' => $this->stats

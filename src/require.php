@@ -8,6 +8,10 @@ require __DIR__ . '/basepdorepository.php';
 require __DIR__ . '/model.php';
 require __DIR__ . '/ImageManager.php';
 
+require __DIR__ . '/iProviderPlugin.php';
+require __DIR__ . '/iContentPlugin.php';
+
+
 require __DIR__ . '/UserService/helper.php';
 require __DIR__ . '/UserService/manager.php';
 require __DIR__ . '/UserService/repository.php';
