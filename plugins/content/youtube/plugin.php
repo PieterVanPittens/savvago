@@ -10,4 +10,14 @@ class youtubeContent implements iContentPlugin {
 		</div>
 		<?php
 	}
+	
+	public function getThumbnailUrl(ContentObject $content) {
+		$url = 'https://img.youtube.com/vi/'.$content->name.'/default.jpg';
+		return $url;
+	}
+	
+	public function getImageUrl(ContentObject $content) {
+		$url = 'https://img.youtube.com/vi/'.$content->name.'/sddefault.jpg';
+		return $url;
+	}
 }

@@ -235,9 +235,8 @@ $app->get('/lessons/{name}', function ($request, $response, $args) {
 	$this->viewData->data['isChecked'] = $isChecked;
 	
 	$pluginName = $lesson->content->type->name;
-	require __DIR__ . '/../plugins/content/'.$pluginName.'/plugin.php';
-	$className = $pluginName.'Content';
-	$plugin = new $className();
+	$plugin = PluginFactory::createContentPlugin($pluginName);
+	
 	$this->viewData->data['contentPlugin'] = $plugin;
 	
 	

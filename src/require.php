@@ -23,6 +23,7 @@ require __DIR__ . '/UserService/usercontainer.php';
 
 require __DIR__ . '/ContentService/contentobject.php';
 require __DIR__ . '/ContentService/contenttype.php';
+require __DIR__ . '/ContentService/contentSourceTypes.php';
 require __DIR__ . '/ContentService/manager.php';
 require __DIR__ . '/ContentService/repository.php';
 
@@ -80,6 +81,8 @@ require __DIR__ . '/TransactionService/manager.php';
 
 require __DIR__ . '/TagMatchingService/repository.php';
 require __DIR__ . '/TagMatchingService/manager.php';
+
+require __DIR__ . '/PluginService/pluginFactory.php';
 
 require __DIR__ . '/displayUser.php';
 require __DIR__ . '/mvc.php';

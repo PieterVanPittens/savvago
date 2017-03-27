@@ -8,4 +8,12 @@ class jpgContent implements iContentPlugin {
 		</div>
 		<?php 
 	}
+	
+	public function getImageUrl(ContentObject $content) {
+		return $content->url;
+	}
+	
+	public function getThumbnailUrl(ContentObject $content) {
+		return $content->url;
+	}
 }

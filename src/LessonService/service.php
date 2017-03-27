@@ -267,15 +267,39 @@ class LessonService extends BaseService {
 	 * @param Lesson $lessons
 	 */
 	private function addLessonUrls(Lesson $lesson) {
+	
+		$content = $this->contentManager->getContentObject($lesson->contentObjectId);
+		$contentType = $this->contentManager->getContentType($content->typeId); // todo: service cache
+
+		$image = '';
+		$thumbnail = '';
+		switch ($contentType->source) {
+			case ContentSourceTypes::Link:
+				
+				$pluginName = $contentType->name;
+				$plugin = PluginFactory::createContentPlugin($pluginName);
+				
+				$image = $plugin->getImageUrl($content);
+				$thumbnail = $plugin->getThumbnailUrl($content);
+				break;
+			case ContentSourceTypes::Article:
+				break;
+			case ContentSourceTypes::Mediafile:
+				$image = $this->storageProvider->getAssetUrl($lesson->image);
+				$thumbnail = $this->storageProvider->getAssetUrl($lesson->image);
+				break;
+		}
+		
+		
 		$urls = array(
 			'view' => $this->settings['application']['base'] . 'lessons/' . $lesson->name
 			, 'check' => $this->settings['application']['api'] . 'lessons/' . $lesson->lessonId . '/check'
 			, 'like' => $this->settings['application']['api'] . 'lessons/' . $lesson->lessonId . '/like'
+			, 'image' => $image
+			, 'thumbnail' => $thumbnail
 		);
 		$lesson->urls = $urls;
 		
-		// convert image name to full url of asset
-		$lesson->image = $this->storageProvider->getAssetUrl($lesson->image);
 	}
 	
 	/**
