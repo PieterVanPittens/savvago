@@ -169,12 +169,8 @@ class JourneyService extends BaseService {
 		$this->tagManager->assignTagsToEntity($tags, $apiResult->object);
 	
 		// assign lessons based on matched tags 
-		$lessons = $this->tagMatchingManager->getMatchingLessons($tags);
-		
+		$lessons = $this->tagMatchingManager->getMatchingLessons($tags);		
 		$this->manager->assignLessonsToJourney($journey, $lessons);
-		
-		// create content
-
 		
 		
 		// commit

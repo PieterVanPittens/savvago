@@ -21,16 +21,6 @@ $app->get('/api/lessons/{id}', function ($request, $response, $args) {
 	return json_encode($lesson);
 });
 
-// finish lesson
-$app->post('/api/lessons/{lessonId}/finish', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	$courseManager = $this->serviceContainer['courseManager'];
-	$courseService = $this->serviceContainer['courseService'];
-	$lesson = $courseManager->getLessonById($args['lessonId'], false);
-	$result = $courseService->finishLesson($lesson);
-	return $result->toJson();
-});
 
 // create lesson
 $app->post('/api/lessons', function ($request, $response, $args) {

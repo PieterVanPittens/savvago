@@ -187,12 +187,29 @@ class LessonRepository extends BasePdoRepository {
 	 * deletes all assignments of journeys to one lesson
 	 * @param int $lessonId
 	 */
-	public function deleteJourneyLessons2($lessonId) {
+	public function deleteLessonJourneys($lessonId) {
 		$query = "DELETE from journey_lessons where lesson_id = ?";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($lessonId));
 	}
-	
+
+	/**
+	 * creates assignment journey-lesson
+	 * @param int $lessonId
+	 * @param int $journeyId
+	 */
+	public function createLessonJourney($lessonId, $journeyId) {
+		$query = "INSERT INTO journey_lessons (
+		journey_id
+		, lesson_id
+		) VALUES (?, ?)";
+		$stmt = $this->prepare($query);
+		$parameters = array(
+				$journeyId
+				, $lessonId
+		);
+		$stmt = $this->execute($stmt, $parameters);
+	}
 	
 }
 

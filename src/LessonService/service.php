@@ -96,19 +96,6 @@ class LessonService extends BaseService {
 	}
 
 	/**
-	 * finishes a lesson
-	 * @param Lesson $lesson
-	 */
-	public function finishLesson($lesson) {
-		$this->manager->finishLesson($this->contextUser, $lesson);
-		$this->serviceCacheManager->deleteCaches($lesson);
-
-		$apiResult = new ApiResult();
-		$apiResult->setSuccess("lesson finished");
-		return $apiResult;
-	}
-
-	/**
 	 * creates lesson
 	 * @param Object $lesson
 	 * @return ApiResult
@@ -159,7 +146,12 @@ class LessonService extends BaseService {
 		// assign tags
 		$this->tagManager->assignTagsToEntity($tags, $apiResult->object);		
 		
-		// content
+		// assign journeys based on matched tags
+		$journeys = $this->tagMatchingManager->getMatchingJourneys($tags);
+		$this->manager->assignJourneysToLesson($lesson, $journeys);
+		
+		
+		// todo: content
 		
 		// commit
 		$this->transactionManager->commit();
@@ -218,6 +210,14 @@ class LessonService extends BaseService {
 		if ($lesson == null) {
 			throw new NotFoundException("Lesson does not exist");
 		}
+		if ($input->isActive == 1) {
+			// activation only possible if lesson has content
+			if (is_null($lesson->contentObjectId)) {
+				$apiResult = ApiResultFactory::createError("Add Content to this lesson first", null);
+				return $apiResult;
+			}
+		}
+		
 		// update title/name, isactive
 		$lesson->isActive = $input->isActive == 1 ? true: false;
 	
@@ -268,28 +268,34 @@ class LessonService extends BaseService {
 	 */
 	private function addLessonUrls(Lesson $lesson) {
 	
-		$content = $this->contentManager->getContentObject($lesson->contentObjectId);
-		$contentType = $this->contentManager->getContentType($content->typeId); // todo: service cache
-
+		$contentType = null;
+		if ($lesson->contentObjectId !== null) {
+			$content = $this->contentManager->getContentObject($lesson->contentObjectId);
+			if ($content !== null) {
+				$contentType = $this->contentManager->getContentType($content->typeId); // todo: service cache
+			}				
+		}
+			
 		$image = '';
 		$thumbnail = '';
-		switch ($contentType->source) {
-			case ContentSourceTypes::Link:
-				
-				$pluginName = $contentType->name;
-				$plugin = PluginFactory::createContentPlugin($pluginName);
-				
-				$image = $plugin->getImageUrl($content);
-				$thumbnail = $plugin->getThumbnailUrl($content);
-				break;
-			case ContentSourceTypes::Article:
-				break;
-			case ContentSourceTypes::Mediafile:
-				$image = $this->storageProvider->getAssetUrl($lesson->image);
-				$thumbnail = $this->storageProvider->getAssetUrl($lesson->image);
-				break;
+		if ($contentType !== null) {
+			switch ($contentType->source) {
+				case ContentSourceTypes::Link:
+					
+					$pluginName = $contentType->name;
+					$plugin = PluginFactory::createContentPlugin($pluginName);
+					
+					$image = $plugin->getImageUrl($content);
+					$thumbnail = $plugin->getThumbnailUrl($content);
+					break;
+				case ContentSourceTypes::Article:
+					break;
+				case ContentSourceTypes::Mediafile:
+					$image = $this->storageProvider->getAssetUrl($lesson->image);
+					$thumbnail = $this->storageProvider->getAssetUrl($lesson->image);
+					break;
+			}
 		}
-		
 		
 		$urls = array(
 			'view' => $this->settings['application']['base'] . 'lessons/' . $lesson->name

@@ -95,5 +95,24 @@ class LessonManager extends BaseManager {
 		$lessons = $this->repository->getJourneyLessons($journeyId);
 		return $lessons;
 	}
+
+	/**
+	 * assigns list of journeys to one lesson
+	 * @param Lesson $lesson
+	 * @param Journey[] $journeys
+	 */
+	public function assignJourneysToLesson($lesson, $journeys) {
+		$journeyIds = array();
+		foreach($journeys as $journey) {
+			$journeyIds[] = $journey->journeyId;
+		}
 	
+		// step 1: delete all existing assignments
+		$this->repository->deleteLessonJourneys($lesson->lessonId, $journeyIds);
+	
+		// Step 2: create new ones
+		foreach($journeyIds as $journeyId) {
+			$this->repository->createLessonJourney($lesson->lessonId, $journeyId);
+		}
+	}
 }
