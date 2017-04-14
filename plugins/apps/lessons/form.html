@@ -19,6 +19,13 @@
   <span ng-repeat="journey in journeys">{{journey.title}}&nbsp;</span>
   </div>
   </div>
+  
+  <div class="form-group" ng-class="{ 'has-error' : errors.link }">
+    <input type="text" class="form-control" id="link" name="link" placeholder="Link to content, e.g. youtube" ng-model="lesson.link" ng-change="loadContentPreview()">
+	<p ng-show="errors.link" class="help-block">{{errors.link}}</p>
+  </div>
+  
+ 
   <button id="save" name="save" type="submit" class="btn btn-primary">Save</button>
   <a id="cancel" href="{{current.backPath}}" class="btn btn-default">Cancel</a>
 </form>

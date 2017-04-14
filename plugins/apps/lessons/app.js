@@ -65,6 +65,20 @@ savvagoApp
 	} else {
 		$scope.lesson = {};
 	}
+	$scope.loadContentPreview = function() {
+		var link = $scope.lesson.link;
+		
+		var ytUrl = 'https://www.youtube.com/oembed?url=' + link + '&format=json';
+
+		$http.get(ytUrl)
+		.then(function( data ) {
+		    console.log(data);
+		  }, function(error) {
+		    	console.log(error);
+		});
+
+	};
+	
 	
 	$scope.submitForm = function(isValid) {
 	    // check to make sure the form is completely valid
@@ -93,7 +107,7 @@ savvagoApp
 		    	}
 			  }, function(error) {
 			    	toastApiResult(error.data);
-  		  });
+  		  });0
 		}
 	  };
 	  

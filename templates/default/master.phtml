@@ -103,6 +103,17 @@ $(function() {
 	<p class="navbar-text"><?= $settings['claim']; ?></p>
 </div>
 
+<style>
+.btn-topnavigation {
+	border: 0px;
+	margin-right: 15px;
+	margin-left: 15px;
+	font-size: 25px;
+	color: #414145;
+}
+
+</style>
+
 
 <div class="col-md-4 col-sm-4 text-right" style="padding-top: 15px">
 		<?php if ($currentUser->isGuest()) { ?>
@@ -112,11 +123,11 @@ $(function() {
 		</div>
 		<?php } else { ?>
 		<div class="btn-group" role="group" aria-label="Menu">
-			<a class="btn btn-default" href="home">Home</a>
-
+			<a class="btn btn-default btn-topnavigation" href="home" title="Home"><span title="Home" class="glyphicon glyphicon-home"></span></a>
+			<a class="btn btn-default btn-topnavigation" href="explore" title="Explore"><span title="Explore" class="glyphicon glyphicon-globe"></span></a>
 
 			  <div class="btn-group" role="group">
-			  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><?= $currentUser->displayName; ?> <span class="caret"></span></button>
+			  <button class="btn btn-default btn-topnavigation dropdown-toggle" type="button" data-toggle="dropdown"><span title="Explore" class="glyphicon glyphicon-user"></span><!-- <?= $currentUser->displayName; ?> <span class="caret"></span>--></button>
 			    <ul class="dropdown-menu dropdown-menu-right">
 				<li><a href="my-profile">Profile</a></li>
 				<li><a href="my-account">Account Settings</a></li>

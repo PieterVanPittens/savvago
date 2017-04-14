@@ -9,7 +9,7 @@ class LessonRepository extends BasePdoRepository {
 	 * @return Lesson[]
 	 */
 	public function getLessons() {
-		$query = "SELECT lesson_id, " . $this->lessonFieldNames . " FROM lessons ORDER BY name";
+		$query = "SELECT lesson_id, " . $this->lessonFieldNames . " FROM lessons ORDER BY created desc";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array());
 		$models = array();
