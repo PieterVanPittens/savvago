@@ -85,6 +85,8 @@ class JourneyService extends BaseService {
 		// todo: securitycheck: only guides
 
 		$journey = $this->manager->getJourneyByName($name);
+		$parsedown = new Parsedown();
+		$journey->descriptionHtml = $parsedown->text($journey->description);
 		return $journey;
 	}
 	

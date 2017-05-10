@@ -21,6 +21,9 @@ class Journey extends BaseModel implements iEntity {
 	public $numEnrollments;
 	public $numStations;
 	
+	public $description;
+	public $descriptionHtml;
+	
 	public $urls = array();
 	
 	public function setTitle($title) {

@@ -6,7 +6,7 @@
  */
 class JourneyRepository extends BasePdoRepository {
 
-	private $fieldNames = 'name, title, user_id, tags, is_active, num_enrollments, num_stations';
+	private $fieldNames = 'name, description, title, user_id, tags, is_active, num_enrollments, num_stations';
 	
 	/**
 	 * creates Journey
@@ -15,6 +15,7 @@ class JourneyRepository extends BasePdoRepository {
 	public function createJourney($model) {
 		$query = "INSERT INTO journeys (
 		name
+		, description
 		, title
 		, user_id
 		, tags
@@ -25,6 +26,7 @@ class JourneyRepository extends BasePdoRepository {
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$model->name
+				, $model->description
 				, $model->title
 				, $model->userId
 				, $model->tags
