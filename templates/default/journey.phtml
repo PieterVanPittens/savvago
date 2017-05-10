@@ -168,30 +168,6 @@ app.controller('CommentsCtrl', function($scope, $http){
 </script>
 
 
-
-
-
-<h2>Stations</h2>
-
-<div class="row">
-<?php
-$i = 0;
-foreach($lessons as $lesson) {
-	?>
-		<div class="col-md-3 stationTile">
-		<p><img src="" class="stationTile"/></p>
-		
-		<h3 class="stationTile"><a href="<?= $lesson->urls["view"]; ?>"><?= $lesson->title; ?></a></h3>
-		<p class="stationTile">Author<br/>
-		<?= $lesson->numViews; ?> Views &dash; <?= ViewHelper::renderDate($lesson->created); ?></p>
-		</div>
-	<?php 
-	$i++;
-}
-?>
-</div>
-
-
 <section class="white" ng-app="app">
 <h1><?= $journey->title; ?></h1>
 <p>Tags: <?= $journey->tags ?></p>
