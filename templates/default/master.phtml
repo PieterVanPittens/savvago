@@ -25,6 +25,7 @@
 
 
 <title><?=htmlspecialchars($page->title);?></title>
+<script src="<?= $settings['template']; ?>script/script.js"></script>
 
 <script src="<?= $settings['template']; ?>vendor/jquery/jquery-2.2.4.min.js"></script>
 <script src="<?= $settings['template']; ?>vendor/jquery/jquery-ui.min.js"></script>
@@ -51,25 +52,6 @@
 
 <script>
 
-/**
- * displays apiresult as toast using toastr
- */
-function toastApiResult(apiResult) {
-	if (apiResult.message.type == 1) { // success
-		toastr.success(apiResult.message.text)
-	}
-	if (apiResult.message.type == 2) { // warning
-		toastr.warning(apiResult.message.text)
-	}
-	if (apiResult.message.type == 3) { // error
-		toastr.error(apiResult.message.text)
-	}
-}
-function toastAjaxResult(result) {
-	var apiResult = JSON.parse(result.responseText);
-	toastApiResult(apiResult);
-}
-
 $(function() {
 
 	$('.dropdown-toggle').dropdown()
@@ -85,9 +67,6 @@ $(function() {
 
 </head>
 <body>
-
-
-
 
 <div class="container-fluid">
 <div class="row">
