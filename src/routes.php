@@ -217,31 +217,6 @@ $app->get('/', function ($request, $response, $args) {
 });
 
 
-
-
-// enroll to a course
-$app->get('/courses/{courseId}/enroll', function ($request, $response, $args) {
-	if (!isAuthenticated($this)) {
-		return showLogin($this, $response, $this->viewData->data);
-	}
-	$courseService = $this->serviceContainer['courseService'];
-	$courseManager = $this->serviceContainer['courseManager'];
-
-	$course = $courseManager->getCourseById($args['courseId'], false);
-	$this->viewData->data["course"] = $course;
-	try {
-		$courseService->enrollToCourse($course);
-	} catch (BusinessException $bex) {
-		$this->viewData->data["message"] = $bex->getMessage();
-	}
-	$page = new Page();
-	$page->title = 'Enroll to Course';
-	$page->mainView = 'enrolled.phtml';
-	$this->viewData->data["page"] = $page;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
 // my courses
 $app->get('/my-courses', function ($request, $response, $args) {
 	setLastRequestPath($request);
