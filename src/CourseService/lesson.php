@@ -32,6 +32,9 @@ class Lesson extends BaseModel implements iEntity, JsonSerializable {
 	 */
 	public $stats;
 	
+	
+	public $numViews;
+	
 	public $image;
 	/**
 	 * created date time

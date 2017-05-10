@@ -9,7 +9,9 @@ class LessonRepository extends BasePdoRepository {
 	 * @return Lesson[]
 	 */
 	public function getLessons() {
-		$query = "SELECT lesson_id, " . $this->lessonFieldNames . " FROM lessons ORDER BY created desc";
+		$query = "SELECT lesson_id, " . $this->lessonFieldNames . ", value as num_views FROM lessons l, entity_stats es
+		WHERE l.lesson_id = es.entity_id and entity_type = 6 and es.type = 2
+		 ORDER BY created desc";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array());
 		$models = array();
@@ -25,7 +27,9 @@ class LessonRepository extends BasePdoRepository {
 	 * @return Lesson[]
 	 */
 	public function getJourneyLessons($journeyId) {
-		$query = "SELECT lesson_id, " . $this->lessonFieldNames . " FROM lessons where is_active = 1 and lesson_id in (SELECT lesson_id from journey_lessons where journey_id = ?) ORDER BY name";
+		$query = "SELECT lesson_id, " . $this->lessonFieldNames . ", es.value as num_views FROM lessons l, entity_stats es where
+		es.entity_id = l.lesson_id and es.entity_type = 6 and es.type = 1 and
+		 is_active = 1 and lesson_id in (SELECT lesson_id from journey_lessons where journey_id = ?) ORDER BY name";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array($journeyId));
 		$models = array();

@@ -436,10 +436,7 @@ $app->get('/journeys/{name}', function ($request, $response, $args) {
 	$page->title = htmlspecialchars($journey->title);
 	$page->mainView = 'journey.phtml';
 	$this->viewData->data["page"] = $page;
-	
-	// back button
-	$this->viewData->data["back"] = $this->settings['application']['base'];
-	
+		
 	// Render index view
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });

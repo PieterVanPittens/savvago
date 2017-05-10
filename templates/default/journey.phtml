@@ -24,7 +24,8 @@ foreach($lessons as $lesson) {
 		<p><img src="" class="stationTile"/></p>
 		
 		<h3 class="stationTile"><a href="<?= $lesson->urls["view"]; ?>"><?= $lesson->title; ?></a></h3>
-		<p class="stationTile"><?= $lesson->stats[EntityStats::numViews]; ?> Views * <?= ViewHelper::renderDate($lesson->created); ?></p>
+		<p class="stationTile">Author<br/>
+		<?= $lesson->numViews; ?> Views &dash; <?= ViewHelper::renderDate($lesson->created); ?></p>
 		</div>
 	<?php 
 	$i++;
