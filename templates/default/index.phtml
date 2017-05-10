@@ -18,7 +18,7 @@ foreach($journeys as $journey) {
 
 	<div class="col-md-10">
 		<h1><a href="<?= $journey->urls['view']; ?>"><?= htmlspecialchars($journey->title); ?></a></h1>
-		<p><?= $journey->numEnrollments; ?> Travelers, <?= $journey->numStations; ?> Stations</p>
+		<p><?= $journey->tags; ?><br/><?= $journey->stats[EntityStats::numLikes]; ?> Travelers, x Stations</p>
 	</div>	
 	
 	

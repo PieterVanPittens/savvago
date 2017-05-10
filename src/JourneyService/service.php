@@ -301,6 +301,9 @@ class JourneyService extends BaseService {
 		// todo: security check
 		$journeys = $this->manager->getTopNJourneys($this->contextUser->userId, $n);
 		$this->addJourneysUrls($journeys);
+		foreach($journeys as $journey) {
+			$journey->stats = $this->entityStatsManager->getEntityStats(EntityTypes::Journey, $journey->journeyId);
+		}
 		return $journeys;
 	}
 }
