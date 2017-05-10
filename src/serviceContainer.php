@@ -84,7 +84,15 @@ $serviceContainer['journeyManager'] = function ($c) {
 	return new JourneyManager($c['journeyRepository'], $c['settings'], $c);
 };
 $serviceContainer['journeyService'] = function ($c) {
-	$s = new JourneyService($c['contextUser'], $c['journeyManager'], $c['serviceCacheManager'], $c['tagManager'], $c['tagMatchingManager'], $c['settings']);
+	$s = new JourneyService(
+			$c['contextUser']
+			, $c['journeyManager']
+			, $c['serviceCacheManager']
+			, $c['tagManager']
+			, $c['tagMatchingManager']
+			, $c['entityStatsManager']
+			, $c['userManager']
+			, $c['settings']);
 	$s->transactionManager = $c['transactionManager'];
 	return $s;
 };
@@ -125,7 +133,7 @@ $serviceContainer['commentManager'] = function ($c) {
 	return new CommentManager($c['commentRepository'], $c['settings'], $c);
 };
 $serviceContainer['commentService'] = function ($c) {
-	$s = new CommentService($c['contextUser'], $c['commentManager'], $c['entityStatsManager'], $c['settings'], $c);
+	$s = new CommentService($c['contextUser'], $c['commentManager'], $c['entityStatsManager'], $c['userManager'], $c['settings'], $c);
 	$s->transactionManager = $c['transactionManager'];
 	return $s;
 };

@@ -29,12 +29,22 @@ class JourneyService extends BaseService {
 	 * @var TagManager
 	 */
 	private $tagManager;
+
+	/**
+	 * @var userManager
+	 */
+	private $userManager;
 	
 	/**
 	 * settings
 	 * @var Array
 	 */
 	private $settings;
+
+	/**
+	 * @var EntityStatsManager
+	 */
+	private $entityStatsManager;
 	
 	
 	/**
@@ -44,14 +54,26 @@ class JourneyService extends BaseService {
 	 * @param ServiceCacheManager $serviceCacheManager
 	 * @param TagManager $tagManager
 	 * @param TagMatchingManager $tagMatchingManager
+	 * @param EntityStatsManager $entityStatsManager
+	 * @param UserManager $userManager
 	 * @param Array $settings
 	 */
-	function __construct($contextUser, $manager, $serviceCacheManager, $tagManager, $tagMatchingManager, $settings) {
+	function __construct(
+			$contextUser
+			, $manager
+			, $serviceCacheManager
+			, $tagManager
+			, $tagMatchingManager
+			, $entityStatsManager
+			, $userManager
+			, $settings) {
 		$this->contextUser = $contextUser;
 		$this->manager = $manager;
 		$this->serviceCacheManager = $serviceCacheManager;
 		$this->tagManager = $tagManager;
 		$this->tagMatchingManager = $tagMatchingManager;
+		$this->entityStatsManager = $entityStatsManager;
+		$this->userManager = $userManager;
 		$this->settings = $settings;
 	}
 	
@@ -87,6 +109,14 @@ class JourneyService extends BaseService {
 		$journey = $this->manager->getJourneyByName($name);
 		$parsedown = new Parsedown();
 		$journey->descriptionHtml = $parsedown->text($journey->description);
+		
+		$journey->stats = $this->entityStatsManager->getEntityStats(EntityTypes::Journey, $journey->journeyId);
+		$journey->user = $this->userManager->getUserById($journey->userId);
+
+		// log view of this journey
+		$this->entityStatsManager->increaseEntityStat(EntityTypes::Journey, $journey->journeyId, EntityStats::numViews, 1);
+				
+		$this->addJourneyUrls($journey);
 		return $journey;
 	}
 	
@@ -256,7 +286,11 @@ class JourneyService extends BaseService {
 		$journey->urls = array();
 		$journey->urls['view'] = $this->settings['application']['base'] . 'journeys/' . $journey->name;
 		$journey->urls['images']['tile'] = $journey->name;
-		}
+		$journey->urls['check'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/check';
+		$journey->urls['like'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/like';
+		$journey->urls['lessons'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/lessons';
+		$journey->urls['comments'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/comments';
+	}
 
 	/**
 	 * gets top n courses based on num enrollments

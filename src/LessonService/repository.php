@@ -10,7 +10,7 @@ class LessonRepository extends BasePdoRepository {
 	 */
 	public function getLessons() {
 		$query = "SELECT lesson_id, " . $this->lessonFieldNames . ", value as num_views FROM lessons l, entity_stats es
-		WHERE l.lesson_id = es.entity_id and entity_type = 6 and es.type = 2
+		WHERE l.lesson_id = es.entity_id and entity_type = 6 and es.type = 1
 		 ORDER BY created desc";
 		$stmt = $this->prepare($query);
 		$stmt = $this->execute($stmt, array());

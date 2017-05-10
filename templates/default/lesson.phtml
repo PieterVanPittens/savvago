@@ -226,7 +226,7 @@ li.comment {
 
 <ul class="comments">
 	<li class="comment" ng-repeat="comment in comments">
-		<p class="commentCreated">{{comment.userId}} - {{comment.created | dateFormat}}</p>
+		<p class="commentCreated">{{comment.user.displayName}} - {{comment.created | dateFormat}}</p>
 		<p class="comment">{{comment.comment}}</p>
 	</li>
 </ul>
@@ -244,7 +244,7 @@ li.comment {
 
 	<p><a href="{{lesson.urls.view}}"><img ng-src="{{lesson.urls.thumbnail}}" class="stationTile"/></a></p>
 	<h3 class="stationTile"><a href="{{lesson.urls.view}}">{{lesson.title}}</a></h3>
-	<p class="stationTile">x Views * {{lesson.created | dateFormat}}</p>
+	<p class="stationTile">{{lesson.user.displayName}}<br/>{{lesson.numViews}} Views &dash; {{lesson.created | dateFormat}}</p>
 
 </div>
 

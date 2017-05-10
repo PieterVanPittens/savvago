@@ -17,6 +17,8 @@ class Comment extends BaseModel implements iEntity {
 	public $entityId;
 	
 	public $userId;
+	public $user;
+	
 	public $created;
 	
 	public $comment;

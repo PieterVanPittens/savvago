@@ -334,6 +334,10 @@ class LessonService extends BaseService {
 	public function getLessons() {
 		$lessons = $this->manager->getLessons();
 		$this->addLessonsUrls($lessons);
+		foreach($lessons as $lesson) {
+			// todo: caching
+			$lesson->user = $this->userManager->getUserById($lesson->userId);			
+		}
 		return $lessons;
 	}
 
@@ -380,6 +384,10 @@ class LessonService extends BaseService {
 	public function getJourneyLessons($journeyId) {
 		$lessons = $this->manager->getJourneyLessons($journeyId);
 		$this->addLessonsUrls($lessons);
+		foreach($lessons as $lesson) {
+			// todo: caching
+			$lesson->user = $this->userManager->getUserById($lesson->userId);
+		}
 		return $lessons;
 	}
 }

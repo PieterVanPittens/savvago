@@ -63,3 +63,42 @@ $app->get('/api/journeys/matching/{tags}', function ($request, $response, $args)
 
 	return json_encode($journeys);
 });
+
+// get lessons of a journey
+$app->get('/api/journeys/{id}/lessons', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	
+	$lessonService = $this->serviceContainer['lessonService'];
+	$lessons = $lessonService->getJourneyLessons($args['id']);
+	
+	return json_encode($lessons);
+});
+
+// home screen of a journey
+$app->get('/journeys/{name}', function ($request, $response, $args) {
+	setLastRequestPath($request);
+	
+	$journeyService = $this->serviceContainer['journeyService'];
+	$journey= $journeyService->getJourneyByName($args['name'], true);
+	$this->viewData->data['journey'] = $journey;
+	
+	$lessonService = $this->serviceContainer['lessonService'];
+	$lessons = $lessonService->getJourneyLessons($journey->journeyId);
+	$this->viewData->data['lessons'] = $lessons;
+	
+	$markService = $this->serviceContainer['markService'];
+	
+	$isLiked = $markService->likesJourney($journey->journeyId);
+	$this->viewData->data['isLiked'] = $isLiked;
+	
+	$isChecked= $markService->isJourneyChecked($journey->journeyId);
+	$this->viewData->data['isChecked'] = $isChecked;
+	
+	$page = new Page();
+	$page->title = htmlspecialchars($journey->title);
+	$page->mainView = 'journey.phtml';
+	$this->viewData->data["page"] = $page;
+	
+	// Render index view
+	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
+});

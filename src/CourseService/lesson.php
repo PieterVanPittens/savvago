@@ -75,8 +75,9 @@ class Lesson extends BaseModel implements iEntity, JsonSerializable {
 				'tags' => $this->tags,
 				'created' => $this->created,
 				'image' => $this->image,
+				'numViews' => $this->numViews,
 				'urls' => $this->urls,
-				'user' => json_encode($this->user),
+				'user' => $this->user,
 				'stats' => $this->stats
 		];
 	}

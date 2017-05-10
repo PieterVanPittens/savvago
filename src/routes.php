@@ -218,51 +218,6 @@ $app->get('/', function ($request, $response, $args) {
 
 
 
-// home page of a lesson
-$app->get('/lessons/{name}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$lessonService = $this->serviceContainer['lessonService'];
-
-	$lesson = $lessonService->getLessonByName($args['name']);
-	$this->viewData->data['lesson'] = $lesson;
-	
-	$markService = $this->serviceContainer['markService'];
-	$isLiked = $markService->likesLesson($lesson->lessonId);
-	$this->viewData->data['isLiked'] = $isLiked;
-	
-	$isChecked= $markService->isLessonChecked($lesson->lessonId);
-	$this->viewData->data['isChecked'] = $isChecked;
-	
-	$pluginName = $lesson->content->type->name;
-	$plugin = PluginFactory::createContentPlugin($pluginName);
-	
-	$this->viewData->data['contentPlugin'] = $plugin;
-	
-	
-	/*
-	$isEnrolled = $courseService->isEnrolled($lesson->section->course);
-	$this->viewData->data["isEnrolled"] = $isEnrolled;
-	
-	$courseManager->loadCurriculum($lesson->section->course);
-
-	$this->viewData->data["lesson"] = $lesson;
-
-	$progress = $courseService->getLessonProgress($lesson->lessonId);
-	$this->viewData->data["progress"] = $progress;
-
-	$attachments = $this->serviceContainer['contentManager']->getLessonAttachments($lesson->lessonId);
-	$this->viewData->data["attachments"] = $attachments;
-	*/
-	
-	$page = new Page();
-	$page->title = htmlspecialchars($lesson->title);
-	$page->mainView = 'lesson.phtml';
-	$this->viewData->data["page"] = $page;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
 
 // enroll to a course
 $app->get('/courses/{courseId}/enroll', function ($request, $response, $args) {
@@ -419,30 +374,6 @@ $app->post('/my-picture', function ($request, $response, $args) {
 	}
 		
 });
-
-// home screen of a journey
-$app->get('/journeys/{name}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$journeyService = $this->serviceContainer['journeyService'];
-	$journey= $journeyService->getJourneyByName($args['name'], true);
-	$this->viewData->data['journey'] = $journey;
-
-	$lessonService = $this->serviceContainer['lessonService'];
-	$lessons = $lessonService->getJourneyLessons($journey->journeyId);
-	$this->viewData->data['lessons'] = $lessons;
-	
-	$page = new Page();
-	$page->title = htmlspecialchars($journey->title);
-	$page->mainView = 'journey.phtml';
-	$this->viewData->data["page"] = $page;
-		
-	// Render index view
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-
-
 
 // toc of a course
 $app->get('/courses/{courseId}/toc', function ($request, $response, $args) {

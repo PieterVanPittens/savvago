@@ -65,3 +65,38 @@ $app->delete('/api/lessons/{id}', function ($request, $response, $args) {
 
 	return $apiResult->toJson();
 });
+
+
+
+
+	
+// home page of a lesson
+$app->get('/lessons/{name}', function ($request, $response, $args) {
+	setLastRequestPath($request);
+	
+	$lessonService = $this->serviceContainer['lessonService'];
+	
+	$lesson = $lessonService->getLessonByName($args['name']);
+	$this->viewData->data['lesson'] = $lesson;
+	
+	$markService = $this->serviceContainer['markService'];
+	$isLiked = $markService->likesLesson($lesson->lessonId);
+	$this->viewData->data['isLiked'] = $isLiked;
+	
+	$isChecked= $markService->isLessonChecked($lesson->lessonId);
+	$this->viewData->data['isChecked'] = $isChecked;
+	
+	$pluginName = $lesson->content->type->name;
+	$plugin = PluginFactory::createContentPlugin($pluginName);
+	
+	$this->viewData->data['contentPlugin'] = $plugin;
+	
+	
+	$page = new Page();
+	$page->title = htmlspecialchars($lesson->title);
+	$page->mainView = 'lesson.phtml';
+	$this->viewData->data["page"] = $page;
+	
+	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
+});
+		

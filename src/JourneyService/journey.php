@@ -7,6 +7,7 @@ class Journey extends BaseModel implements iEntity {
 	public $name;
 
 	public $userId;
+	public $user;
 	
 	public $isActive;
 	
@@ -25,6 +26,8 @@ class Journey extends BaseModel implements iEntity {
 	public $descriptionHtml;
 	
 	public $urls = array();
+	
+	public $stats;
 	
 	public function setTitle($title) {
 		$this->title = $title;

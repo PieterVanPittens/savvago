@@ -1,19 +1,177 @@
-<section class="white">
-<h1><?= $journey->title; ?></h1>
-<p>Tags: <?= $journey->tags ?></p>
-<p><?= $journey->descriptionHtml; ?></p>
+
+<script>
+$(function() {
+	var isLiked = <?= $isLiked ? 1:0?>;
+    $('#like').click(function() {
+		$.post( "<?= $journey->urls['like']; ?>",
+			'',
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+				isLiked = !isLiked;
+				if (isLiked) {
+					$('#like').switchClass('btn-default', 'btn-primary');
+					var num = parseInt($('#numLikes').text()) + 1;
+					$('#numLikes').text(num);
+				} else {
+					$('#like').switchClass('btn-primary', 'btn-default');
+					var num = parseInt($('#numLikes').text()) - 1;
+					$('#numLikes').text(num);
+				}
+			}).fail(function(result) {
+				toastAjaxResult(result);
+			});
+	});
+
+	var isChecked = <?= $isChecked ? 1 : 0 ?>;
+    $('#check').click(function() {
+		$.post( "<?= $journey->urls['check']; ?>",
+			'',
+			function(result) {
+				var apiResult = JSON.parse(result);
+				toastApiResult(apiResult);
+				isChecked = !isChecked;
+				if (isChecked) {
+					$('#check').switchClass('btn-default', 'btn-primary');
+					var num = parseInt($('#numChecks').text()) + 1;
+					$('#numChecks').text(num);
+				} else {
+					$('#check').switchClass('btn-primary', 'btn-default');
+					var num = parseInt($('#numChecks').text()) - 1;
+					$('#numChecks').text(num);
+				}
+			}).fail(function(result) {
+				toastAjaxResult(result);
+			});
+	});
 
 
-<h2>newest stations</h2>
-<?php 
-foreach($lessons as $lesson) {
-?>
-	<div><a href="<?= $lesson->urls["view"]; ?>"><?= $lesson->title; ?></a></div>
-<?php 
+});
+</script>
+
+<script>
+
+function renderDate(timestamp) {
+	var now = Math.floor(Date.now() / 1000);
+	var difference;
+	// how many seconds difference?
+	difference = (now - timestamp);
+	console.log('diff: ' + difference);
+	if (difference < 60) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' second ago';
+		} else {
+			return difference + ' seconds ago';
+		}
+	}
+	// how many minutes difference?
+	difference = (now - timestamp) / 60;
+	if (difference < 60) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' minute ago';
+		} else {
+			return difference + ' minutes ago';
+		}
+	}
+	// how many hours difference?
+	difference = (now - timestamp) / 3600;
+	if (difference < 24) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' hour ago';
+		} else {
+			return difference + ' hours ago';
+		}
+	}
+	// how many days difference?
+	difference = (now - timestamp) / (3600*24);
+	if (difference < 30) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' day ago';
+		} else {
+			return difference + ' days ago';
+		}
+	}
+	// how many months difference?
+	difference = (now - timestamp) / (3600*24*30);
+	if (difference < 12) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' month ago';
+		} else {
+			return difference + ' months ago';
+		}
+	}
+	// how many years difference?
+	difference = (now - timestamp) / (3600*24*30*12);
+	if (difference >= 1) {
+		difference = Math.round(difference);
+		if (difference == 1) {
+			return difference + ' year ago';
+		} else {
+			return difference + ' years ago';
+		}
+	}
+	
 }
-?>
 
-<h2>most active stations</h2>
+var app = angular.module('app', []);
+
+app.filter('dateFormat', function() {
+    return function(x) {
+        return renderDate(x);
+    };
+});
+/**
+ * loads further lessons
+ */
+app.controller('FurtherLessonsCtrl', function($scope, $http){
+	
+	$http.get('<?= $journey->urls['lessons'] ?>').then(function(response) {
+	      $scope.lessons = response.data;
+	    });
+});
+
+/**
+ * handles comments
+ */
+app.controller('CommentsCtrl', function($scope, $http){
+	var commentsUrl = '<?= $journey->urls['comments'] ?>';
+
+	$scope.comment = {};
+	$scope.loadComments = function() {
+		$http.get(commentsUrl).then(function(response) {
+		      $scope.comments = response.data;
+		    });
+	};
+	
+    $scope.createComment = function() {
+    	$http.post(commentsUrl, $scope.comment)
+		  .then(function(data) {
+		    $scope.errors = data.data.message.propertyMessages;
+	    	toastApiResult(data.data);
+	    	$scope.loadComments();
+	    	$scope.comment = {};
+		  }, function(error) {
+		    	toastApiResult(error.data);
+		  });
+    };
+
+    $scope.loadComments();
+});
+
+
+
+</script>
+
+
+
+
+
+<h2>Stations</h2>
 
 <div class="row">
 <?php
@@ -34,9 +192,72 @@ foreach($lessons as $lesson) {
 </div>
 
 
-<h2>visited but not finished by you</h2>
+<section class="white" ng-app="app">
+<h1><?= $journey->title; ?></h1>
+<p>Tags: <?= $journey->tags ?></p>
+<p><?= $journey->descriptionHtml; ?></p>
 
 
-<a href="stations">All Stations</a>
+<p>Created <?= ViewHelper::renderDate($journey->created); ?> by <a href="#"><?= $journey->user->name; ?></a></p>
+<p>
+<button class="btn <?= $isLiked ? 'btn-primary' : 'btn-default' ?>" id="like" title="Like this journey"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>&nbsp;
+<span id="numLikes"><?= $journey->stats[EntityStats::numLikes]; ?></span>
+</button>
+
+<button class="btn <?= $isChecked ? 'btn-primary' : 'btn-default' ?>" id="check" title="Join this journey"><span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;
+<span id="numChecks"><?= $journey->stats[EntityStats::numStationChecks]; ?></span>
+</button>
+&nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp;<?= $journey->stats[EntityStats::numViews]; ?>
+&nbsp;<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>&nbsp;<?= $journey->stats[EntityStats::numComments]; ?>
+</p>
+
+
+
+<div ng-controller="FurtherLessonsCtrl">
+
+<h2>Stations</h2>
+
+<div class="stationTile" ng-repeat="lesson in lessons">
+
+	<p><a href="{{lesson.urls.view}}"><img ng-src="{{lesson.urls.thumbnail}}" class="stationTile"/></a></p>
+	<h3 class="stationTile"><a href="{{lesson.urls.view}}">{{lesson.title}}</a></h3>
+	<p class="stationTile">{{lesson.user.displayName}}<br/>{{lesson.numViews}} Views &dash; {{lesson.created | dateFormat}}</p>
+
+</div>
+</div>
+
+
+<div>
+<h2>Comments</h2>
+<style>
+
+ul.comments {
+	list-style-type: none;
+	padding: 0px;
+}
+p.commentCreated {
+	color: rgb(124, 124, 124);
+}
+li.comment {
+	margin-bottom: 30px;
+}
+</style>
+<div ng-controller="CommentsCtrl">
+
+<p>Post public comment</p>
+<form>
+<textarea id="newComment" ng-model="comment.comment"></textarea>
+<button id="createComment" ng-click="createComment()" class="btn btn-default">Comment</button>
+</form>
+
+<ul class="comments">
+	<li class="comment" ng-repeat="comment in comments">
+		<p class="commentCreated">{{comment.user.displayName}} - {{comment.created | dateFormat}}</p>
+		<p class="comment">{{comment.comment}}</p>
+	</li>
+</ul>
+
+</div>
+</div>
 
 </section>
