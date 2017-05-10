@@ -135,6 +135,26 @@ class LessonService extends BaseService {
 		$this->transactionManager->start();
 		// create lesson
 		$lesson->userId = $this->contextUser->userId;
+		
+		
+		
+		// content
+		$pluginNames = PluginFactory::getContentPluginNames();
+		foreach($pluginNames as $name) {
+			$plugin = PluginFactory::createContentPlugin($name);
+			if ($plugin->isValidUrl($input->link)) {
+				$co = new ContentObject();
+				$contentType = $this->contentManager->getContentTypeByName($plugin->getContentTypeName());
+				$co->typeId = $contentType->typeId;
+				$co->name = $plugin->getNameFromUrl($input->link);
+				$this->contentManager->createContentObject($co);
+				$lesson->contentObjectId = $co->objectId;
+			}
+		}
+		
+		
+		
+		
 		$apiResult = $this->manager->createLesson($lesson);
 		if ($apiResult->message->type != MessageTypes::Success) {
 			return $apiResult;
@@ -149,9 +169,8 @@ class LessonService extends BaseService {
 		// assign journeys based on matched tags
 		$journeys = $this->tagMatchingManager->getMatchingJourneys($tags);
 		$this->manager->assignJourneysToLesson($lesson, $journeys);
+				
 		
-		
-		// todo: content
 		
 		// commit
 		$this->transactionManager->commit();

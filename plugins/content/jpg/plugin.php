@@ -16,4 +16,17 @@ class jpgContent implements iContentPlugin {
 	public function getThumbnailUrl(ContentObject $content) {
 		return $content->url;
 	}
+	
+	public function isValidUrl($url) {
+		return false;
+	}
+	
+	public function getContentTypeName() {
+		return "jpg";
+	}
+	
+	public function getNameFromUrl($url) {
+		return "";
+	}
+	
 }

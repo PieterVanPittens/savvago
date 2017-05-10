@@ -24,4 +24,22 @@ interface iContentPlugin {
 	 */
 	function getImageUrl(ContentObject $content);
 	
+	/**
+	 * checks if an url is a valid url for this plugin
+	 * @param unknown $url
+	 */
+	function isValidUrl($url);
+	
+	/**
+	 * gets name of contenttype of this plugin
+	 * @return string
+	 */
+	function getContentTypeName();
+	
+	/**
+	 * gets name from url, e.g. ID from youtube url
+	 * @param string $url
+	 * @return string
+	 */
+	function getNameFromUrl($url);
 }

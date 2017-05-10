@@ -8,15 +8,12 @@
 <a class="btn btn-default" href="{{settings.appPath}}#/create">New</a>
 -->
 
-<div class="btn-group" role="group" aria-label="...">
+<div class="btn-group" role="group" aria-label="Add Lesson" ng-controller="AddLessonCtrl">
   <button type="button" class="btn btn-default"><span title="Options" class="glyphicon glyphicon-font"></span> Text</button>
-  <button type="button" class="btn btn-default"><span title="Options" class="glyphicon glyphicon-facetime-video"></span> Video</button>
+  <button type="button" class="btn btn-default" ng-click="addVideo()"><span title="Options" class="glyphicon glyphicon-facetime-video"></span> Video</button>
   <button type="button" class="btn btn-default"><span title="Options" class="glyphicon glyphicon-picture"></span> Picture</button>
   <button type="button" class="btn btn-default"><span title="Options" class="glyphicon glyphicon-link"></span> Link</button>
 </div>
-
-
-
 
 <div ng-controller="LessonsCtrl">
 
@@ -40,4 +37,45 @@
 	</div>
 </div>
 
+<!-- modal video -->
+<div class="modal fade" tabindex="-1" role="dialog" ng-controller="FormVideoCtrl" id="modal-video">
+<form id="lessonForm" name="lessonForm" ng-submit="submitForm(lessonForm.$valid)" novalidate>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Video Lesson {{lesson.title}}</h4>
+      </div>
+      <div class="modal-body">
 
+  <div class="form-group" ng-class="{ 'has-error' : errors.title }">
+	<input type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="lesson.title" required>
+	<p ng-show="errors.title" class="help-block">{{errors.title}}</p>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error' : errors.tags }">
+    <input type="text" class="form-control" id="tags" name="tags" placeholder="Tags, separated by space" ng-model="lesson.tags" ng-change="loadJourneys()" required>
+	<p ng-show="errors.tags" class="help-block">{{errors.tags}}</p>
+  </div>
+  <div class="form-group">
+  Based on the tags this lesson will show up in these journeys:
+  <div id="journeys">
+  <span>&nbsp;</span>
+  <span ng-show="journeys.length == 0">None</span>
+  <span ng-repeat="journey in journeys">{{journey.title}}&nbsp;</span>
+  </div>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error' : errors.link }">
+    <input type="text" class="form-control" id="link" name="link" placeholder="Link to video, e.g. youtube" ng-model="lesson.link" ng-change="loadContentPreview()">
+	<p ng-show="errors.link" class="help-block">{{errors.link}}</p>
+  </div> 
+
+
+      </div>
+      <div class="modal-footer">
+  <button id="save" name="save" type="submit" class="btn btn-primary">Save</button>
+  <button id="cancel" data-dismiss="modal" class="btn btn-default">Cancel</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</form>
+</div><!-- /.modal -->

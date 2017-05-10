@@ -42,7 +42,12 @@ savvagoApp
 	};
     
 })
-.controller('FormCtrl', function($rootScope, $scope, $http, $routeParams, $location, settings) {
+.controller('AddLessonCtrl', function($rootScope, $scope, $http, $routeParams, $location, settings) {
+	$scope.addVideo = function() {
+		$('#modal-video').modal();		
+	};
+})
+.controller('FormVideoCtrl', function($rootScope, $scope, $http, $routeParams, $location, settings) {
 	$rootScope.current = { backPath: settings.appPath+'#/'};
 
 	$scope.loadJourneys = function() {
@@ -88,10 +93,7 @@ savvagoApp
 	  		  .then(function(data) {
 	  		    $scope.errors = data.data.message.propertyMessages;
 		    	toastApiResult(data.data);
-		    	if (data.data.message.type == 1) {
-		    		$location.path($scope.current.backPath);
-		    	}
-		    	
+		    	$('#modal-video').modal('hide');
 			  }, function(error) {
 			    	toastApiResult(error.data);
 	  		  });
@@ -102,12 +104,10 @@ savvagoApp
 	  		  .then(function(data) {
 	  		    $scope.errors = data.data.message.propertyMessages;
   		    	toastApiResult(data.data);
-		    	if (data.data.message.type == 1) {
-		    		$location.path($scope.current.backPath);
-		    	}
+		    	$('#modal-video').modal('hide');
 			  }, function(error) {
 			    	toastApiResult(error.data);
-  		  });0
+			  });
 		}
 	  };
 	  

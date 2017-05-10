@@ -20,4 +20,22 @@ class youtubeContent implements iContentPlugin {
 		$url = 'https://img.youtube.com/vi/'.$content->name.'/sddefault.jpg';
 		return $url;
 	}
+	
+	public function isValidUrl($url) {
+		return true;
+	}
+			
+	public function getContentTypeName() {
+		return "youtube";
+	}
+	
+	public function getNameFromUrl($url) {
+		// https://www.youtube.com/watch?v=D1qQkZ9mRlo
+		$name = "";
+		$tokens = explode('?', $url);
+		if (isset($tokens[1])) {
+			$name = str_replace('v=', '', $tokens[1]);
+		}	
+		return $name;
+	}
 }

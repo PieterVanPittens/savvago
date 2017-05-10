@@ -9,6 +9,20 @@ final class PluginFactory {
 	
 	private static $contentPlugins = array();
 
+	/**
+	 * gets list with all installed content plugin names
+	 * @return string[]
+	 */
+	public static function getContentPluginNames() {
+		$names = array();
+		$d = dir(__DIR__ . '/../../plugins/content/');
+		while(false !== ($e = $d->read())) {
+			if ($e != '.' && $e != '..') {
+				$names[] = $e;
+			}
+		}
+		return $names;
+	}
 	
 	/**
 	 * creates instance of content plugin

@@ -79,13 +79,11 @@ class ContentRepository extends BasePdoRepository {
 	 * @return ContentObject
 	 */
 	public function createContentObject($model) {
-		$query = "INSERT INTO content_objects (type_id, course_id, content, name, description, md5_hash) VALUES (?, ?, ?, ?, ?, ?)";
+		$query = "INSERT INTO content_objects (type_id,  content, name, md5_hash) VALUES (?, ?, ?, ?)";
 		$stmt = $this->prepare($query);
 		$parameters = array($model->typeId
-				, $model->courseId
 				, $model->content
 				, $model->name
-				, $model->description
 				, $model->md5Hash
 		);
 		$stmt = $this->execute($stmt, $parameters);
