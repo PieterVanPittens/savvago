@@ -375,33 +375,6 @@ $app->post('/my-picture', function ($request, $response, $args) {
 		
 });
 
-// toc of a course
-$app->get('/courses/{courseId}/toc', function ($request, $response, $args) {
-
-	$courseManager = $this->serviceContainer['courseManager'];
-	$courseService = $this->serviceContainer['courseService'];
-	$userManager = $this->serviceContainer['userManager'];
-
-	$course = $courseService->getCourseById($args['courseId'], true);
-
-	$courseService->loadCourseProgresses($course);
-	$this->viewData->data['course'] = $course;
-
-	$nextLesson = $courseService->getNextLesson($course->courseId);
-	$this->viewData->data['nextLesson'] = $nextLesson;
-
-	
-	$page = new Page();
-	$page->title = htmlspecialchars($course->title);
-	$page->mainView = 'course-toc.phtml';
-	$this->viewData->data["page"] = $page;
-	
-	
-	// Render index view
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-
 $app->get('/sitemap.xml', function ($request, $response, $args) {
 	$this->viewData->data['courses'] = $this->serviceContainer['courseService']->getTopNCourses(20, true);
 
