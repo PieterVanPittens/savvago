@@ -110,7 +110,9 @@ app.controller('CommentsCtrl', function($scope, $http){
 <?php $contentPlugin->viewContent($lesson->content); ?>
 </div>
 
-<h2><?= $lesson->title; ?></h2>
+<h1><?= $lesson->title; ?></h1>
+<p>Tags: <?= $lesson->tags ?></p>
+<p><?= $lesson->descriptionHtml; ?></p>
 <p><?= $lesson->content->type->name; ?> - Created <?= ViewHelper::renderDate($lesson->created); ?> by <a href="#"><?= $lesson->user->name; ?></a></p>
 <p>
 <button class="btn <?= $isLiked ? 'btn-primary' : 'btn-default' ?>" id="like" title="Like this lesson"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>&nbsp;
@@ -123,16 +125,6 @@ app.controller('CommentsCtrl', function($scope, $http){
 &nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp;<?= $lesson->stats[EntityStats::numViews]; ?>
 &nbsp;<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>&nbsp;<?= $lesson->stats[EntityStats::numComments]; ?>
 </p>
-
-<p>description</p>
-
-<p>attachments</p>
-
-
-<p>results</p>
-
-<h2>Journeys</h2>
-<p>This lesson is part of these journeys: </p>
 
 
 <h2>comments</h2>

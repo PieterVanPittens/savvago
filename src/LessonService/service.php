@@ -202,6 +202,12 @@ class LessonService extends BaseService {
 			throw new NotFoundException("Lesson $name does not exist");
 		}
 		$this->addLessonUrls($lesson);
+		
+		$parsedown = new Parsedown();
+		$lesson->descriptionHtml = $parsedown->text($lesson->description);
+		
+		
+		
 		$lesson->stats = $this->entityStatsManager->getEntityStats(EntityTypes::Lesson, $lesson->lessonId);
 		$lesson->user = $this->userManager->getUserById($lesson->userId);
 		$lesson->content = $this->contentManager->getContentObject($lesson->contentObjectId);
