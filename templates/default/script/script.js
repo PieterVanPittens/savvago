@@ -7,7 +7,6 @@ function renderDate(timestamp) {
 	var difference;
 	// how many seconds difference?
 	difference = (now - timestamp);
-	console.log('diff: ' + difference);
 	if (difference < 60) {
 		difference = Math.round(difference);
 		if (difference == 1) {
