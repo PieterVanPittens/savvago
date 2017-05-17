@@ -2,6 +2,7 @@
 
 // create journey
 $app->post('/api/journeys', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
 
 	$input = getRequestObject();
 
@@ -25,7 +26,6 @@ $app->post('/api/journeys/{id}', function ($request, $response, $args) {
 
 // get all journeys
 $app->get('/api/journeys', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
 
 	$journeyService = $this->serviceContainer['journeyService'];
 	$journeys = $journeyService->getJourneys();
