@@ -1,65 +1,4 @@
-<html>
-<head>
-<title>savvago - Installer</title>
-<style>
-body {
-	font-family: sans-serif;
-	}
-
-</style>
-</head>
-<body>
-<h1>savvago - Installer</h1>
-
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../vendor/url_slug/url_slug.php';
-require '../src/require.php';
-
-$databaseUser = null;
-$databasePw = null;
-$databaseHost = null;
-$databaseName = null;
-$baseUri = null;
-
-if (isset($_POST["dbName"])) {
-	$databaseName = $_POST["dbName"];
-}
-if (isset($_POST["dbUser"])) {
-	$databaseUser = $_POST["dbUser"];
-}
-if (isset($_POST["dbPw"])) {
-	$databasePw = $_POST["dbPw"];
-}
-if (isset($_POST["dbHost"])) {
-	$databaseHost = $_POST["dbHost"];
-}
-if (isset($_POST["baseUri"])) {
-	$databaseHost = $_POST["baseUri"];
-}
-?>
-
-
-<?php if ($databaseUser == null) {?>
-<form method="post">
-<h2>MySQL Database</h2>
-<p>Name <input type="text" name="dbName" placeholder="database name"/></p>
-<p>Host <input type="text" name="dbHost" placeholder="database host"/></p>
-<p>User <input type="text" name="dbUser" placeholder="database user name"/></p>
-<p>Password <input type="password" name="dbPw" placeholder="database password"/></p>
-<h2>Host</h2>
-<p>Base Uri <input type="text" name="baseUri" placeholder="Base Uri"/></p>
-
-
-<p><input type="submit" value="Install"></p>
-</form>
-<?php } ?>
-
-<?php
-
-
-set_time_limit(0);
-
 /**
  * imports sql dump to database
  * @param string $filename
@@ -100,22 +39,89 @@ class Protocol {
 		$this->messages[] = $message;
 	}
 }
+
+?>
+<html>
+<head>
+<title>savvago - Installer</title>
+<style>
+body {
+	font-family: sans-serif;
+	}
+
+</style>
+</head>
+<body>
+<h1>savvago - Installer</h1>
+
+<?php
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../vendor/url_slug/url_slug.php';
+require '../src/require.php';
+
+$databaseUser = null;
+$databasePw = null;
+$databaseHost = null;
+$databaseName = null;
+$baseUri = 'http://localhost/';
+
+$databaseName = "deleteme4";
+$databaseUser = "root";
+$databasePw = "";
+$databaseHost = $_SERVER['SERVER_NAME'];
+
+$letsGo = false;
+
+if (isset($_POST["dbName"])) {
+	$databaseName = $_POST["dbName"];
+	$letsGo = true;
+}
+if (isset($_POST["dbUser"])) {
+	$databaseUser = $_POST["dbUser"];
+}
+if (isset($_POST["dbPw"])) {
+	$databasePw = $_POST["dbPw"];
+}
+if (isset($_POST["dbHost"])) {
+	$databaseHost = $_POST["dbHost"];
+}
+if (isset($_POST["baseUri"])) {
+	$baseUri = $_POST["baseUri"];
+}
+?>
+
+
+<?php if (!$letsGo) {?>
+	<form method="post">
+	<h2>MySQL Database</h2>
+	<p>Name <input type="text" name="dbName" placeholder="database name" value="<?= $databaseName; ?>"/></p>
+	<p>Host <input type="text" name="dbHost" placeholder="database host" value="<?= $databaseHost; ?>"/></p>
+	<p>User <input type="text" name="dbUser" placeholder="database user name" value="<?= $databaseUser; ?>"/></p>
+	<p>Password <input type="password" name="dbPw" placeholder="database password" value="<?= $databasePw; ?>"/></p>
+	<h2>Host</h2>
+	<p>Base Uri <input type="text" name="baseUri" placeholder="Base Uri" value="<?= $baseUri; ?>"/></p>
+
+
+	<p><input type="submit" value="Install"></p>
+	</form>
+<?php } else { 
+
+
+set_time_limit(0);
+
+
 $protocol = new Protocol();
 
 $installationSteps = array(
-		array('enabled' => false, 'title' => 'Installing Database')
+		array('enabled' => true, 'title' => 'Installing Database')
 		,array('enabled' => true, 'title' => 'Creating Directories')
 		,array('enabled' => true, 'title' => 'Creating Configfile')
-		,array('enabled' => false, 'title' => 'Initializing Database')
+		,array('enabled' => true, 'title' => 'Initializing Database')
 		,array('enabled' => true, 'title' => 'Creating Administrator Account')
 );
 
 
 
-$databaseName = "savvago_installation2";
-$databaseUser = "root";
-$databasePw = "";
-$databaseHost = "localhost";
 
 $link = mysqli_connect($databaseHost, $databaseUser, $databasePw, $databaseName);
 if ($link === false) {
@@ -211,7 +217,7 @@ $currStep++;
 if ($installationSteps[$currStep]['enabled'] === true) {
 	
 	$adminName = 'Admin';
-	$adminPw = 'MakeMeRandomAndSecure';
+	$adminPw = 'MakeMeRandomAndSecure'; // TODO: random crypto string needed
 	
 	/**
 	 * 
@@ -260,6 +266,9 @@ foreach($protocol->messages as $message) {
 
 
 
-echo "MEM Peak: " .(memory_get_peak_usage(true) / 1024/1024). " MB\n";
+	echo "MEM Peak: " .(memory_get_peak_usage(true) / 1024/1024). " MB\n";
 
-?>
+} ?>
+
+<body>
+</html>

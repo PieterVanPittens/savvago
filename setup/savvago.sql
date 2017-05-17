@@ -1,4 +1,15 @@
 
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+
 -- --------------------------------------------------------
 
 --
@@ -10,7 +21,8 @@ CREATE TABLE `apps` (
   `name` varchar(100) NOT NULL,
   `title` varchar(200) NOT NULL,
   `description` varchar(300) NOT NULL,
-  `is_active` tinyint(4) NOT NULL DEFAULT '0'
+  `is_active` tinyint(4) NOT NULL DEFAULT '0',
+  `role_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -23,21 +35,23 @@ CREATE TABLE `attachments` (
   `attachment_id` int(10) UNSIGNED NOT NULL,
   `lesson_id` int(10) UNSIGNED NOT NULL,
   `content_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for table `comments`
 --
 
-CREATE TABLE `categories` (
-  `category_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `title` varchar(50) NOT NULL,
-  `parent_id` int(10) UNSIGNED DEFAULT NULL,
-  `ranking` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `comments` (
+  `comment_id` int(10) UNSIGNED NOT NULL,
+  `entity_type` int(10) UNSIGNED NOT NULL,
+  `entity_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `created` int(10) UNSIGNED NOT NULL,
+  `answer_to` int(10) UNSIGNED DEFAULT NULL,
+  `comment` varchar(2000) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -47,13 +61,11 @@ CREATE TABLE `categories` (
 
 CREATE TABLE `content_objects` (
   `object_id` int(10) UNSIGNED NOT NULL,
-  `course_id` int(10) UNSIGNED NOT NULL,
   `type_id` int(10) UNSIGNED NOT NULL,
-  `content` varchar(2000) NOT NULL,
+  `content` varchar(2000) DEFAULT NULL,
   `name` varchar(300) NOT NULL,
-  `description` varchar(200) DEFAULT NULL,
   `md5_hash` varchar(60) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -64,55 +76,9 @@ CREATE TABLE `content_objects` (
 CREATE TABLE `content_types` (
   `type_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
-  `is_internal` tinyint(3) UNSIGNED NOT NULL COMMENT 'is hosted internally? or external link, like youtube',
+  `source` tinyint(3) UNSIGNED NOT NULL COMMENT 'link, mediafile, article',
   `extension` varchar(30) DEFAULT NULL COMMENT 'file extension'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `courses`
---
-
-CREATE TABLE `courses` (
-  `course_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(300) NOT NULL,
-  `university_id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(50) NOT NULL,
-  `description` varchar(2000) DEFAULT NULL,
-  `subtitle` varchar(200) DEFAULT NULL,
-  `image_name` varchar(100) NOT NULL,
-  `video_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'promo video',
-  `category_id` int(10) UNSIGNED DEFAULT NULL,
-  `num_sections` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  `num_lessons` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  `user_id` int(10) UNSIGNED NOT NULL,
-  `num_enrollments` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  `is_published` tinyint(1) NOT NULL DEFAULT '0',
-  `uuid` varchar(32) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `email_queue`
---
-
-CREATE TABLE `email_queue` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `from_name` varchar(64) DEFAULT NULL,
-  `from_email` varchar(128) NOT NULL,
-  `to_name` varchar(64) NOT NULL,
-  `to_email` varchar(128) NOT NULL,
-  `subject` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `max_attempts` tinyint(3) UNSIGNED NOT NULL DEFAULT '3',
-  `num_attempts` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
-  `is_sent` tinyint(1) NOT NULL DEFAULT '0',
-  `date_created` int(11) UNSIGNED DEFAULT NULL,
-  `date_last_attempt` int(10) UNSIGNED DEFAULT NULL,
-  `date_sent` int(10) UNSIGNED DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -124,7 +90,61 @@ CREATE TABLE `enrollments` (
   `user_id` int(10) UNSIGNED NOT NULL,
   `course_id` int(10) UNSIGNED NOT NULL,
   `timestamp` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `entity_stats`
+--
+
+CREATE TABLE `entity_stats` (
+  `entity_type` int(10) UNSIGNED NOT NULL,
+  `entity_id` int(10) UNSIGNED NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL,
+  `value` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `entity_tags`
+--
+
+CREATE TABLE `entity_tags` (
+  `entity_type` int(10) UNSIGNED NOT NULL,
+  `entity_id` int(10) UNSIGNED NOT NULL,
+  `tag_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `journeys`
+--
+
+CREATE TABLE `journeys` (
+  `journey_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `description` varchar(2000) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `tags` varchar(2000) NOT NULL,
+  `is_active` int(1) NOT NULL DEFAULT '0',
+  `num_enrollments` int(10) UNSIGNED NOT NULL,
+  `num_stations` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `journey_lessons`
+--
+
+CREATE TABLE `journey_lessons` (
+  `journey_id` int(10) UNSIGNED NOT NULL,
+  `lesson_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -134,16 +154,30 @@ CREATE TABLE `enrollments` (
 
 CREATE TABLE `lessons` (
   `lesson_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(300) NOT NULL,
   `title` varchar(100) NOT NULL,
-  `section_id` int(10) UNSIGNED NOT NULL,
   `content_object_id` int(10) UNSIGNED DEFAULT NULL,
-  `course_id` int(10) UNSIGNED NOT NULL,
-  `rank` int(10) UNSIGNED NOT NULL,
   `description` varchar(2000) DEFAULT NULL,
-  `section_rank` int(10) UNSIGNED NOT NULL,
-  `image_name` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `is_active` int(1) NOT NULL,
+  `tags` varchar(2000) NOT NULL,
+  `created` int(10) UNSIGNED NOT NULL,
+  `image` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `marks`
+--
+
+CREATE TABLE `marks` (
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `entity_type` int(10) UNSIGNED NOT NULL,
+  `entity_id` int(10) UNSIGNED NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL,
+  `created` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -158,35 +192,8 @@ CREATE TABLE `progress` (
   `type` int(10) UNSIGNED NOT NULL,
   `value` varchar(200) DEFAULT NULL,
   `course_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `role_apps`
---
-
-CREATE TABLE `role_apps` (
-  `role_id` int(10) UNSIGNED NOT NULL,
-  `app_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sections`
---
-
-CREATE TABLE `sections` (
-  `section_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(300) NOT NULL,
-  `course_id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(50) NOT NULL,
-  `rank` int(10) UNSIGNED NOT NULL,
-  `description` varchar(2000) DEFAULT NULL,
-  `num_lessons` int(10) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-  
 -- --------------------------------------------------------
 
 --
@@ -198,20 +205,18 @@ CREATE TABLE `service_cache` (
   `model_type` int(10) UNSIGNED NOT NULL,
   `model_id` int(10) UNSIGNED NOT NULL,
   `content` mediumtext NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `universities`
+-- Table structure for table `tags`
 --
 
-CREATE TABLE `universities` (
-  `university_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `title` varchar(50) NOT NULL,
-  `description` varchar(1000) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tags` (
+  `tag_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -233,7 +238,7 @@ CREATE TABLE `users` (
   `is_active` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `password_recovery_key` varchar(32) DEFAULT NULL,
   `password_recovery_deadline` int(10) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Indexes for dumped tables
@@ -244,30 +249,29 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `apps`
   ADD PRIMARY KEY (`app_id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `role_id` (`role_id`);
 
 --
 -- Indexes for table `attachments`
 --
 ALTER TABLE `attachments`
   ADD PRIMARY KEY (`attachment_id`),
-  ADD UNIQUE KEY `lesson_id` (`lesson_id`,`content_id`)
-	;
+  ADD UNIQUE KEY `lesson_id` (`lesson_id`,`content_id`);
 
 --
--- Indexes for table `categories`
+-- Indexes for table `comments`
 --
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`category_id`),
-  ADD UNIQUE KEY `name` (`name`);
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`comment_id`),
+  ADD KEY `entity_type` (`entity_type`,`entity_id`),
+  ADD KEY `entity_type_2` (`entity_type`,`answer_to`);
 
 --
 -- Indexes for table `content_objects`
 --
 ALTER TABLE `content_objects`
-  ADD PRIMARY KEY (`object_id`),
-  ADD UNIQUE KEY `course_id` (`course_id`,`name`)
-  ;
+  ADD PRIMARY KEY (`object_id`);
 
 --
 -- Indexes for table `content_types`
@@ -277,55 +281,58 @@ ALTER TABLE `content_types`
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Indexes for table `courses`
---
-ALTER TABLE `courses`
-  ADD PRIMARY KEY (`course_id`),
-  ADD UNIQUE KEY `name` (`name`)
-	;
-
---
--- Indexes for table `email_queue`
---
-ALTER TABLE `email_queue`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `to_email` (`to_email`);
-
---
 -- Indexes for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  ADD PRIMARY KEY (`user_id`,`course_id`)
-	;
+  ADD PRIMARY KEY (`user_id`,`course_id`);
+
+--
+-- Indexes for table `entity_stats`
+--
+ALTER TABLE `entity_stats`
+  ADD UNIQUE KEY `entity_type` (`entity_type`,`entity_id`,`type`);
+
+--
+-- Indexes for table `entity_tags`
+--
+ALTER TABLE `entity_tags`
+  ADD UNIQUE KEY `object_type` (`entity_type`,`entity_id`,`tag_id`),
+  ADD KEY `tag` (`tag_id`);
+
+--
+-- Indexes for table `journeys`
+--
+ALTER TABLE `journeys`
+  ADD PRIMARY KEY (`journey_id`),
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `journey_lessons`
+--
+ALTER TABLE `journey_lessons`
+  ADD PRIMARY KEY (`journey_id`,`lesson_id`),
+  ADD KEY `lesson` (`lesson_id`);
 
 --
 -- Indexes for table `lessons`
 --
 ALTER TABLE `lessons`
   ADD PRIMARY KEY (`lesson_id`),
-  ADD UNIQUE KEY `name` (`name`,`course_id`)
-	;
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `marks`
+--
+ALTER TABLE `marks`
+  ADD UNIQUE KEY `user_id` (`user_id`,`entity_type`,`entity_id`,`type`);
 
 --
 -- Indexes for table `progress`
 --
 ALTER TABLE `progress`
-  ADD PRIMARY KEY (`user_id`,`reference_id`,`type`)
-	;
-	
---
--- Indexes for table `role_apps`
---
-ALTER TABLE `role_apps`
-  ADD PRIMARY KEY (`role_id`,`app_id`)
-	;
-
---
--- Indexes for table `sections`
---
-ALTER TABLE `sections`
-  ADD PRIMARY KEY (`section_id`),
-  ADD UNIQUE KEY `name` (`name`,`course_id`),
+  ADD PRIMARY KEY (`user_id`,`reference_id`,`type`),
   ADD KEY `course_id` (`course_id`);
 
 --
@@ -335,10 +342,10 @@ ALTER TABLE `service_cache`
   ADD PRIMARY KEY (`tag`);
 
 --
--- Indexes for table `universities`
+-- Indexes for table `tags`
 --
-ALTER TABLE `universities`
-  ADD PRIMARY KEY (`university_id`);
+ALTER TABLE `tags`
+  ADD PRIMARY KEY (`tag_id`);
 
 --
 -- Indexes for table `users`
@@ -350,123 +357,71 @@ ALTER TABLE `users`
   ADD KEY `type` (`type`);
 
 --
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
 -- AUTO_INCREMENT for table `apps`
 --
 ALTER TABLE `apps`
-  MODIFY `app_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `app_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT for table `attachments`
 --
 ALTER TABLE `attachments`
   MODIFY `attachment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `categories`
+-- AUTO_INCREMENT for table `comments`
 --
-ALTER TABLE `categories`
-  MODIFY `category_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `comments`
+  MODIFY `comment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 --
 -- AUTO_INCREMENT for table `content_objects`
 --
 ALTER TABLE `content_objects`
-  MODIFY `object_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `object_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=505;
 --
 -- AUTO_INCREMENT for table `content_types`
 --
 ALTER TABLE `content_types`
-  MODIFY `type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
+  MODIFY `type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
--- AUTO_INCREMENT for table `courses`
+-- AUTO_INCREMENT for table `journeys`
 --
-ALTER TABLE `courses`
-  MODIFY `course_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;  
-  
---
--- AUTO_INCREMENT for table `email_queue`
---
-ALTER TABLE `email_queue`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `journeys`
+  MODIFY `journey_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 --
 -- AUTO_INCREMENT for table `lessons`
 --
 ALTER TABLE `lessons`
-  MODIFY `lesson_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
+  MODIFY `lesson_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 --
--- AUTO_INCREMENT for table `sections`
+-- AUTO_INCREMENT for table `tags`
 --
-ALTER TABLE `sections`
-  MODIFY `section_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-  
---
--- AUTO_INCREMENT for table `universities`
---
-ALTER TABLE `universities`
-  MODIFY `university_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tags`
+  MODIFY `tag_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
-  
+  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 --
--- Foreign Keys for table `attachments`
+-- Constraints for dumped tables
 --
-ALTER TABLE `attachments`
-  ADD FOREIGN KEY (`lesson_id`) REFERENCES lessons(`lesson_id`),
-  ADD FOREIGN KEY (`content_id`) REFERENCES content_objects(`object_id`)
-	;
 
 --
--- Foreign Keys for table `content_objects`
+-- Constraints for table `entity_tags`
 --
-ALTER TABLE `content_objects`
-  ADD FOREIGN KEY (`course_id`) REFERENCES courses(`course_id`)
-  ;
+ALTER TABLE `entity_tags`
+  ADD CONSTRAINT `tag` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`);
 
 --
--- Foreign Keys for table `courses`
+-- Constraints for table `journey_lessons`
 --
-ALTER TABLE `courses`
-  ADD FOREIGN KEY (`user_id`) REFERENCES Users(`user_id`)
-	;
+ALTER TABLE `journey_lessons`
+  ADD CONSTRAINT `journey` FOREIGN KEY (`journey_id`) REFERENCES `journeys` (`journey_id`),
+  ADD CONSTRAINT `lesson` FOREIGN KEY (`lesson_id`) REFERENCES `lessons` (`lesson_id`);
 
---
--- Foreign Keys for table `enrollments`
---
-ALTER TABLE `enrollments`
-  ADD FOREIGN KEY (`course_id`) REFERENCES Courses(`course_id`),
-  ADD FOREIGN KEY (`user_id`) REFERENCES Users(`user_id`)
-	;
-
---
--- Foreign Keys for table `lessons`
---
-ALTER TABLE `lessons`
-  ADD FOREIGN KEY (`course_id`) REFERENCES Courses(`course_id`),
-  ADD FOREIGN KEY (`content_object_id`) REFERENCES content_objects(`object_id`),
-  ADD FOREIGN KEY (`section_id`) REFERENCES Sections(`section_id`)
-	;
-
---
--- Indexes for table `progress`
---
-ALTER TABLE `progress`
-  ADD FOREIGN KEY (`user_id`) REFERENCES Users(`user_id`)
-	;
-
---
--- Indexes for table `role_apps`
---
-ALTER TABLE `role_apps`
-  ADD FOREIGN KEY (`app_id`) REFERENCES Apps(`app_id`)
-	;
-	
---
--- Indexes for table `sections`
---
-ALTER TABLE `sections`
-  ADD FOREIGN KEY (`course_id`) REFERENCES Courses(`course_id`)
-	;
-
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
