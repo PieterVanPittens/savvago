@@ -35,6 +35,7 @@ class ComposerStaticInitfff5be785533cc42eb1c48dfb6da42ef
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\BrowserKit\\' => 29,
+            'Stecman\\Component\\Symfony\\Console\\BashCompletion\\' => 49,
             'Slim\\Views\\' => 11,
             'Slim\\' => 5,
         ),
@@ -123,6 +124,10 @@ class ComposerStaticInitfff5be785533cc42eb1c48dfb6da42ef
         'Symfony\\Component\\BrowserKit\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/browser-kit',
+        ),
+        'Stecman\\Component\\Symfony\\Console\\BashCompletion\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stecman/symfony-console-completion/src',
         ),
         'Slim\\Views\\' => 
         array (

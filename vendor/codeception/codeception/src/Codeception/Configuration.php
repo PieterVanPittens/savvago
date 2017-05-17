@@ -89,7 +89,11 @@ class Configuration
             'bootstrap'  => false,
             'strict_xml' => false,
             'lint'       => true,
-            'backup_globals' => true
+            'backup_globals' => true,
+            'log_incomplete_skipped' => false,
+            'report_useless_tests' => false,
+            'disallow_test_output' => false,
+            'be_strict_about_changes_to_global_state' => false
         ],
         'coverage'   => [],
         'params'     => [],
@@ -187,8 +191,11 @@ class Configuration
         $config['include'] = self::expandWildcardedIncludes($config['include']);
 
         // config without tests, for inclusion of other configs
-        if (count($config['include']) and !isset($config['paths']['tests'])) {
-            return self::$config = $config;
+        if (count($config['include'])) {
+            self::$config = $config;
+            if (!isset($config['paths']['tests'])) {
+                 return $config;
+            }
         }
 
         if (!isset($config['paths']['tests'])) {
@@ -242,7 +249,8 @@ class Configuration
             ->files()
             ->name('*.{suite,suite.dist}.yml')
             ->in(self::$dir . DIRECTORY_SEPARATOR . self::$testsDir)
-            ->depth('< 1');
+            ->depth('< 1')
+            ->sortByName();
         self::$suites = [];
 
         /** @var SplFileInfo $suite */
@@ -563,7 +571,22 @@ class Configuration
      */
     public static function append(array $config = [])
     {
-        return self::$config = self::mergeConfigs(self::$config, $config);
+        self::$config = self::mergeConfigs(self::$config, $config);
+
+        if (isset(self::$config['paths']['log'])) {
+            self::$logDir = self::$config['paths']['log'];
+        }
+        if (isset(self::$config['paths']['data'])) {
+            self::$dataDir = self::$config['paths']['data'];
+        }
+        if (isset(self::$config['paths']['support'])) {
+            self::$supportDir = self::$config['paths']['support'];
+        }
+        if (isset(self::$config['paths']['tests'])) {
+            self::$testsDir = self::$config['paths']['tests'];
+        }
+
+        return self::$config;
     }
 
     public static function mergeConfigs($a1, $a2)
