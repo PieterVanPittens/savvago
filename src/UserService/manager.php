@@ -194,7 +194,7 @@ class UserManager extends BaseManager {
 		}
 		$userExists = $this->repository->getUserByEmail($user->email);
 		if (!is_null($userExists)) {
-			throw new ValidationException('Email already exists');
+			throw new ValidationException('email', 'Email already exists');
 		}
 
 
