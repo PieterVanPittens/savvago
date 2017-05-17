@@ -23,8 +23,22 @@ class Authenticator {
 	public function __invoke(RequestInterface $request, ResponseInterface $response, callable $next) {
 		$container = $this->app->getContainer()['serviceContainer'];
 		// Authentication based on JWT stored in cookie
+		$token = null;
+		// find token in cookie or in header
 		if (isset($_COOKIE['savvago_token'])) {
 			$token = $_COOKIE['savvago_token'];
+		}
+		if (is_null($token)) {
+			// token is not in cookie so look for it in header
+			foreach (getallheaders() as $name => $value) {
+				if ($name == "access_token") {
+					$token = $value;
+				}
+			}			
+		}
+		
+		
+		if (!is_null($token)) {
 			$key = $this->app->getContainer()['settings']['security']['tokenKey'];
 			try {
 				$decoded = JWT::decode($token, $key, array('HS256'));
