@@ -6,9 +6,13 @@
  * 
  */
 function getRequestObject() {
-	$input = json_decode(file_get_contents('php://input'));
+	$content = file_get_contents('php://input');
+	$input = json_decode($content);
 	if (is_null($input)) {
-		throw new ValidationException("Request is empty, object expected");
+		$apiResult = ApiResultFactory::createError("body does not contain valid json", null);
+		http_response_code(400);
+		echo $apiResult->toJson();
+		die();
 	}
 	foreach($input as $key => $value) {
 		if (!is_array($value) && !is_object($value)) {
