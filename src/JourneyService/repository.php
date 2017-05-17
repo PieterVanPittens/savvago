@@ -22,7 +22,7 @@ class JourneyRepository extends BasePdoRepository {
 		, is_active
 		, num_enrollments
 		, num_stations
-		) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$model->name
