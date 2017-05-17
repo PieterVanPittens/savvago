@@ -4,10 +4,13 @@
 # Perform tests in browser using the WebDriver or PhpBrowser.
 # If you need both WebDriver and PHPBrowser tests - create a separate suite.
 
-class_name: AcceptanceTester
+class_name: ApiTester
 modules:
     enabled:
         - PhpBrowser:
             url: http://localhost/savvago
         - \Helper\Acceptance
+        - REST:
+            depends: PhpBrowser
+            url: 'http://localhost/savvago/api/'
         
