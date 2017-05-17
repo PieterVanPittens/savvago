@@ -328,6 +328,8 @@ class LessonService extends BaseService {
 			, 'like' => $this->settings['application']['api'] . 'lessons/' . $lesson->lessonId . '/like'
 			, 'image' => $image
 			, 'thumbnail' => $thumbnail
+				, 'comments' => $this->settings['application']['api'] . 'lessons/' . $lesson->lessonId . '/comments'
+			, 'deleteComment' => $this->settings['application']['api'] . 'comments'
 		);
 		$lesson->urls = $urls;
 		

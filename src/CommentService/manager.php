@@ -30,4 +30,22 @@ class CommentManager extends BaseManager {
 	public function createComment(Comment $comment) {
 		$this->repository->createComment($comment);
 	}
+	
+	/**
+	 * gets comment by id
+	 * @param int $commentId
+	 * @return Comment
+	 */
+	public function getCommentById($commentId) {
+		$comment = $this->repository->getCommentById($commentId);
+		return $comment;
+	}
+	
+	/**
+	 * deletes a comment
+	 * @param unknown $commentId
+	 */
+	public function deleteComment($commentId) {
+		$this->repository->deleteComment($commentId);
+	}
 }

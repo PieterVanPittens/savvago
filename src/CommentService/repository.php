@@ -48,4 +48,32 @@ class CommentRepository extends BasePdoRepository {
 		);
 		$stmt = $this->execute($stmt, $parameters);
 	}
+	
+	/**
+	 * gets comment by id
+	 * @param int $commentId
+	 * @return Comment
+	 */
+	public function getCommentById($commentId) {
+		$query = "SELECT comment_id, ".$this->fieldNames." FROM comments where comment_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($commentId));
+		
+		if ($a = $stmt->fetch()) {
+			$model = Comment::CreateModelFromRepositoryArray($a);
+			return $model;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * deletes a comment
+	 * @param unknown $commentId
+	 */
+	public function deleteComment($commentId) {
+		$query = "DELETE from comments where comment_id = ?";
+		$stmt = $this->prepare($query);
+		$stmt = $this->execute($stmt, array($commentId));
+	}
 }

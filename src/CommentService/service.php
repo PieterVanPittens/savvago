@@ -115,5 +115,29 @@ class CommentService extends BaseService {
 		return $apiResult;
 	}
 	
-
+	/**
+	 * deletes a comment
+	 * @param int $commentId
+	 * @return ApiResult
+	 */
+	public function deleteComment($commentId) {
+		
+		$comment = $this->manager->getCommentById($commentId);
+		if (is_null($comment)) {
+			throw new NotFoundException("comment does not exist");
+		}
+		
+		// auth check: only author is allowed to delete own comments
+		if ($comment->userId != $this->contextUser->userId) {
+			throw new UnauthorizedException("You must not delete comments of other people");
+		}
+		$this->transactionManager->start();
+		$this->manager->deleteComment($commentId);
+		$this->entityStatsManager->increaseEntityStat($comment->entityType, $comment->entityId, EntityStats::numComments, -1);
+		
+		$this->transactionManager->commit();
+		
+		$apiResult = ApiResultFactory::createSuccess('Comment deleted', null);
+		return $apiResult;
+	}
 }

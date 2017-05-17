@@ -290,6 +290,7 @@ class JourneyService extends BaseService {
 		$journey->urls['like'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/like';
 		$journey->urls['lessons'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/lessons';
 		$journey->urls['comments'] = $this->settings['application']['api'] . 'journeys/' . $journey->journeyId . '/comments';
+		$journey->urls['deleteComment'] = $this->settings['application']['api'] . 'comments';
 	}
 
 	/**

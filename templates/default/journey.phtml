@@ -1,6 +1,7 @@
 
 <script>
 $(function() {
+
 	var isLiked = <?= $isLiked ? 1:0?>;
     $('#like').click(function() {
 		$.post( "<?= $journey->urls['like']; ?>",
@@ -75,7 +76,10 @@ app.controller('FurtherLessonsCtrl', function($scope, $http){
 app.controller('CommentsCtrl', function($scope, $http){
 	var commentsUrl = '<?= $journey->urls['comments'] ?>';
 
-	$scope.comment = {};
+	$scope.currentUserId = <?= $currentUser->userId; ?>;
+	
+	$scope.comment = {};	
+	
 	$scope.loadComments = function() {
 		$http.get(commentsUrl).then(function(response) {
 		      $scope.comments = response.data;
@@ -94,6 +98,18 @@ app.controller('CommentsCtrl', function($scope, $http){
 		  });
     };
 
+	$scope.deleteComment = function(commentId) {
+    	$http.delete('<?= $journey->urls['deleteComment'] ?>' + '/' + commentId, $scope.comment)
+		  .then(function(data) {
+		    $scope.errors = data.data.message.propertyMessages;
+	    	toastApiResult(data.data);
+	    	$scope.loadComments();
+	    	$scope.comment = {};
+		  }, function(error) {
+		    	toastApiResult(error.data);
+		  });
+	};
+    
     $scope.loadComments();
 });
 
@@ -138,7 +154,7 @@ app.controller('CommentsCtrl', function($scope, $http){
 
 
 <div>
-<h2>Comments</h2>
+<h2>Comments&nbsp;&dash;&nbsp;<?= $journey->stats[EntityStats::numComments]; ?></h2>
 <style>
 
 ul.comments {
@@ -151,18 +167,33 @@ p.commentCreated {
 li.comment {
 	margin-bottom: 30px;
 }
+#newComment {
+	resize: none;
+	width: 100%;
+}
 </style>
 <div ng-controller="CommentsCtrl">
 
-<p>Post public comment</p>
 <form>
-<textarea id="newComment" ng-model="comment.comment"></textarea>
+<textarea id="newComment" ng-model="comment.comment" placeholder="Post public comment..."></textarea>
 <button id="createComment" ng-click="createComment()" class="btn btn-default">Comment</button>
 </form>
+<hr/>
 
 <ul class="comments">
 	<li class="comment" ng-repeat="comment in comments">
-		<p class="commentCreated">{{comment.user.displayName}} - {{comment.created | dateFormat}}</p>
+		
+		<div class="commentCreated">
+		<div class="btn-group">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="glyphicon glyphicon-option-vertical"></span>
+  </a>
+  <ul class="dropdown-menu" ng-show="comment.user.userId == currentUserId">
+    <li><a ng-click="deleteComment(comment.commentId)">Delete</a></li>
+  </ul>
+</div>
+		{{comment.user.displayName}} - {{comment.created | dateFormat}}</div>
+		
 		<p class="comment">{{comment.comment}}</p>
 	</li>
 </ul>

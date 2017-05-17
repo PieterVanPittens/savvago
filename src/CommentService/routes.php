@@ -48,5 +48,14 @@ $app->post('/api/journeys/{id}/comments', function ($request, $response, $args) 
 	
 	return $apiResult->toJson();
 });
-			
+
+// deletes comment
+$app->delete('/api/comments/{id}', function ($request, $response, $args) {
+	checkIsAuthenticated($this);
+	
+	$commentService = $this->serviceContainer['commentService'];
+	$apiResult = $commentService->deleteComment($args['id']);
+	
+	return $apiResult->toJson();
+});
 
