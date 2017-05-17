@@ -21,7 +21,7 @@ return [
 
         // Renderer settings
         'renderer' => [
-            'template_path' => __DIR__ . '/../public/templates/default/'
+            'template_path' => __DIR__ . '/../templates/default/'
         ],
 
 		// import
