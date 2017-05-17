@@ -13,7 +13,6 @@ $app->get('/api/lessons', function ($request, $response, $args) {
 });
 // get one lesson
 $app->get('/api/lessons/{id}', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
 
 	$lessonService = $this->serviceContainer['lessonService'];
 	$lesson = $lessonService->getLesson($args["id"]);
