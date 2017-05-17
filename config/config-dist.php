@@ -51,6 +51,11 @@ return [
 					'height' => 422]
 				]
 		],
+			
+		// storage
+    	'storage' => [
+			'provider' => 'sbsProvider' // this is: classname, plugin name and thus folder name at the same time
+    	],
 		
 		// data base
 		'db' => [
