@@ -4,6 +4,7 @@
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use \Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 
 class Authenticator {
 
@@ -37,7 +38,6 @@ class Authenticator {
 			}			
 		}
 		
-		
 		if (!is_null($token)) {
 			$key = $this->app->getContainer()['settings']['security']['tokenKey'];
 			try {
@@ -46,14 +46,19 @@ class Authenticator {
 				if (is_null($user)) {
 					$user = $this->getGuestUser();
 				}
+			} catch (SignatureInvalidException $e) {
+				// log because it could be a security attack
+				$this->app->getContainer()['logger']->addInfo('JWT SignatureInvalidException. Token: "'.$token.'". Error Message: ' . $e->getMessage());
+				throw $e; // todo: this requires better handling
 			} catch (UnexpectedValueException $e) {
 				// log because it could be a security attack
-				$this->app->getContainer()['logger']->addInfo('JWT UnexpectedValueException. Token: "'.$token.'"');
+				$this->app->getContainer()['logger']->addInfo('JWT UnexpectedValueException. Token: "'.$token.'". Error Message: ' . $e->getMessage());
+				throw $e; // todo: this requires better handling
 				// unexpected -> guest
 				$user = $this->getGuestUser();
 			} catch (Firebase\JWT\ExpiredException $e) {
 				// expired -> guest
-				$user = $this->getGuestUser();
+				$user = $this->getGuestUser(); // todo: this requires better handling? someone needs to know that it is expired? e.g. the consumer?!
 			} catch (Exception $e) {
 				$this->app->getContainer()['logger']->addInfo('unexpected exception. '.$e->getMessage());
 				// expired -> guest
