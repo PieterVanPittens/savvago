@@ -22,36 +22,6 @@ function getRequestObject() {
 	return $input;	
 }
 
-
-
-// get all courses that I am teaching
-$app->get('/api/courses-teaching', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: user needs to be teacher at least
-	$courseService = $this->serviceContainer['courseService'];
-	$courses = $courseService->getAllAuthorCourses();
-
-	return json_encode(array('data' => $courses));
-
-});
-// publish/unpublish course
-$app->post('/api/courses/{courseId}/publish', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	$input = getRequestObject();
-	$courseId = $args['courseId'];
-	$isPublished = $input->isPublished ? 1 : 0;
-
-	$courseService = $this->serviceContainer['courseService'];
-	$courseService->publishCourse($courseId, $isPublished);
-
-	
-	$apiResult = ApiResultFactory::CreateSuccess('Course Status changed', null);
-
-	return json_encode($apiResult);
-});
-
 // registers new user
 $app->post('/api/users', function ($request, $response, $args) {
 	
