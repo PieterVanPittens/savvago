@@ -1,2 +1,6 @@
 temp/logs/cache/public/upload/.buildpath.project.settings/
 tests/_output/*
+config/config33.php
+config/configdddd.php
+config/config-dev.php
+config/config.php
