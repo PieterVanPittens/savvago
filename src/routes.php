@@ -47,7 +47,7 @@ function checkIsAuthenticated($app) {
 	}	
 }
 
-// course manager
+// sign up
 $app->get('/sign-up', function ($request, $response, $args) {
 	$page = new Page();
 	$page->title = 'Sign Up';
@@ -57,56 +57,6 @@ $app->get('/sign-up', function ($request, $response, $args) {
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
-// course manager
-$app->get('/teach/{courseId}', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$page = new Page();
-	$page->title = 'Teach Course';
-	$page->mainView = 'teach-course.phtml';
-	$this->viewData->data["page"] = $page;
-	$this->viewData->data['menu'] = 'image';
-	
-	$courseManager = $this->serviceContainer['courseManager'];
-
-	$this->viewData->data['course'] = $courseManager->getCourseById($args['courseId'], true);
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-// section lessons
-$app->get('/sections/{sectionId}/lessons', function ($request, $response, $args) {
-	
-	$section = new Section();
-	$section->sectionId = $args['sectionId'];
-	$courseManager = $this->serviceContainer['courseManager'];
-	$lessons = $courseManager->getSectionLessons($section);
-	
-	$this->viewData->data['lessons'] = $lessons;	
-
-	return $this->renderer->render($response, 'partial_lessons.phtml', $this->viewData->data);
-});
-
-// course manager
-$app->get('/teach/{courseId}/curriculum', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	$page = new Page();
-	$page->title = 'Teach Course';
-	$page->mainView = 'teach-course.phtml';
-	$this->viewData->data["page"] = $page;
-	$this->viewData->data['menu'] = 'curriculum';
-	
-	$courseManager = $this->serviceContainer['courseManager'];
-
-	$course = $courseManager->getCourseById($args['courseId'], true);
-	$courseManager->loadCurriculum($course);
-	$quickEdit = CourseManager::getCurriculumAsString($course);
-	$this->viewData->data['course'] = $course;
-	$this->viewData->data['quickEdit'] = $quickEdit;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
 
 
 // verify email adress using form
@@ -216,45 +166,6 @@ $app->get('/', function ($request, $response, $args) {
 	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
 });
 
-
-// my courses
-$app->get('/my-courses', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	if (!isAuthenticated($this)) {
-		return showLogin($this, $response, $this->viewData->data);
-	}
-	$courseService = $this->serviceContainer['courseService'];
-	$courses = 	$courseService->getMyCourses();
-	$this->viewData->data["courses"] = $courses;
-
-	$page = new Page();
-	$page->title = 'My Courses';
-	$page->mainView = 'my-courses.phtml';
-	$this->viewData->data["page"] = $page;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
-// teach - all courses where I am author
-$app->get('/teach', function ($request, $response, $args) {
-	setLastRequestPath($request);
-	
-	if (!isAuthenticated($this)) {
-		return showLogin($this, $response, $this->viewData->data);
-	}
-	$courseService = $this->serviceContainer['courseService'];
-	$courses = 	$courseService->getAllAuthorCourses();
-	$this->viewData->data["courses"] = $courses;
-
-	$page = new Page();
-	$page->title = 'Teach';
-	$page->mainView = 'teach.phtml';
-	$this->viewData->data["page"] = $page;
-
-	return $this->renderer->render($response, 'master.phtml', $this->viewData->data);
-});
-
 // my settings
 $app->get('/my-profile', function ($request, $response, $args) {
 	setLastRequestPath($request);
@@ -350,6 +261,7 @@ $app->post('/my-picture', function ($request, $response, $args) {
 		
 });
 
+// sitemap
 $app->get('/sitemap.xml', function ($request, $response, $args) {
 	$this->viewData->data['courses'] = $this->serviceContainer['courseService']->getTopNCourses(20, true);
 
