@@ -25,19 +25,26 @@ function getRequestObject() {
 // registers new user
 $app->post('/api/users', function ($request, $response, $args) {
 	
+	$input = getRequestObject();
+	
 	$userManager = $this->serviceContainer['userManager'];
 
-	$input = getRequestObject();
 	$user = new User();
 	$user->displayName = $input->displayName;
 	$user->email = $input->email;
 	$user->password = $input->password;
-	
+	try {
 	$apiResult = $userManager->registerUser($user);
+	} catch (Exception $e) {
+		return $e->getMessage();
+	}
 	$key = $this->serviceContainer['settings']['security']['tokenKey'];
-	$apiResult->object = createJwtToken($user->userId, $key);	// login user automatically
+	$apiResult->object = array(
+			"token" => createJwtToken($user->userId, $key),	// login user automatically
+			"user" => $user
+			);
 
-	return json_encode($apiResult);
+	return $apiResult->toJson();
 });
 
 // gets list of all users
@@ -83,7 +90,7 @@ $app->post('/api/users/{userId}/activate', function ($request, $response, $args)
 	$input = getRequestObject();
 
 	$userId = $args['userId'];
-	$isActive = $input->active == "true" ? 1 : 0;
+	$isActive = $input->isActive == "true" || $input->isActive == 1 ? 1 : 0;
 
 	$userService = $this->serviceContainer['userService'];
 	$userService->activateUser($userId, $isActive);
