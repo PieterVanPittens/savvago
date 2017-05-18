@@ -3,7 +3,6 @@
 // create journey
 $app->post('/api/journeys', function ($request, $response, $args) {
 	checkIsAuthenticated($this);
-
 	$input = getRequestObject();
 
 	$journeyService = $this->serviceContainer['journeyService'];
