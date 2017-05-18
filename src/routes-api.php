@@ -56,7 +56,7 @@ $app->get('/api/users', function ($request, $response, $args) {
 	$userService = $this->serviceContainer['userService'];
 	$users = $userService->getUsers();
 
-	return json_encode(array('data' => $users));
+	return json_encode($users);
 });
 
 
