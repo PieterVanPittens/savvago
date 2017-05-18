@@ -102,56 +102,6 @@ $app->post('/api/users/{userId}/activate', function ($request, $response, $args)
 
 
 
-
-// reorder lesson
-$app->post('/api/courses/{courseId}/reorderlesson', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-	$input = getRequestObject();
-	
-	$courseManager = $this->serviceContainer['courseManager'];
-	$course = $courseManager->getCourseById($args['courseId'], false);
-
-	$courseManager->reorderLesson($course, $input->sourceId, $input->targetId);
-	
-	$apiResult = new ApiResult();
-	$apiResult->message = "lessons reordered";
-	return json_encode($apiResult);
-
-});
-
-// reorder section
-$app->post('/api/sections/switch', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-	$input = getRequestObject();
-
-	$courseManager = $this->serviceContainer['courseManager'];
-	$apiResult = $courseManager->switchSections($input->sourceId, $input->targetId);
-	return $apiResult->toJson();
-});
-
-
-// add section to course
-$app->post('/api/courses/{courseId}/sections', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-
-	$input = getRequestObject();
-
-	$section = new Section();
-	$section->title = $input->title;
-	$courseId = $args["courseId"];
-	$courseService = $this->serviceContainer['courseService'];
-	$apiResult = $courseService->createSection($courseId, $section);
-
-	return json_encode($apiResult);
-});
-
-
 // upload content to course
 $app->post('/api/courses/{courseId}/upload', function ($request, $response, $args) {
 	checkIsAuthenticated($this);
@@ -178,17 +128,6 @@ $app->post('/api/courses/{courseId}/upload', function ($request, $response, $arg
 
 });
 
-// get contents of course
-$app->get('/api/courses/{courseId}/contents', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-	// TODO security check: user needs to be teacher at least
-
-	$contentManager = $this->serviceContainer['contentManager'];
-	$courseId = $args["courseId"];
-	$contents = $contentManager->getCourseContents($courseId);
-
-	return json_encode(array('data' => $contents));
-});
 /*
 // get apps
 $app->get('/api/apps', function ($request, $response, $args) {
@@ -201,92 +140,6 @@ $app->get('/api/apps', function ($request, $response, $args) {
 	return json_encode(array('data' => $apps));
 });
 */
-// update section
-$app->post('/api/sections/{sectionId}', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-
-	$input = getRequestObject();
-
-	$section = new Section();
-	$section->sectionId = $args["sectionId"];
-	$section->title = $input->title;
-	$section->description = $input->description;
-	$sectionId = $args["sectionId"];
-	$courseService = $this->serviceContainer['courseService'];
-	$apiResult = $courseService->updateSection($section);
-
-	return $apiResult->toJson();
-});
-
-
-// delete section
-$app->delete('/api/sections/{sectionId}', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check
-
-	$sectionId = $args["sectionId"];
-	$courseService = $this->serviceContainer['courseService'];
-	$apiResult = $courseService->deleteSection($sectionId);
-
-	return json_encode($apiResult);
-
-});
-
-
-
-// create curriculum based on string
-$app->post('/api/courses/{courseId}/curriculum', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-
-	$input = getRequestObject();
-
-	$curriculum = $input->quickEdit;
-	$courseManager = $this->serviceContainer['courseManager'];
-	$course = $courseManager->getCourseById($args['courseId'], false);
-	$courseManager->quickCreateCurriculum($course, $curriculum);
-	
-	$apiResult = new ApiResult();
-	$apiResult->message = "curriculum created";
-	$apiResult->object = $course;
-	return json_encode($apiResult);
-	
-});
-
-// create curriculum based on string
-$app->delete('/api/courses/{courseId}', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-	// TODO security check: ist user der autor dieses kurses?
-	$courseId = $args['courseId'];
-
-	$courseService = $this->serviceContainer['courseService'];
-	
-	$apiResult = $courseService->deleteCourse($courseId);
-	return $apiResult->toJson();
-	
-});
-
-// create course
-$app->post('/api/courses', function ($request, $response, $args) {
-	checkIsAuthenticated($this);
-
-
-	$courseService = $this->serviceContainer['courseService'];
-	$courseJson = getRequestObject();
-
-	$course = new Course();
-	$course->setTitle($courseJson->title);
-	$course->universityId = 1; //$this->userService->getUser()->universityId;
-	$courseService->createCourse($course);
-	
-	$apiResult = ApiResultFactory::CreateSuccess('A new course was born', $course);
-	return json_encode($apiResult);
-});
 
 
 /**
