@@ -181,20 +181,20 @@ class UserManager extends BaseManager {
 		$this->checkParameterForNull($user);
 
 		if (isset($user->displayName) && $this->isNullOrEmpty($user->displayName)) {
-			throw new ValidationException("Display Name is required");
+			throw new ValidationException("displayName", "Enter display name");
 		}
 		if (isset($user->email) && $this->isNullOrEmpty($user->email)) {
-			throw new ValidationException("Email is required");
+			throw new ValidationException("email", "Enter email");
 		}
 		if (isset($user->password) && $this->isNullOrEmpty($user->password)) {
-			throw new ValidationException("Password is required");
+			throw new ValidationException("password", "Enter password");
 		}
 		if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
-			throw new ValidationException('This is not a valid email address');
+			throw new ValidationException("email", 'Enter valid email address');
 		}
 		$userExists = $this->repository->getUserByEmail($user->email);
 		if (!is_null($userExists)) {
-			throw new ValidationException('email', 'Email already exists');
+			throw new ValidationException('email', 'Email already exists. Enter a different one');
 		}
 
 
