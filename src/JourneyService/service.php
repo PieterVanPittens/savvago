@@ -181,6 +181,7 @@ class JourneyService extends BaseService {
 		$journey->isActive = false;
 		$journey->numEnrollments = 0;
 		$journey->numStations = 0;
+		$journey->created = time();
 		// start transaction
 		$this->transactionManager->start();
 		// create lesson

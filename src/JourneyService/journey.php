@@ -29,6 +29,8 @@ class Journey extends BaseModel implements iEntity {
 	
 	public $stats;
 	
+	public $created;
+	
 	public function setTitle($title) {
 		$this->title = $title;
 		$this->name = ModelHelper::convertTitleToName($title);

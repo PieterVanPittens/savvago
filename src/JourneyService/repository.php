@@ -6,7 +6,7 @@
  */
 class JourneyRepository extends BasePdoRepository {
 
-	private $fieldNames = 'name, description, title, user_id, tags, is_active, num_enrollments, num_stations';
+	private $fieldNames = 'name, description, title, user_id, tags, is_active, num_enrollments, num_stations, created';
 	
 	/**
 	 * creates Journey
@@ -22,7 +22,8 @@ class JourneyRepository extends BasePdoRepository {
 		, is_active
 		, num_enrollments
 		, num_stations
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		, created
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$stmt = $this->prepare($query);
 		$parameters = array(
 				$model->name
@@ -33,6 +34,7 @@ class JourneyRepository extends BasePdoRepository {
 				, $model->isActive ? 1 : 0
 				, $model->numEnrollments
 				, $model->numStations
+				, $model->created
 		);
 		$stmt = $this->execute($stmt, $parameters);
 		$model->journeyId = $this->pdo->lastInsertId();
