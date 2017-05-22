@@ -160,7 +160,10 @@ class JourneyService extends BaseService {
 			$apiResult->message->AddPropertyMessage('title', 'Give it a name');
 			$apiResult->message->type = MessageTypes::Error;
 		}
-		
+		if (!isset($input->description) || (is_null($input->description)) || ($input->description == "")) {
+			$apiResult->message->AddPropertyMessage('description', 'Enter a description');
+			$apiResult->message->type = MessageTypes::Error;
+		}
 		if (!isset($input->tags)) {
 			$apiResult->message->AddPropertyMessage('tags', 'Provide at least one tag');
 			$apiResult->message->type = MessageTypes::Error;
@@ -174,6 +177,7 @@ class JourneyService extends BaseService {
 		$journey = new Journey();
 		$journey->title = $input->title;
 		$journey->tags = $input->tags;
+		$journey->description = $input->description;
 		$journey->isActive = false;
 		$journey->numEnrollments = 0;
 		$journey->numStations = 0;

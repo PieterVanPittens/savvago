@@ -118,6 +118,17 @@ class LessonService extends BaseService {
 			$apiResult->message->AddPropertyMessage('tags', 'Provide at least one tag');
 			$apiResult->message->type = MessageTypes::Error;
 		}
+		if (!isset($input->link) && !isset($input->type)) {
+			$apiResult->message->AddPropertyMessage('type', 'Provide a type or a link');
+			$apiResult->message->type = MessageTypes::Error;
+		}
+		if (isset($input->type)) {
+			$contentType = $this->contentManager->getContentTypeByName($input->type);
+			if (is_null($contentType)) {
+				$apiResult->message->AddPropertyMessage('type', 'Provide a valid ContentType');
+				$apiResult->message->type = MessageTypes::Error;				
+			}
+		}
 		if ($apiResult->message->type == MessageTypes::Error) {
 			return $apiResult;
 		}
@@ -126,6 +137,7 @@ class LessonService extends BaseService {
 		// validate and sanitize
 		$lesson = new Lesson();
 		$lesson->title = $input->title;
+		$lesson->name = url_slug($lesson->title);
 		$lesson->tags = $input->tags;
 		$lesson->isActive = false;
 		$lesson->created = time();
@@ -139,18 +151,34 @@ class LessonService extends BaseService {
 		
 		
 		// content
-		$pluginNames = PluginFactory::getContentPluginNames();
-		foreach($pluginNames as $name) {
-			$plugin = PluginFactory::createContentPlugin($name);
-			if ($plugin->isValidUrl($input->link)) {
+		
+		if (isset($input->link)) {
+			
+			// determine contenttype from link to content
+			
+			$pluginNames = PluginFactory::getContentPluginNames();
+			foreach($pluginNames as $name) {
+				$plugin = PluginFactory::createContentPlugin($name);
+				if ($plugin->isValidUrl($input->link)) {
+					$co = new ContentObject();
+					$contentType = $this->contentManager->getContentTypeByName($plugin->getContentTypeName());
+					$co->typeId = $contentType->typeId;
+					$co->name = $plugin->getNameFromUrl($input->link);
+					$this->contentManager->createContentObject($co);
+					$lesson->contentObjectId = $co->objectId;
+				}
+			}			
+		} else {
+			if (isset($input->type)) {
 				$co = new ContentObject();
-				$contentType = $this->contentManager->getContentTypeByName($plugin->getContentTypeName());
 				$co->typeId = $contentType->typeId;
-				$co->name = $plugin->getNameFromUrl($input->link);
+				$co->name = $lesson->name;
 				$this->contentManager->createContentObject($co);
 				$lesson->contentObjectId = $co->objectId;
+				
 			}
 		}
+		
 		
 		
 		
@@ -170,7 +198,10 @@ class LessonService extends BaseService {
 		$journeys = $this->tagMatchingManager->getMatchingJourneys($tags);
 		$this->manager->assignJourneysToLesson($lesson, $journeys);
 				
-		
+		// create entitystats
+		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numViews, 0);
+		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numComments, 0);
+		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numLikes, 0);
 		
 		// commit
 		$this->transactionManager->commit();
@@ -235,19 +266,24 @@ class LessonService extends BaseService {
 		if ($lesson == null) {
 			throw new NotFoundException("Lesson does not exist");
 		}
-		if ($input->isActive == 1) {
-			// activation only possible if lesson has content
-			if (is_null($lesson->contentObjectId)) {
-				$apiResult = ApiResultFactory::createError("Add Content to this lesson first", null);
-				return $apiResult;
+		if (isset($input->isActive)) {
+			if ($input->isActive == 1) {
+				// activation only possible if lesson has content
+				if (is_null($lesson->contentObjectId)) {
+					$apiResult = ApiResultFactory::createError("Add Content to this lesson first", null);
+					return $apiResult;
+				}
 			}
+			$lesson->isActive = $input->isActive == 1 ? true: false;			
 		}
 		
 		// update title/name, isactive
-		$lesson->isActive = $input->isActive == 1 ? true: false;
-	
-		$lesson->title = $input->title;
-		$lesson->tags = $input->tags;
+		if (isset($input->title)) {
+			$lesson->title = $input->title;			
+		}
+		if (isset($input->tags)) {
+			$lesson->tags = $input->tags;
+		}		
 		
 		// update tags
 		$this->manager->updateLesson($lesson);
