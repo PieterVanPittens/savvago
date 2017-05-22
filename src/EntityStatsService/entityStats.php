@@ -16,4 +16,10 @@ abstract class EntityStats {
 	const numStationChecks = 3;
 	
 	const numComments = 4;
+
+	/**
+	 * number of stations that a journey has
+	 * @var integer
+	 */
+	const numStations = 5;
 }

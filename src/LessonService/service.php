@@ -197,7 +197,12 @@ class LessonService extends BaseService {
 		// assign journeys based on matched tags
 		$journeys = $this->tagMatchingManager->getMatchingJourneys($tags);
 		$this->manager->assignJourneysToLesson($lesson, $journeys);
-				
+
+		// increase station counters for journeys
+		foreach($journeys as $journey) {
+			$this->entityStatsManager->increaseEntityStat(EntityTypes::Journey, $journey->journeyId, EntityStats::numStations, 1);
+		}		
+		
 		// create entitystats
 		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numViews, 0);
 		$this->entityStatsManager->increaseEntityStat(EntityTypes::Lesson, $lesson->lessonId, EntityStats::numComments, 0);

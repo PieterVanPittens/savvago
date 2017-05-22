@@ -114,5 +114,6 @@ class LessonManager extends BaseManager {
 		foreach($journeyIds as $journeyId) {
 			$this->repository->createLessonJourney($lesson->lessonId, $journeyId);
 		}
+		
 	}
 }
