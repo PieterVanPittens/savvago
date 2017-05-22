@@ -67,7 +67,23 @@ app.controller('FurtherLessonsCtrl', function($scope, $http){
 	
 	$http.get('<?= $journey->urls['lessons'] ?>').then(function(response) {
 	      $scope.lessons = response.data;
-	    });
+
+		// group lessons into rows of n for easier rendering in template
+		var itemsPerRow = 6;
+		var groupedLessons = new Array();
+		var row = new Array();
+		groupedLessons.push(row);
+		angular.forEach($scope.lessons, function(value, key) {
+			if (key % itemsPerRow == 0 && key > 0) {
+				row = new Array();
+				groupedLessons.push(row);
+				row.push(value);
+			} else {
+				row.push(value);
+			}
+		});
+	     $scope.groupedLessons = groupedLessons;
+	});
 });
 
 /**
@@ -141,15 +157,23 @@ app.controller('CommentsCtrl', function($scope, $http){
 
 <div ng-controller="FurtherLessonsCtrl">
 
-<h2>Stations</h2>
+<h2>Stations &dash; {{lessons.length}}</h2>
 
-<div class="stationTile" ng-repeat="lesson in lessons">
+<div class="row" ng-repeat="row in groupedLessons">
+
+<div class="col-md-2" ng-repeat="lesson in row">
+<div class="stationTile">
 
 	<p><a href="{{lesson.urls.view}}"><img ng-src="{{lesson.urls.thumbnail}}" class="stationTile"/></a></p>
 	<h3 class="stationTile"><a href="{{lesson.urls.view}}">{{lesson.title}}</a></h3>
 	<p class="stationTile">{{lesson.user.displayName}}<br/>{{lesson.numViews}} Views &dash; {{lesson.created | dateFormat}}</p>
 
 </div>
+</div>
+</div>
+
+
+
 </div>
 
 
